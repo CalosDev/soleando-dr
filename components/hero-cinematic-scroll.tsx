@@ -21,21 +21,37 @@ const linea = (texto: string, x: number, y: number, tamano: number) => ({
     textAnchor: 'middle' as const,
     dominantBaseline: 'central' as const,
     fontSize: tamano,
-    letterSpacing: Math.round(tamano * -0.024),
+    letterSpacing: 0,
   },
 })
 
-const SOLEANDO_ANCHA = [linea('SOLEANDO', 500, 150, 200)]
-const SOLEANDO_ALTA_TAMANO = 220
-const SOLEANDO_ALTA_PASO = Math.round(SOLEANDO_ALTA_TAMANO * 1.08)
+const SOLEANDO_ANCHA = [linea('Soleando', 500, 150, 185)]
+const SOLEANDO_ALTA_TAMANO = 160
+const SOLEANDO_ALTA_PASO = Math.round(SOLEANDO_ALTA_TAMANO * 0.9)
 const SOLEANDO_ALTA = [
-  linea('SOLE', 500, 150 - Math.round(SOLEANDO_ALTA_PASO / 2), SOLEANDO_ALTA_TAMANO),
-  linea('ANDO', 500, 150 + Math.round(SOLEANDO_ALTA_PASO / 2), SOLEANDO_ALTA_TAMANO),
+  linea('Sole', 500, 150 - Math.round(SOLEANDO_ALTA_PASO / 2), SOLEANDO_ALTA_TAMANO),
+  linea('ando', 500, 150 + Math.round(SOLEANDO_ALTA_PASO / 2), SOLEANDO_ALTA_TAMANO),
 ]
 
-const PHRASES = [
-  ['El Caribe', 'te llama', 'por tu nombre.'],
-  ['Sal de la rutina.', 'Entra al paraíso.'],
+interface PhraseSegment {
+  text: string
+  className?: string
+}
+
+type PhraseLine = PhraseSegment[]
+
+const PHRASE_1: PhraseLine[] = [
+  [{ text: 'El Caribe', className: 'text-[#fffffe] drop-shadow-[0_4px_28px_rgba(0,0,0,0.85)]' }],
+  [{ text: 'te llama', className: 'text-[#FFE600] drop-shadow-[0_0_32px_rgba(255,230,0,0.55)]' }],
+  [{ text: 'por tu nombre.', className: 'text-[#fffffe] drop-shadow-[0_4px_28px_rgba(0,0,0,0.85)]' }],
+]
+
+const PHRASE_2: PhraseLine[] = [
+  [{ text: 'Sal de la rutina.', className: 'text-[#fffffe]/95 drop-shadow-[0_4px_28px_rgba(0,0,0,0.85)]' }],
+  [
+    { text: 'Entra al ', className: 'text-[#fffffe] drop-shadow-[0_4px_28px_rgba(0,0,0,0.85)]' },
+    { text: 'paraíso.', className: 'text-[#FF6B00] drop-shadow-[0_0_35px_rgba(255,107,0,0.6)]' },
+  ],
 ]
 
 export function HeroCinematicScroll() {
@@ -212,12 +228,17 @@ export function HeroCinematicScroll() {
           aria-hidden="true"
         >
           <defs>
+            <linearGradient id="hero-soleando-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor="#FFE600" />
+              <stop offset="50%" stopColor="#FF6B00" />
+              <stop offset="100%" stopColor="#E52300" />
+            </linearGradient>
             <filter id="hero-soleando-soft" x="-50%" y="-50%" width="200%" height="200%">
               <feGaussianBlur ref={dateBlurRef} stdDeviation="0" />
             </filter>
             <mask id="hero-soleando-hole" maskUnits="userSpaceOnUse" x="-5000" y="-5000" width="12000" height="12000">
               <rect x="-5000" y="-5000" width="12000" height="12000" fill="#ffffff" />
-              <g ref={dateHoleRef} fill="#000000" fillOpacity="1" filter="url(#hero-soleando-soft)" style={{ fontFamily: 'var(--font-anton), Anton, Impact, sans-serif' }}>
+              <g ref={dateHoleRef} fill="#000000" fillOpacity="1" filter="url(#hero-soleando-soft)" style={{ fontFamily: 'var(--font-billion), "Billion Dreams", "Brush Script MT", cursive, sans-serif' }}>
                 <g className="soleando-layout--ancha">
                   {SOLEANDO_ANCHA.map((l, i) => <text key={i} {...l.attrs}>{l.texto}</text>)}
                 </g>
@@ -232,10 +253,10 @@ export function HeroCinematicScroll() {
 
           <g
             ref={dateFillRef}
-            fill="#fffffe"
+            fill="url(#hero-soleando-gradient)"
             opacity="0"
             style={{
-              fontFamily: 'var(--font-anton), Anton, Impact, sans-serif',
+              fontFamily: 'var(--font-billion), "Billion Dreams", "Brush Script MT", cursive, sans-serif',
               filter: 'drop-shadow(0px 8px 30px rgba(0, 0, 0, 0.7))',
             }}
           >
@@ -250,11 +271,15 @@ export function HeroCinematicScroll() {
 
         {/* Frase 1 */}
         <div ref={phrase1Ref} className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center pointer-events-none z-10">
-          <p className="text-[clamp(2.4rem,7.8vw,5.6rem)] font-normal uppercase leading-[0.96] text-[#fffffe] tracking-wide drop-shadow-[0_4px_28px_rgba(0,0,0,0.8)]" style={{ fontFamily: 'var(--font-anton), Anton, Impact, sans-serif' }}>
-            {PHRASES[0].map((line, lIdx) => (
+          <p className="text-[clamp(2.4rem,7.8vw,5.6rem)] font-normal uppercase leading-[0.96] tracking-wide" style={{ fontFamily: 'var(--font-anton), Anton, Impact, sans-serif' }}>
+            {PHRASE_1.map((line, lIdx) => (
               <span key={lIdx} className="block whitespace-nowrap">
-                {Array.from(line).map((char, cIdx) => (
-                  <span key={cIdx} data-char className="inline-block will-change-transform will-change-[filter,opacity]">{char === ' ' ? '\u00A0' : char}</span>
+                {line.map((seg, sIdx) => (
+                  <span key={sIdx} className={seg.className}>
+                    {Array.from(seg.text).map((char, cIdx) => (
+                      <span key={cIdx} data-char className="inline-block will-change-transform will-change-[filter,opacity]">{char === ' ' ? '\u00A0' : char}</span>
+                    ))}
+                  </span>
                 ))}
               </span>
             ))}
@@ -263,11 +288,15 @@ export function HeroCinematicScroll() {
 
         {/* Frase 2 y CTA */}
         <div ref={phrase2Ref} className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center pointer-events-none z-10">
-          <p className="text-[clamp(2.4rem,7.8vw,5.6rem)] font-normal uppercase leading-[0.96] text-[#fffffe] tracking-wide drop-shadow-[0_4px_28px_rgba(0,0,0,0.8)]" style={{ fontFamily: 'var(--font-anton), Anton, Impact, sans-serif' }}>
-            {PHRASES[1].map((line, lIdx) => (
+          <p className="text-[clamp(2.4rem,7.8vw,5.6rem)] font-normal uppercase leading-[0.96] tracking-wide" style={{ fontFamily: 'var(--font-anton), Anton, Impact, sans-serif' }}>
+            {PHRASE_2.map((line, lIdx) => (
               <span key={lIdx} className="block whitespace-nowrap">
-                {Array.from(line).map((char, cIdx) => (
-                  <span key={cIdx} data-char className="inline-block will-change-transform will-change-[filter,opacity]">{char === ' ' ? '\u00A0' : char}</span>
+                {line.map((seg, sIdx) => (
+                  <span key={sIdx} className={seg.className}>
+                    {Array.from(seg.text).map((char, cIdx) => (
+                      <span key={cIdx} data-char className="inline-block will-change-transform will-change-[filter,opacity]">{char === ' ' ? '\u00A0' : char}</span>
+                    ))}
+                  </span>
                 ))}
               </span>
             ))}

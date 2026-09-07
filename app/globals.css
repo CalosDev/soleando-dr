@@ -2,7 +2,27 @@
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
 
-@theme inline { --color-background: var(--background); --color-foreground: var(--foreground); --font-sans: var(--font-body); --font-serif: var(--font-display); }
+@font-face {
+  font-family: 'Billion Dreams';
+  src: local('Billion Dreams'),
+       local('BillionDreams'),
+       local('Billion-Dreams'),
+       url('/fonts/BillionDreams.woff2') format('woff2'),
+       url('/fonts/BillionDreams.woff') format('woff'),
+       url('/fonts/BillionDreams.ttf') format('truetype'),
+       url('/fonts/billion-dreams.ttf') format('truetype');
+  font-display: swap;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-body);
+  --font-serif: var(--font-display);
+  --color-soleando-yellow: #FFE600;
+  --color-soleando-orange: #FF6B00;
+  --color-soleando-red: #E52300;
+}
 
 :root {
   --background: #fdfbf7;
@@ -17,9 +37,28 @@
   --sunset: #f64d0b;
   --coral: #f64d0b;
   --scarlet: #ff2e00;
+  --soleando-yellow: #FFE600;
+  --soleando-orange: #FF6B00;
+  --soleando-red: #E52300;
+  --soleando-gradient: linear-gradient(180deg, #FFE600 0%, #FF6B00 52%, #E52300 100%);
   --line: #ede8e1;
   --font-body: 'DM Sans', sans-serif;
   --font-display: 'DM Serif Display', serif;
+  --font-billion: 'Billion Dreams', 'Brush Script MT', 'Dancing Script', 'Pacifico', cursive;
+}
+
+/* Soleando Brand Gradient Utilities */
+.text-soleando-gradient,
+.soleando-gradient-text {
+  background: linear-gradient(180deg, #FFE600 0%, #FF6B00 52%, #E52300 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+}
+
+.bg-soleando-gradient {
+  background: linear-gradient(180deg, #FFE600 0%, #FF6B00 52%, #E52300 100%);
 }
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; background: var(--background); }

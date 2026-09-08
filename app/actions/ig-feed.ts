@@ -2,11 +2,22 @@
 
 import { revalidatePath } from 'next/cache'
 import { readIgPosts, writeIgPosts, type ManagedIgPost } from '@/lib/ig-feed-store'
+import { requireAdmin } from '@/lib/admin-auth'
+import { downloadInstagramImage } from '@/lib/server-image-files'
+import { parseInstagramPostUrl } from '@/lib/instagram-url'
+import { z } from 'zod'
 
-function extractPostId(url: string): string | null {
-  const match = url.match(/instagram\.com\/(?:p|reel|reels|tv)\/([A-Za-z0-9_\-]+)/)
-  return match ? match[1] : null
-}
+const managedIgPostSchema = z.object({
+  id: z.string().regex(/^[A-Za-z0-9_-]{1,64}$/),
+  media_type: z.enum(['IMAGE', 'VIDEO', 'CAROUSEL_ALBUM']),
+  media_url: z.string().max(2048).refine((value) => value.startsWith('/ig/') || value.startsWith('https://')),
+  thumbnail_url: z.string().max(2048).refine((value) => value.startsWith('/ig/') || value.startsWith('https://')).optional(),
+  permalink: z.string().max(2048).refine((value) => parseInstagramPostUrl(value) !== null),
+  timestamp: z.iso.datetime(),
+  caption: z.string().max(500).optional(),
+  likesCount: z.number().int().nonnegative().max(10_000_000).optional(),
+  location: z.string().trim().max(120).optional(),
+}).strict()
 
 function guessLocationFromText(text: string): string {
   const lower = text.toLowerCase()
@@ -77,7 +88,8 @@ function cleanAndShortenCaption(raw: string): string {
 }
 
 export async function getIgPostsServerAction(): Promise<ManagedIgPost[]> {
-  return readIgPosts()
+  await requireAdmin()
+  return await readIgPosts()
 }
 
 /**
@@ -89,19 +101,18 @@ export async function fetchIgPostPreview(url: string): Promise<{
   error?: string
   data?: ManagedIgPost
 }> {
+  await requireAdmin()
+
   try {
     const cleanUrl = url.trim()
-    if (!cleanUrl.includes('instagram.com/')) {
+    const parsedUrl = parseInstagramPostUrl(cleanUrl)
+    if (!parsedUrl) {
       return { ok: false, error: 'Introduce un enlace válido de Instagram (ej: https://www.instagram.com/reel/... o /p/...)' }
     }
 
-    const postId = extractPostId(cleanUrl)
-    if (!postId) {
-      return { ok: false, error: 'No se pudo identificar el código de la publicación en la URL.' }
-    }
-
-    const isVideo = cleanUrl.includes('/reel/') || cleanUrl.includes('/reels/')
-    const canonicalUrl = `https://www.instagram.com/p/${postId}/`
+    const postId = parsedUrl.id
+    const isVideo = parsedUrl.isVideo
+    const canonicalUrl = parsedUrl.canonicalUrl
 
     let imageUrl = '/soleando-hero.png'
     let fetchedCaption = ''
@@ -122,19 +133,7 @@ export async function fetchIgPostPreview(url: string): Promise<{
 
         if (oembed.thumbnail_url) {
           // Download locally to /public/ig/
-          const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
-          const downloadRes = await fetch(`${baseUrl}/api/ig-image`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ url: oembed.thumbnail_url, postId }),
-          })
-
-          if (downloadRes.ok) {
-            const { localPath } = (await downloadRes.json()) as { localPath: string }
-            imageUrl = localPath
-          } else {
-            imageUrl = oembed.thumbnail_url
-          }
+          imageUrl = await downloadInstagramImage(oembed.thumbnail_url, postId)
         }
       }
     } catch (e) {
@@ -150,7 +149,7 @@ export async function fetchIgPostPreview(url: string): Promise<{
       media_type: isVideo ? 'VIDEO' : 'IMAGE',
       media_url: imageUrl,
       thumbnail_url: imageUrl,
-      permalink: cleanUrl,
+      permalink: parsedUrl.permalink,
       timestamp: new Date().toISOString(),
       caption: cleanCaption || 'Publicación en Instagram @soleandodr',
       likesCount: randomLikes,
@@ -168,16 +167,19 @@ export async function fetchIgPostPreview(url: string): Promise<{
  * Saves or updates a managed Instagram post to the front of the carousel.
  */
 export async function saveIgPostAction(post: ManagedIgPost): Promise<{ ok: boolean; error?: string }> {
+  await requireAdmin()
+
   try {
+    const validatedPost = managedIgPostSchema.parse(post)
     const cleanedPost: ManagedIgPost = {
-      ...post,
-      caption: cleanAndShortenCaption(post.caption || ''),
+      ...validatedPost,
+      caption: cleanAndShortenCaption(validatedPost.caption || ''),
     }
 
-    const currentPosts = readIgPosts()
+    const currentPosts = await readIgPosts()
     // Prepend new post, remove any existing duplicate by ID
-    const updated = [cleanedPost, ...currentPosts.filter((p) => p.id !== post.id)]
-    writeIgPosts(updated)
+    const updated = [cleanedPost, ...currentPosts.filter((p) => p.id !== validatedPost.id)]
+    await writeIgPosts(updated)
 
     revalidatePath('/')
     revalidatePath('/admin')
@@ -195,8 +197,10 @@ export async function saveIgPostAction(post: ManagedIgPost): Promise<{ ok: boole
  * Moves an IG post up or down in the ordering.
  */
 export async function moveIgPostAction(id: string, direction: 'up' | 'down'): Promise<{ ok: boolean }> {
-  const posts = readIgPosts()
-  const index = posts.findIndex((p) => p.id === id)
+  await requireAdmin()
+  const safeId = z.string().regex(/^[A-Za-z0-9_-]{1,64}$/).parse(id)
+  const posts = await readIgPosts()
+  const index = posts.findIndex((p) => p.id === safeId)
   if (index === -1) return { ok: false }
 
   const newIndex = direction === 'up' ? index - 1 : index + 1
@@ -206,7 +210,7 @@ export async function moveIgPostAction(id: string, direction: 'up' | 'down'): Pr
   const [removed] = updated.splice(index, 1)
   updated.splice(newIndex, 0, removed)
 
-  writeIgPosts(updated)
+  await writeIgPosts(updated)
   revalidatePath('/')
   revalidatePath('/admin')
   revalidatePath('/admin/instagram')
@@ -216,9 +220,11 @@ export async function moveIgPostAction(id: string, direction: 'up' | 'down'): Pr
 }
 
 export async function deleteIgPostAction(id: string): Promise<{ ok: boolean }> {
-  const currentPosts = readIgPosts()
-  const updated = currentPosts.filter((p) => p.id !== id)
-  writeIgPosts(updated)
+  await requireAdmin()
+  const safeId = z.string().regex(/^[A-Za-z0-9_-]{1,64}$/).parse(id)
+  const currentPosts = await readIgPosts()
+  const updated = currentPosts.filter((p) => p.id !== safeId)
+  await writeIgPosts(updated)
 
   revalidatePath('/')
   revalidatePath('/admin')

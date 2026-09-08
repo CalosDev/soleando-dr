@@ -45,7 +45,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="es" className="bg-background" suppressHydrationWarning>
+    <html lang="es" className="bg-background" data-scroll-behavior="smooth" suppressHydrationWarning>
       <body className={`${dmSans.variable} ${dmSerif.variable} ${anton.variable} antialiased`} suppressHydrationWarning>
         {children}
         <PwaProvider />

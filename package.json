@@ -1,11 +1,13 @@
 {
-  "name": "my-project",
+  "name": "soleando-dr",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "typecheck": "tsc --noEmit --incremental false",
+    "auth:create-admin": "node --env-file=.env.local scripts/create-admin.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",

@@ -1,22 +1,12 @@
 import Link from 'next/link'
-import { auth } from '@/lib/auth'
-import { headers, cookies } from 'next/headers'
+import { getAdminUser } from '@/lib/admin-auth'
 import { redirect } from 'next/navigation'
 import { OfferForm } from '@/components/offer-form'
 
 export const dynamic = 'force-dynamic'
 
 export default async function NewOfferPage() {
-  const cookieStore = await cookies()
-  const isDemo = cookieStore.get('soleando_demo_session')?.value === 'true'
-
-  let user = isDemo ? { name: 'Demo Admin' } : null
-  if (!user) {
-    try {
-      const session = await auth.api.getSession({ headers: await headers() })
-      if (session?.user) user = session.user
-    } catch {}
-  }
+  const user = await getAdminUser()
   if (!user) redirect('/admin/login')
 
   return (

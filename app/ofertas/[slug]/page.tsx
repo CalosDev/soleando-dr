@@ -25,6 +25,7 @@ export const dynamic = 'force-dynamic'
 
 async function getOfferBySlug(slug: string): Promise<Offer | null> {
   try {
+    if (!db) throw new Error('Database is not configured')
     const result = await db
       .select()
       .from(offers)
@@ -125,16 +126,15 @@ export default async function OfferDetailPage({
         }}
       >
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-18 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 group" aria-label="Soleando, volver al inicio">
-            <span
-              className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm transition-colors"
-              style={{ backgroundColor: '#1c1917', color: '#ffffff' }}
-            >
-              S
-            </span>
-            <span className="text-xl font-bold tracking-tight font-sans text-[#1c1917]">
-              soleando
-            </span>
+          <Link href="/" className="flex items-center" aria-label="Soleando, volver al inicio">
+            <Image
+              src="/455673599_799977638919739_4642999437038293761_n-removebg-preview.png"
+              alt="Soleando"
+              width={512}
+              height={512}
+              className="h-auto w-[58px] object-contain sm:w-[72px]"
+              preload
+            />
           </Link>
 
           <div className="flex items-center gap-2 sm:gap-4">

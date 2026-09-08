@@ -101,8 +101,6 @@ export default async function Page() {
             <Link
               className="view-all-offers-btn"
               href="/ofertas"
-              target="_blank"
-              rel="noopener noreferrer"
             >
               <span>Ver todas las ofertas</span>
               <span className="btn-arrow-circle">

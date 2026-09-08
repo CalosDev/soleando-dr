@@ -1,5 +1,9 @@
 'use server'
 
+import { requireAdmin } from '@/lib/admin-auth'
+import { downloadInstagramImage } from '@/lib/server-image-files'
+import { parseInstagramPostUrl } from '@/lib/instagram-url'
+
 function decodeHtml(html: string): string {
   return html
     .replace(/&amp;/g, '&')
@@ -10,12 +14,6 @@ function decodeHtml(html: string): string {
     .replace(/&gt;/g, '>')
     .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(Number(code)))
     .replace(/&#x([0-9a-f]+);/gi, (_, code) => String.fromCharCode(parseInt(code, 16)))
-}
-
-/** Extracts the post shortcode from any Instagram URL format */
-function extractPostId(url: string): string | null {
-  const match = url.match(/instagram\.com\/(?:p|reel|reels|tv)\/([A-Za-z0-9_\-]+)/)
-  return match ? match[1] : null
 }
 
 /** Parse caption text to extract price, dates, title, description */
@@ -63,9 +61,12 @@ function parseCaption(rawCaption: string) {
 }
 
 export async function parseInstagramPost(url: string, manualCaption?: string) {
+  await requireAdmin()
+
   try {
     const cleanUrl = url.trim()
-    if (!cleanUrl.includes('instagram.com/')) {
+    const parsedUrl = parseInstagramPostUrl(cleanUrl)
+    if (!parsedUrl) {
       return { ok: false, error: 'Por favor introduce una URL válida de Instagram (ej: https://www.instagram.com/p/...)' }
     }
 
@@ -93,10 +94,8 @@ export async function parseInstagramPost(url: string, manualCaption?: string) {
     }
 
     // Extract the post shortcode/ID
-    const postId = extractPostId(cleanUrl)
-    const canonicalUrl = postId
-      ? `https://www.instagram.com/p/${postId}/`
-      : cleanUrl
+    const postId = parsedUrl.id
+    const canonicalUrl = parsedUrl.canonicalUrl
 
     // Use Instagram's internal oEmbed API (no token needed for public posts)
     const oembedUrl = `https://www.instagram.com/api/v1/oembed/?url=${encodeURIComponent(canonicalUrl)}&fields=author_name,thumbnail_url,thumbnail_width,thumbnail_height,title`
@@ -121,22 +120,10 @@ export async function parseInstagramPost(url: string, manualCaption?: string) {
         fetchedCaption = decodeHtml(oembed.title).trim()
       }
 
-      if (oembed.thumbnail_url && postId) {
+      if (oembed.thumbnail_url) {
         // Download the CDN image locally (CDN URLs expire in hours)
         try {
-          const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
-          const downloadRes = await fetch(`${baseUrl}/api/ig-image`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ url: oembed.thumbnail_url, postId }),
-          })
-          if (downloadRes.ok) {
-            const { localPath } = await downloadRes.json() as { localPath: string }
-            imageUrl = localPath
-          } else {
-            // Fallback: use CDN URL directly (may expire)
-            imageUrl = oembed.thumbnail_url
-          }
+          imageUrl = await downloadInstagramImage(oembed.thumbnail_url, postId)
         } catch {
           imageUrl = oembed.thumbnail_url
         }

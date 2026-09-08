@@ -1,5 +1,12 @@
 # soleando-dr
 
+## Configuración local
+
+1. Copia `.env.example` como `.env.local` y completa `DATABASE_URL`, `BETTER_AUTH_SECRET` y `BETTER_AUTH_URL`.
+2. Aplica `supabase/migrations/20260908045842_initial_schema.sql` al proyecto de Supabase.
+3. Crea el primer administrador una sola vez con `pnpm auth:create-admin`. El comando toma las credenciales de las variables `SOLEANDO_ADMIN_*` y se niega a continuar si ya existe un administrador.
+4. Elimina las variables `SOLEANDO_ADMIN_*` del entorno después del bootstrap y ejecuta `pnpm dev`.
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [v0](https://v0.app).
 
 ## Built with v0

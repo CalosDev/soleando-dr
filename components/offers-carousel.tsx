@@ -163,7 +163,7 @@ export function OffersCarousel({ offers }: OffersCarouselProps) {
                   src={offer.imageUrl}
                   alt={offer.title}
                   fill
-                  quality={90}
+                  quality={95}
                   sizes="(max-width: 768px) 85vw, (max-width: 1200px) 45vw, 380px"
                   className="carousel-img"
                 />
@@ -236,8 +236,6 @@ export function OffersCarousel({ offers }: OffersCarouselProps) {
                       <Link
                         href={`/ofertas/${offer.slug}`}
                         className="carousel-btn-secondary"
-                        target="_blank"
-                        rel="noopener noreferrer"
                       >
                         <span>Detalle</span>
                         <ArrowUpRightIcon className="w-3 h-3" />

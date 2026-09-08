@@ -17,7 +17,7 @@ export type IgPost = {
 
 export async function GET() {
   const token = process.env.INSTAGRAM_ACCESS_TOKEN
-  const managedPosts = readIgPosts()
+  const managedPosts = await readIgPosts()
 
   if (!token) {
     return NextResponse.json({

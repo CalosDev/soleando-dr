@@ -1,8 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { writeFile, mkdir } from 'fs/promises'
-import path from 'path'
+import { adminAuthorizationResponse, requireAdmin } from '@/lib/admin-auth'
+import { ImageValidationError, saveUploadedImage } from '@/lib/server-image-files'
 
 export async function POST(req: NextRequest) {
+  try {
+    await requireAdmin(req.headers)
+  } catch (error) {
+    return adminAuthorizationResponse(error)
+  }
+
   try {
     const formData = await req.formData()
     const file = formData.get('file') as File | null
@@ -11,21 +17,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'No se envió ningún archivo' }, { status: 400 })
     }
 
-    const bytes = await file.arrayBuffer()
-    const buffer = Buffer.from(bytes)
-
-    const uploadsDir = path.join(process.cwd(), 'public', 'uploads')
-    await mkdir(uploadsDir, { recursive: true })
-
-    const ext = path.extname(file.name) || '.jpg'
-    const cleanBase = path.basename(file.name, ext).replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 30)
-    const fileName = `${cleanBase}_${Date.now()}${ext}`
-    const filePath = path.join(uploadsDir, fileName)
-
-    await writeFile(filePath, buffer)
-
-    return NextResponse.json({ url: `/uploads/${fileName}` })
+    const url = await saveUploadedImage(file)
+    return NextResponse.json({ url })
   } catch (err: unknown) {
+    if (err instanceof ImageValidationError) {
+      return NextResponse.json({ error: err.message }, { status: err.status })
+    }
     console.error('Error al subir imagen:', err)
     return NextResponse.json({ error: 'Error al procesar la imagen' }, { status: 500 })
   }

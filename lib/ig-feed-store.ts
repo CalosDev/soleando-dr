@@ -1,6 +1,9 @@
 import fs from 'fs'
 import path from 'path'
 import type { IgPost } from '@/app/api/instagram-reels/route'
+import { db, requireDatabase } from '@/lib/db'
+import { instagramPosts } from '@/lib/db/schema'
+import { asc } from 'drizzle-orm'
 
 export type ManagedIgPost = IgPost & {
   likesCount?: number
@@ -79,7 +82,7 @@ export const DEFAULT_IG_POSTS: ManagedIgPost[] = [
   },
 ]
 
-export function readIgPosts(): ManagedIgPost[] {
+function readFallbackPosts(): ManagedIgPost[] {
   try {
     if (!fs.existsSync(FILE_PATH)) {
       return DEFAULT_IG_POSTS
@@ -92,13 +95,48 @@ export function readIgPosts(): ManagedIgPost[] {
   }
 }
 
-export function writeIgPosts(posts: ManagedIgPost[]): void {
+export async function readIgPosts(): Promise<ManagedIgPost[]> {
+  if (!db) return readFallbackPosts()
+
   try {
-    if (!fs.existsSync(DATA_DIR)) {
-      fs.mkdirSync(DATA_DIR, { recursive: true })
-    }
-    fs.writeFileSync(FILE_PATH, JSON.stringify(posts, null, 2), 'utf-8')
+    const rows = await db.select().from(instagramPosts).orderBy(asc(instagramPosts.sortOrder))
+    if (rows.length === 0) return readFallbackPosts()
+
+    return rows.map((row) => ({
+      id: row.id,
+      media_type: row.mediaType as ManagedIgPost['media_type'],
+      media_url: row.mediaUrl,
+      thumbnail_url: row.thumbnailUrl ?? undefined,
+      permalink: row.permalink,
+      timestamp: row.publishedAt.toISOString(),
+      caption: row.caption ?? undefined,
+      likesCount: row.likesCount ?? undefined,
+      location: row.location ?? undefined,
+    }))
   } catch (err) {
-    console.error('Failed to write IG posts store:', err)
+    console.error('Failed to read IG posts from the database:', err)
+    return readFallbackPosts()
   }
+}
+
+export async function writeIgPosts(posts: ManagedIgPost[]): Promise<void> {
+  const database = requireDatabase()
+  await database.transaction(async (transaction) => {
+    await transaction.delete(instagramPosts)
+    if (posts.length === 0) return
+
+    await transaction.insert(instagramPosts).values(posts.map((post, sortOrder) => ({
+      id: post.id,
+      mediaType: post.media_type,
+      mediaUrl: post.media_url,
+      thumbnailUrl: post.thumbnail_url ?? null,
+      permalink: post.permalink,
+      publishedAt: new Date(post.timestamp),
+      caption: post.caption ?? null,
+      likesCount: post.likesCount ?? null,
+      location: post.location ?? null,
+      sortOrder,
+      updatedAt: new Date(),
+    })))
+  })
 }

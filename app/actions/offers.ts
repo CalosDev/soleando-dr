@@ -1,10 +1,9 @@
 'use server'
 
-import { auth } from '@/lib/auth'
-import { db } from '@/lib/db'
+import { requireAdmin } from '@/lib/admin-auth'
+import { db, requireDatabase } from '@/lib/db'
 import { offers, type Offer } from '@/lib/db/schema'
 import { desc, eq } from 'drizzle-orm'
-import { headers, cookies } from 'next/headers'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 
@@ -15,24 +14,6 @@ const offerSchema = z.object({
   instagramUrl: z.string().url().optional().or(z.literal('')), featured: z.boolean().default(false),
   status: z.enum(['draft', 'published', 'archived']).default('draft'),
 })
-
-let inMemoryDemoOffers: Offer[] = []
-
-async function requireAdmin() {
-  const cookieStore = await cookies()
-  if (cookieStore.get('soleando_demo_session')?.value === 'true') {
-    return { id: 'demo-admin-id', name: 'Administrador Demo', email: 'admin@soleando.com' }
-  }
-
-  try {
-    const session = await auth.api.getSession({ headers: await headers() })
-    if (session?.user) return session.user
-  } catch {
-    // DB error
-  }
-
-  throw new Error('Unauthorized')
-}
 
 function slugify(value: string) {
   return value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
@@ -49,29 +30,26 @@ function toValues(data: z.infer<typeof offerSchema>) {
 }
 
 export async function getPublishedOffers(): Promise<Offer[]> {
+  if (!db) return []
+
   try {
     const dbRes = await db.select().from(offers).where(eq(offers.status, 'published')).orderBy(desc(offers.featured), desc(offers.createdAt))
-    if (dbRes && dbRes.length > 0) return dbRes
-  } catch {}
-  return inMemoryDemoOffers.filter((o) => o.status === 'published')
+    return dbRes
+  } catch (error) {
+    console.error('[Offers] Could not load published offers:', error)
+    return []
+  }
 }
 
 export async function getAdminOffers(): Promise<Offer[]> {
   await requireAdmin()
-  try {
-    const dbRes = await db.select().from(offers).orderBy(desc(offers.updatedAt))
-    if (dbRes && dbRes.length > 0) return dbRes
-  } catch {}
-  return inMemoryDemoOffers
+  return requireDatabase().select().from(offers).orderBy(desc(offers.updatedAt))
 }
 
 export async function getAdminOffer(id: string): Promise<Offer | undefined> {
   await requireAdmin()
-  try {
-    const result = await db.select().from(offers).where(eq(offers.id, id))
-    if (result[0]) return result[0]
-  } catch {}
-  return inMemoryDemoOffers.find((o) => o.id === id)
+  const result = await requireDatabase().select().from(offers).where(eq(offers.id, id))
+  return result[0]
 }
 
 export async function createOffer(input: unknown) {
@@ -87,11 +65,7 @@ export async function createOffer(input: unknown) {
     createdAt: new Date(),
   }
 
-  try {
-    await db.insert(offers).values(newOffer)
-  } catch {
-    inMemoryDemoOffers = [newOffer, ...inMemoryDemoOffers]
-  }
+  await requireDatabase().insert(offers).values(newOffer)
 
   revalidatePath('/')
   revalidatePath('/ofertas')
@@ -104,11 +78,7 @@ export async function updateOffer(id: string, input: unknown) {
   const data = offerSchema.parse(input)
   const updatedValues = toValues(data)
 
-  try {
-    await db.update(offers).set(updatedValues).where(eq(offers.id, id))
-  } catch {
-    inMemoryDemoOffers = inMemoryDemoOffers.map((o) => (o.id === id ? { ...o, ...updatedValues } : o))
-  }
+  await requireDatabase().update(offers).set(updatedValues).where(eq(offers.id, id))
 
   revalidatePath('/')
   revalidatePath('/ofertas')
@@ -119,11 +89,7 @@ export async function updateOffer(id: string, input: unknown) {
 
 export async function archiveOffer(id: string) {
   await requireAdmin()
-  try {
-    await db.update(offers).set({ status: 'archived', updatedAt: new Date() }).where(eq(offers.id, id))
-  } catch {
-    inMemoryDemoOffers = inMemoryDemoOffers.map((o) => (o.id === id ? { ...o, status: 'archived', updatedAt: new Date() } : o))
-  }
+  await requireDatabase().update(offers).set({ status: 'archived', updatedAt: new Date() }).where(eq(offers.id, id))
 
   revalidatePath('/')
   revalidatePath('/ofertas')
@@ -133,11 +99,7 @@ export async function archiveOffer(id: string) {
 
 export async function deleteOffer(id: string) {
   await requireAdmin()
-  try {
-    await db.delete(offers).where(eq(offers.id, id))
-  } catch {
-    inMemoryDemoOffers = inMemoryDemoOffers.filter((o) => o.id !== id)
-  }
+  await requireDatabase().delete(offers).where(eq(offers.id, id))
 
   revalidatePath('/')
   revalidatePath('/ofertas')

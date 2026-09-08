@@ -1,6 +1,5 @@
-import { auth } from '@/lib/auth'
+import { getAdminUser } from '@/lib/admin-auth'
 import { getAdminOffers } from '@/app/actions/offers'
-import { headers, cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { AdminOfferActions } from '@/components/admin-offer-actions'
@@ -10,21 +9,7 @@ import type { Offer } from '@/lib/db/schema'
 export const dynamic = 'force-dynamic'
 
 export default async function AdminPage() {
-  const cookieStore = await cookies()
-  const isDemo = cookieStore.get('soleando_demo_session')?.value === 'true'
-
-  let user = isDemo ? { name: 'Administrador Demo', email: 'admin@soleando.com' } : null
-
-  if (!user) {
-    try {
-      const session = await auth.api.getSession({ headers: await headers() })
-      if (session?.user) {
-        user = session.user
-      }
-    } catch {
-      // ignore
-    }
-  }
+  const user = await getAdminUser()
 
   if (!user) redirect('/admin/login')
 
@@ -78,22 +63,6 @@ export default async function AdminPage() {
         <div className="admin-user">
           <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
             {user.name || user.email}
-            {isDemo && (
-              <span
-                style={{
-                  background: 'var(--coral)',
-                  color: 'white',
-                  fontSize: '9px',
-                  fontWeight: 700,
-                  padding: '3px 8px',
-                  borderRadius: '12px',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.06em',
-                }}
-              >
-                Modo Demo
-              </span>
-            )}
           </span>
           <a href="/">Ver sitio ↗</a>
           <SignOutButton />

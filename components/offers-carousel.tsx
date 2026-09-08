@@ -3,6 +3,8 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { Sparkles, Calendar, Check, ChevronLeft, ChevronRight, MapPin } from 'lucide-react'
+import { ArrowUpRightIcon } from '@/components/icons'
 
 export interface CarouselOffer {
   id: string
@@ -25,6 +27,17 @@ interface OffersCarouselProps {
   offers: CarouselOffer[]
 }
 
+function formatPriceValue(val?: string | null): string {
+  if (!val) return ''
+  const clean = val.replace(/[^0-9.]/g, '')
+  const num = parseFloat(clean)
+  if (isNaN(num)) return val
+  return num.toLocaleString('en-US', {
+    maximumFractionDigits: num % 1 === 0 ? 0 : 2,
+    minimumFractionDigits: num % 1 === 0 ? 0 : 2,
+  })
+}
+
 export function OffersCarousel({ offers }: OffersCarouselProps) {
   const scrollRef = useRef<HTMLDivElement>(null)
   const [canScrollLeft, setCanScrollLeft] = useState(false)
@@ -41,7 +54,7 @@ export function OffersCarousel({ offers }: OffersCarouselProps) {
     // Calculate approximate active card
     const card = el.firstElementChild as HTMLElement | null
     if (card) {
-      const cardWidth = card.offsetWidth + 24 // card width + gap
+      const cardWidth = card.offsetWidth + 22 // card width + gap
       const index = Math.round(el.scrollLeft / cardWidth)
       setActiveIndex(Math.min(Math.max(0, index), offers.length - 1))
     }
@@ -66,7 +79,7 @@ export function OffersCarousel({ offers }: OffersCarouselProps) {
     if (!el) return
 
     const card = el.firstElementChild as HTMLElement | null
-    const step = card ? card.offsetWidth + 24 : 360
+    const step = card ? card.offsetWidth + 22 : 380
 
     el.scrollBy({
       left: direction === 'left' ? -step : step,
@@ -79,7 +92,7 @@ export function OffersCarousel({ offers }: OffersCarouselProps) {
     if (!el) return
 
     const card = el.firstElementChild as HTMLElement | null
-    const step = card ? card.offsetWidth + 24 : 360
+    const step = card ? card.offsetWidth + 22 : 380
 
     el.scrollTo({
       left: step * index,
@@ -88,78 +101,117 @@ export function OffersCarousel({ offers }: OffersCarouselProps) {
   }
 
   if (!offers || offers.length === 0) {
-    return null
+    return (
+      <div className="text-center py-12 px-6 rounded-2xl bg-white/40 border border-black/5 max-w-lg mx-auto my-6 backdrop-blur-sm">
+        <p className="text-stone-700 text-sm font-medium">Estamos preparando nuevas experiencias exclusivas.</p>
+        <p className="text-stone-500 text-xs mt-1">Escríbenos por WhatsApp para cotizar tu viaje personalizado.</p>
+        <a
+          href="https://api.whatsapp.com/message/D3DXUHVK575TH1?autoload=1&app_absent=0"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 text-xs text-[#f64d0b] font-semibold mt-4 hover:underline"
+        >
+          Consultar por WhatsApp <ArrowUpRightIcon className="w-3.5 h-3.5 inline-block" />
+        </a>
+      </div>
+    )
   }
 
   return (
     <div className="offers-carousel-wrapper">
-      {/* Header controls */}
-      <div className="offers-carousel-header">
-        <div className="offers-carousel-nav-controls">
-          <button
-            type="button"
-            className="carousel-control-btn"
-            onClick={() => scroll('left')}
-            disabled={!canScrollLeft}
-            aria-label="Oferta anterior"
-          >
-            ←
-          </button>
-          <button
-            type="button"
-            className="carousel-control-btn"
-            onClick={() => scroll('right')}
-            disabled={!canScrollRight}
-            aria-label="Siguiente oferta"
-          >
-            →
-          </button>
+      {/* Header controls - only visible if more than 1 offer */}
+      {offers.length > 1 && (
+        <div className="offers-carousel-header">
+          <div className="offers-carousel-nav-controls">
+            <button
+              type="button"
+              className="carousel-control-btn"
+              onClick={() => scroll('left')}
+              disabled={!canScrollLeft}
+              aria-label="Oferta anterior"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            <button
+              type="button"
+              className="carousel-control-btn"
+              onClick={() => scroll('right')}
+              disabled={!canScrollRight}
+              aria-label="Siguiente oferta"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Carousel track */}
       <div className="offers-carousel-track" ref={scrollRef}>
         {offers.map((offer, idx) => {
           const defaultMessage = `Hola Soleando, me interesa la oferta de ${offer.title}`
           const waText = encodeURIComponent(offer.whatsappText || defaultMessage)
-          const waUrl = `https://wa.me/10000000000?text=${waText}`
+          const waUrl = `https://api.whatsapp.com/message/D3DXUHVK575TH1?autoload=1&app_absent=0&text=${waText}`
+
+          const formattedPrice = formatPriceValue(offer.price)
+          const formattedOldPrice = formatPriceValue(offer.oldPrice)
+          const currency = offer.currency || 'USD'
 
           return (
-            <article className="carousel-offer-card" key={offer.id || idx}>
+            <article className="carousel-offer-card group" key={offer.id || idx}>
               <div className="carousel-offer-image">
                 <Image
                   src={offer.imageUrl}
                   alt={offer.title}
                   fill
-                  sizes="(max-width: 768px) 85vw, (max-width: 1200px) 45vw, 360px"
+                  quality={90}
+                  sizes="(max-width: 768px) 85vw, (max-width: 1200px) 45vw, 380px"
                   className="carousel-img"
                 />
+                <div className="carousel-image-overlay" />
+
                 {offer.badge && (
-                  <span className="carousel-offer-badge">{offer.badge}</span>
+                  <span className="carousel-offer-badge">
+                    <Sparkles className="w-3 h-3 text-yellow-300" />
+                    {offer.badge}
+                  </span>
                 )}
                 {offer.dateLabel && (
-                  <span className="carousel-offer-tag">{offer.dateLabel}</span>
+                  <span className="carousel-offer-tag">
+                    <Calendar className="w-3 h-3 text-yellow-400" />
+                    {offer.dateLabel}
+                  </span>
                 )}
               </div>
 
               <div className="carousel-offer-body">
                 <div className="carousel-offer-top">
-                  <span className="carousel-offer-cat">
-                    {offer.category} · {offer.destination}
+                  <span className="carousel-offer-cat" title={`${offer.category} · ${offer.destination}`}>
+                    <MapPin className="w-3 h-3 inline-block shrink-0 text-[#f64d0b]" />
+                    <span className="truncate">{offer.category} · {offer.destination}</span>
                   </span>
-                  <h3 className="carousel-offer-title">{offer.title}</h3>
-                  <p className="carousel-offer-desc">{offer.description}</p>
+                  <h3 className="carousel-offer-title" title={offer.title}>
+                    {offer.title}
+                  </h3>
+                  <p className="carousel-offer-desc" title={offer.description}>
+                    {offer.description}
+                  </p>
                 </div>
 
-                {offer.includes && offer.includes.length > 0 && (
-                  <div className="carousel-offer-includes">
-                    {offer.includes.slice(0, 3).map((inc, i) => (
-                      <span key={i} className="carousel-include-item">
-                        ✓ {inc}
+                <div className="carousel-offer-includes">
+                  {offer.includes && offer.includes.length > 0 ? (
+                    offer.includes.slice(0, 3).map((inc, i) => (
+                      <span key={i} className="carousel-include-item" title={inc}>
+                        <Check className="w-3 h-3 text-[#f64d0b] shrink-0 stroke-[2.5]" />
+                        <span className="truncate max-w-[200px]">{inc}</span>
                       </span>
-                    ))}
-                  </div>
-                )}
+                    ))
+                  ) : (
+                    <span className="carousel-include-item opacity-60">
+                      <Check className="w-3 h-3 text-[#f64d0b] shrink-0" />
+                      <span>Experiencia guiada</span>
+                    </span>
+                  )}
+                </div>
 
                 <div className="carousel-offer-footer">
                   <div className="carousel-offer-pricing">
@@ -167,13 +219,10 @@ export function OffersCarousel({ offers }: OffersCarouselProps) {
                       <>
                         <span className="pricing-from">Desde</span>
                         <div className="pricing-values">
-                          <strong className="pricing-main">
-                            {offer.currency || 'USD'} ${offer.price}
-                          </strong>
-                          {offer.oldPrice && (
-                            <span className="pricing-old">
-                              ${offer.oldPrice}
-                            </span>
+                          <span className="pricing-currency">{currency}</span>
+                          <strong className="pricing-main">${formattedPrice}</strong>
+                          {formattedOldPrice && (
+                            <span className="pricing-old">${formattedOldPrice}</span>
                           )}
                         </div>
                       </>
@@ -190,7 +239,8 @@ export function OffersCarousel({ offers }: OffersCarouselProps) {
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        Detalle ↗
+                        <span>Detalle</span>
+                        <ArrowUpRightIcon className="w-3 h-3" />
                       </Link>
                     ) : null}
                     <a
@@ -200,7 +250,8 @@ export function OffersCarousel({ offers }: OffersCarouselProps) {
                       rel="noopener noreferrer"
                       aria-label={`Reservar ${offer.title} por WhatsApp`}
                     >
-                      Reservar ↗
+                      <span>Reservar</span>
+                      <ArrowUpRightIcon className="w-3 h-3" />
                     </a>
                   </div>
                 </div>

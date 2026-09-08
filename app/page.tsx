@@ -1,79 +1,15 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { HeroCinematicScroll } from '@/components/hero-cinematic-scroll'
 import { OffersCarousel, type CarouselOffer } from '@/components/offers-carousel'
 import { getPublishedOffers } from '@/app/actions/offers'
 import { InstagramReelsSection } from '@/components/instagram-reels-section'
 import { GsapScrollAnimations } from '@/components/gsap-scroll-animations'
 
-const defaultOffers: CarouselOffer[] = [
-  {
-    id: 'peru-semana-santa-2027',
-    slug: 'peru-unico-semana-santa-2027',
-    title: 'Perú Único – Semana Santa 2027',
-    destination: 'Lima, Cusco & Machu Picchu',
-    category: 'Viajes',
-    description: 'Esta Semana Santa vive 9 días descubriendo lo mejor de Perú, desde la gastronomía de Lima hasta la magia de Cusco, el Valle Sagrado y Machu Picchu.',
-    price: '2280',
-    oldPrice: '2450',
-    currency: 'USD',
-    badge: 'Semana Santa',
-    dateLabel: '21 al 29 de marzo 2027',
-    includes: ['Vuelos incluidos', '8 noches de hotel', 'Machu Picchu + Tren'],
-    imageUrl: '/soleando-peru.jpg',
-    whatsappText: 'Hola Soleando, me interesa la oferta de Perú Único para Semana Santa 2027',
-  },
-  {
-    id: 'oferta-saona-vip',
-    slug: 'isla-saona-vip',
-    title: 'Isla Saona VIP & Catamarán',
-    destination: 'Bayahíbe',
-    category: 'Full Day',
-    description: 'Navega en catamarán privado, piscina natural con estrellas de mar y almuerzo buffet frente al mar caribeño.',
-    price: '79',
-    oldPrice: '99',
-    currency: 'USD',
-    badge: '20% OFF',
-    dateLabel: 'Válido este mes',
-    includes: ['Catamarán exclusivo', 'Almuerzo buffet', 'Bar abierto'],
-    imageUrl: '/soleando-beach.png',
-    whatsappText: 'Hola Soleando, quiero reservar la oferta de Isla Saona VIP con 20% OFF',
-  },
-  {
-    id: 'oferta-sunset-cruise',
-    slug: 'sunset-cruise-champagne',
-    title: 'Sunset Cruise & Champagne',
-    destination: 'Punta Cana',
-    category: 'Experiencia Privada',
-    description: 'Atardecer dorado navegando la costa, música suave y brindis exclusivo al caer el sol caribeño.',
-    price: '65',
-    oldPrice: '85',
-    currency: 'USD',
-    badge: 'Más popular',
-    dateLabel: 'Horario: 4:30 PM',
-    includes: ['Brindis espumoso', 'Snacks gourmet', 'Puesta de sol'],
-    imageUrl: '/soleando-sunset.png',
-    whatsappText: 'Hola Soleando, me interesa la oferta de Sunset Cruise & Champagne',
-  },
-  {
-    id: 'oferta-cascadas-aventura',
-    slug: 'cascadas-jungla-safari',
-    title: 'Cascadas & Jungla Safari',
-    destination: 'Samaná',
-    category: 'Ecoturismo',
-    description: 'Senderos tropicales secretos, baño en cascadas cristalinas y deliciosa comida típica dominicana.',
-    price: '89',
-    oldPrice: '115',
-    currency: 'USD',
-    badge: 'Cupos limitados',
-    dateLabel: 'Salidas diarias',
-    includes: ['Transporte 4x4', 'Guía local experto', 'Almuerzo criollo'],
-    imageUrl: '/soleando-waterfall.png',
-    whatsappText: 'Hola Soleando, quiero aprovechar la oferta de Cascadas & Jungla Safari',
-  },
-]
+import { ArrowUpRightIcon, WhatsappIcon, InstagramOutlineIcon, MapPinOutlineIcon } from '@/components/icons'
 
 function Arrow() {
-  return <span aria-hidden="true" className="arrow">↗</span>
+  return <ArrowUpRightIcon />
 }
 
 export default async function Page() {
@@ -99,21 +35,25 @@ export default async function Page() {
       }))
     }
   } catch {
-    // Si no hay base de datos conectada, usamos los datos por defecto
+    // Si no hay base de datos conectada
   }
 
-  const carouselOffers =
-    publishedOffers.length >= 3
-      ? publishedOffers
-      : [...publishedOffers, ...defaultOffers.slice(publishedOffers.length)]
+  const carouselOffers = publishedOffers
 
   return (
     <main className="relative overflow-hidden">
       <GsapScrollAnimations />
       <header className="site-header">
         <a className="brand" href="#inicio" aria-label="Soleando, inicio">
-          <span className="brand-mark">S</span>
-          <span>soleando</span>
+          <Image 
+            src="/455673599_799977638919739_4642999437038293761_n-removebg-preview.png" 
+            alt="Soleando Logo" 
+            width={200} 
+            height={60} 
+            className="h-12 md:h-16 w-auto object-contain drop-shadow-sm"
+            style={{ width: "auto" }}
+            priority
+          />
         </a>
         <nav className="desktop-nav" aria-label="Navegación principal">
           <a href="#instagram">Instagram</a>
@@ -138,41 +78,85 @@ export default async function Page() {
       <InstagramReelsSection />
 
       {/* Sección de Ofertas en Carrusel */}
-      <section id="ofertas" className="offers-section section-shell">
-        <div className="section-heading">
-          <div>
+      <section id="ofertas" className="relative overflow-hidden bg-[var(--background)]">
+        {/* Fondo sutil con la textura ilustrativa que acompaña al color sólido */}
+        <div
+          aria-hidden="true"
+          className="soleando-pattern-layer pointer-events-none absolute inset-0 z-0"
+        />
+
+        <div className="offers-section section-shell relative z-10">
+          <div className="section-heading">
+            <div>
+              <h2>
+                Escapadas con<br />
+                <em>precios únicos.</em>
+              </h2>
+            </div>
+          </div>
+
+          <OffersCarousel offers={carouselOffers} />
+          
+          <div className="flex justify-center mt-12 mb-4">
+            <Link
+              className="view-all-offers-btn"
+              href="/ofertas"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span>Ver todas las ofertas</span>
+              <span className="btn-arrow-circle">
+                <Arrow />
+              </span>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <section id="nosotros" className="nosotros-section relative overflow-hidden bg-[var(--background)]">
+        {/* Fondo sutil con la textura ilustrativa que acompaña al color sólido */}
+        <div
+          aria-hidden="true"
+          className="soleando-pattern-layer pointer-events-none absolute inset-0 z-0"
+          style={{
+            WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.9) 88%, transparent 100%)',
+            maskImage: 'linear-gradient(to bottom, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.9) 88%, transparent 100%)',
+          }}
+        />
+
+        <div className="intro section-shell relative z-10">
+          <div className="intro-grid">
             <h2>
-              Escapadas con<br />
-              <em>precios únicos.</em>
+              El Caribe se disfruta<br />
+              <em>despacio.</em>
             </h2>
-          </div>
-          <Link className="text-link" href="/ofertas" target="_blank" rel="noopener noreferrer">
-            Ver todas las ofertas <Arrow />
-          </Link>
-        </div>
-
-        <OffersCarousel offers={carouselOffers} />
-      </section>
-
-      <section id="nosotros" className="intro section-shell">
-        <div className="intro-grid">
-          <h2>
-            El Caribe se disfruta<br />
-            <em>despacio.</em>
-          </h2>
-          <div>
-            <p className="lead">
-              Creemos que los mejores recuerdos no se planean demasiado. Se encuentran en una playa escondida, en una conversación en el barco y en ese momento exacto en que el sol toca el horizonte.
-            </p>
-            <p className="muted">
-              Por eso creamos excursiones cercanas, cuidadas y llenas de esos pequeños detalles que hacen que quieras volver.
-            </p>
+            <div>
+              <p className="lead">
+                Creemos que los mejores recuerdos no se planean demasiado. Se encuentran en una playa escondida, en una conversación en el barco y en ese momento exacto en que el sol toca el horizonte.
+              </p>
+              <p className="muted">
+                Por eso creamos excursiones cercanas, cuidadas y llenas de esos pequeños detalles que hacen que quieras volver.
+              </p>
+            </div>
           </div>
         </div>
       </section>
 
-      <section className="manifesto">
-        <div className="manifesto-inner">
+      <section className="manifesto relative overflow-hidden flex items-center">
+        {/* Fondo SVG Ilustrativo */}
+        <div className="absolute inset-0 z-0">
+          <Image
+            src="/alghozy-3FmAo4JBvLM-unsplash.svg"
+            alt="Fondo ilustrativo"
+            fill
+            sizes="100vw"
+            className="object-cover object-center pointer-events-none opacity-85"
+          />
+          {/* Overlay gradiente suave para contraste y legibilidad */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#1c1917]/95 via-[#1c1917]/75 to-[#1c1917]/35 pointer-events-none" />
+        </div>
+
+        <div className="manifesto-inner relative z-10">
           <h2>
             Tu mejor día<br />
             <em>empieza aquí.</em>
@@ -188,63 +172,99 @@ export default async function Page() {
         </div>
       </section>
 
-      <section id="contacto" className="contact section-shell">
-        <div className="contact-grid">
-          <div>
-            <h2>
-              ¿Listo para<br />
-              <em>solearte?</em>
-            </h2>
-            <p className="lead">
-              Escríbenos y te ayudamos a elegir la experiencia perfecta para ti.
-            </p>
-          </div>
-          <div className="contact-links">
-            <a
-              className="contact-item"
-              href="https://api.whatsapp.com/message/D3DXUHVK575TH1?autoload=1&app_absent=0"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <span className="contact-icon">↗</span>
-              <span>
-                <small>Reserva por WhatsApp</small>
-                <strong>Escríbenos directo</strong>
-              </span>
-              <Arrow />
-            </a>
-            <a
-              className="contact-item"
-              href="https://www.instagram.com/soleandodr/"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <span className="contact-icon">◎</span>
-              <span>
-                <small>Síguenos en Instagram</small>
-                <strong>@soleandodr</strong>
-              </span>
-              <Arrow />
-            </a>
-            <a className="contact-item" href="#contacto">
-              <span className="contact-icon">⌖</span>
-              <span>
-                <small>Encuéntranos en</small>
-                <strong>República Dominicana</strong>
-              </span>
-              <Arrow />
-            </a>
+      <section id="contacto" className="relative overflow-hidden bg-[var(--background)]">
+        {/* Fondo sutil con la textura ilustrativa que acompaña al color sólido */}
+        <div
+          aria-hidden="true"
+          className="soleando-pattern-layer pointer-events-none absolute inset-0 z-0"
+          style={{
+            WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.9) 10%, rgba(0,0,0,0.9) 100%)',
+            maskImage: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.9) 10%, rgba(0,0,0,0.9) 100%)',
+          }}
+        />
+
+        <div className="contact section-shell relative z-10">
+          <div className="contact-grid">
+            <div>
+              <h2>
+                ¿Listo para<br />
+                <em>solearte?</em>
+              </h2>
+              <p className="lead">
+                Escríbenos y te ayudamos a elegir la experiencia perfecta para ti.
+              </p>
+            </div>
+            <div className="contact-links">
+              <a
+                className="contact-item"
+                href="https://api.whatsapp.com/message/D3DXUHVK575TH1?autoload=1&app_absent=0"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <span className="contact-icon">
+                  <WhatsappIcon className="w-5 h-5" />
+                </span>
+                <span>
+                  <small>Reserva por WhatsApp</small>
+                  <strong>Escríbenos directo</strong>
+                </span>
+                <Arrow />
+              </a>
+              <a
+                className="contact-item"
+                href="https://www.instagram.com/soleandodr/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <span className="contact-icon">
+                  <InstagramOutlineIcon className="w-5 h-5" />
+                </span>
+                <span>
+                  <small>Síguenos en Instagram</small>
+                  <strong>@soleandodr</strong>
+                </span>
+                <Arrow />
+              </a>
+              <a className="contact-item" href="#contacto">
+                <span className="contact-icon">
+                  <MapPinOutlineIcon className="w-5 h-5" />
+                </span>
+                <span>
+                  <small>Encuéntranos en</small>
+                  <strong>República Dominicana</strong>
+                </span>
+                <Arrow />
+              </a>
+            </div>
           </div>
         </div>
       </section>
 
-      <footer>
-        <a className="brand" href="#inicio">
-          <span className="brand-mark">S</span>
-          <span>soleando</span>
-        </a>
-        <p>Excursiones que se quedan contigo.</p>
-        <span>© 2026 Soleando</span>
+      <footer className="site-footer relative overflow-hidden bg-[var(--background)] border-t border-[var(--line)]">
+        {/* Fondo sutil con la textura ilustrativa que acompaña al color sólido */}
+        <div
+          aria-hidden="true"
+          className="soleando-pattern-layer pointer-events-none absolute inset-0 z-0"
+          style={{
+            WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.85) 20%, rgba(0,0,0,0.85) 100%)',
+            maskImage: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.85) 20%, rgba(0,0,0,0.85) 100%)',
+          }}
+        />
+
+        <div className="footer-content relative z-10">
+          <a className="brand" href="#inicio">
+            <Image 
+              src="/455673599_799977638919739_4642999437038293761_n-removebg-preview.png" 
+              alt="Soleando Logo" 
+              width={160} 
+              height={48} 
+              className="h-10 md:h-12 w-auto object-contain" 
+              style={{ width: "auto" }}
+            />
+          </a>
+          <p>Excursiones que se quedan contigo.</p>
+          <span>© 2026 Soleando</span>
+        </div>
       </footer>
     </main>
   )

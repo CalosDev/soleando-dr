@@ -9,6 +9,7 @@ import {
   moveIgPostAction,
 } from '@/app/actions/ig-feed'
 import type { ManagedIgPost } from '@/lib/ig-feed-store'
+import { sileo } from 'sileo'
 
 type Props = {
   initialPosts: ManagedIgPost[]
@@ -48,11 +49,13 @@ export function AdminIgManager({ initialPosts }: Props) {
 
     if (!res.ok || !res.data) {
       setError(res.error || 'No se pudo obtener información del enlace.')
+      sileo.error({ title: 'Error', description: res.error || 'No se pudo obtener información del enlace.' })
       return
     }
 
     setDraftPost(res.data)
     setSuccess('¡Datos de Instagram obtenidos con éxito! Revisa la vista previa a continuación.')
+    sileo.success({ title: '¡Éxito!', description: 'Datos de Instagram obtenidos con éxito.' })
   }
 
   // Step 2: Save to carousel
@@ -68,6 +71,7 @@ export function AdminIgManager({ initialPosts }: Props) {
 
     if (!res.ok) {
       setError(res.error || 'Error al guardar la publicación.')
+      sileo.error({ title: 'Error', description: res.error || 'Error al guardar la publicación.' })
       return
     }
 
@@ -76,6 +80,7 @@ export function AdminIgManager({ initialPosts }: Props) {
     setDraftPost(null)
     setInputUrl('')
     setSuccess('🎉 ¡Publicación agregada con éxito en la primera posición del carrusel!')
+    sileo.success({ title: '¡Publicado!', description: 'Publicación agregada con éxito al carrusel.' })
   }
 
   const handleMove = async (id: string, direction: 'up' | 'down') => {
@@ -96,6 +101,7 @@ export function AdminIgManager({ initialPosts }: Props) {
     if (!confirm('¿Seguro que deseas eliminar esta publicación del carrusel?')) return
     await deleteIgPostAction(id)
     setPosts(posts.filter((p) => p.id !== id))
+    sileo.success({ title: 'Eliminado', description: 'La publicación fue removida del carrusel.' })
   }
 
   return (

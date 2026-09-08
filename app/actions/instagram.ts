@@ -35,9 +35,17 @@ function parseCaption(rawCaption: string) {
   const dateMatch = rawCaption.match(/(\d{1,2}\s+(?:al|a|-)\s+\d{1,2}\s+de\s+[a-zá-ú]+(?:\s+\d{4})?)/i)
   const dateLabel = dateMatch ? dateMatch[1] : ''
 
-  // Destination heuristic
+  // Destination heuristic: check known locations first
+  const knownDestinations = [
+    'Punta Cana', 'Bayahíbe', 'Bayahibe', 'Samaná', 'Samana', 'La Romana',
+    'Santo Domingo', 'Puerto Plata', 'Las Terrenas', 'Jarabacoa', 'Constanza',
+    'Machu Picchu', 'Cusco', 'Perú', 'Peru', 'Cancún', 'Cancun',
+    'Cartagena', 'Medellín', 'Medellin', 'Bogotá', 'Bogota', 'Orlando', 'Miami',
+    'Madrid', 'Europa'
+  ]
+  const matchedKnown = knownDestinations.find(d => rawCaption.toLowerCase().includes(d.toLowerCase()))
   const destMatch = rawCaption.match(/(?:desde|en|hacia|a)\s+([A-ZÁÉÍÓÚ][a-záéíóú]+(?:,\s*[A-ZÁÉÍÓÚ][a-záéíóú]+)*)/i)
-  const destination = destMatch ? destMatch[1] : 'República Dominicana'
+  const destination = matchedKnown || (destMatch ? destMatch[1] : 'República Dominicana')
 
   // Category heuristic
   let category = 'Excursiones'
@@ -47,7 +55,7 @@ function parseCaption(rawCaption: string) {
 
   // Includes heuristic: look for list-like lines with common tour inclusions
   const includeLines = lines.filter(l =>
-    /transporte|traslado|almuerzo|desayuno|cena|guía|entrada|boleto|ticket|tren|vuelo|alojamiento|hotel|seguro/i.test(l)
+    /transporte|traslado|almuerzo|desayuno|cena|guía|entrada|boleto|ticket|tren|vuelo|alojamiento|hotel|seguro|todo incluido|buffet|bebida|parque acuático|piscina|playa/i.test(l)
   )
   const includes = includeLines.join(', ')
 
@@ -100,11 +108,19 @@ export async function parseInstagramPost(url: string, manualCaption?: string) {
     })
 
     let imageUrl = '/soleando-beach.png'
+    let fetchedCaption = ''
+
     if (oembedRes.ok) {
       const oembed = await oembedRes.json() as {
         thumbnail_url?: string
         author_name?: string
+        title?: string
       }
+
+      if (oembed.title) {
+        fetchedCaption = decodeHtml(oembed.title).trim()
+      }
+
       if (oembed.thumbnail_url && postId) {
         // Download the CDN image locally (CDN URLs expire in hours)
         try {
@@ -127,9 +143,14 @@ export async function parseInstagramPost(url: string, manualCaption?: string) {
       }
     }
 
-    // Parse caption if user provided one manually
-    if (manualCaption && manualCaption.trim().length > 0) {
-      const parsed = parseCaption(manualCaption.trim())
+    // Determine the caption: manual override if provided, otherwise fetched caption from Instagram
+    const captionToUse = (manualCaption && manualCaption.trim().length > 0)
+      ? manualCaption.trim()
+      : fetchedCaption
+
+    // If we have a caption (automatically fetched or manually entered), parse and populate all fields
+    if (captionToUse) {
+      const parsed = parseCaption(captionToUse)
       return {
         ok: true,
         data: {
@@ -139,7 +160,7 @@ export async function parseInstagramPost(url: string, manualCaption?: string) {
           price: parsed.price,
           currency: 'USD',
           dateLabel: parsed.dateLabel,
-          description: manualCaption.trim().slice(0, 500),
+          description: captionToUse.slice(0, 500),
           includes: parsed.includes,
           imageUrl,
           instagramUrl: canonicalUrl,
@@ -150,7 +171,7 @@ export async function parseInstagramPost(url: string, manualCaption?: string) {
       }
     }
 
-    // No caption provided → return image + ask for caption
+    // Fallback only if Instagram returned no caption at all
     return {
       ok: true,
       needsCaption: true,

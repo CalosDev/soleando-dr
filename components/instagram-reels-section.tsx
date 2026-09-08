@@ -2,6 +2,8 @@
 
 import { useEffect, useState, useRef } from 'react'
 import Image from 'next/image'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { ArrowUpRightIcon } from '@/components/icons'
 import type { ManagedIgPost } from '@/lib/ig-feed-store'
 
 const IG_PROFILE = 'https://www.instagram.com/soleandodr/'
@@ -167,16 +169,27 @@ export function InstagramReelsSection({ initialPosts }: Props) {
   }
 
   return (
-    <section id="instagram" className="section-shell" style={{ paddingBottom: '90px' }}>
-      {/* Header */}
-      <div className="section-heading" style={{ marginBottom: '32px' }}>
-        <div>
-          <h2>
-            Lo que estamos<br />
-            <em>viviendo ahora.</em>
-          </h2>
+    <section id="instagram" className="relative overflow-hidden bg-[var(--background)]">
+      {/* Fondo sutil con la textura ilustrativa que acompaña al color sólido */}
+      <div
+        aria-hidden="true"
+        className="soleando-pattern-layer pointer-events-none absolute inset-0 z-0"
+        style={{
+          WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.9) 8%, rgba(0,0,0,0.9) 100%)',
+          maskImage: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.9) 8%, rgba(0,0,0,0.9) 100%)',
+        }}
+      />
+
+      <div className="section-shell relative z-10" style={{ paddingBottom: '90px' }}>
+        {/* Header */}
+        <div className="section-heading" style={{ marginBottom: '32px' }}>
+          <div>
+            <h2>
+              Lo que estamos<br />
+              <em>viviendo ahora.</em>
+            </h2>
+          </div>
         </div>
-      </div>
 
       {/* Relative Carousel Container with Side Navigation Arrows */}
       <div style={{ position: 'relative', width: '100%' }}>
@@ -198,8 +211,6 @@ export function InstagramReelsSection({ initialPosts }: Props) {
               background: '#ffffff',
               border: '1.5px solid #e2e8f0',
               color: '#0f172a',
-              fontSize: '20px',
-              fontWeight: 800,
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
@@ -208,7 +219,7 @@ export function InstagramReelsSection({ initialPosts }: Props) {
               transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
             }}
           >
-            ←
+            <ChevronLeft className="w-5 h-5 text-[#0f172a]" />
           </button>
         )}
 
@@ -230,8 +241,6 @@ export function InstagramReelsSection({ initialPosts }: Props) {
               background: '#ffffff',
               border: '1.5px solid #e2e8f0',
               color: '#0f172a',
-              fontSize: '20px',
-              fontWeight: 800,
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
@@ -240,7 +249,7 @@ export function InstagramReelsSection({ initialPosts }: Props) {
               transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
             }}
           >
-            →
+            <ChevronRight className="w-5 h-5 text-[#0f172a]" />
           </button>
         )}
 
@@ -341,7 +350,7 @@ export function InstagramReelsSection({ initialPosts }: Props) {
                           }}
                         >
                           <Image
-                            src="/soleando-hero.png"
+                            src="/455673599_799977638919739_4642999437038293761_n-removebg-preview.png"
                             alt="Soleando DR Avatar"
                             fill
                             style={{ objectFit: 'cover' }}
@@ -496,7 +505,7 @@ export function InstagramReelsSection({ initialPosts }: Props) {
                           gap: '4px',
                         }}
                       >
-                        Ver en Instagram ↗
+                        Ver en Instagram <ArrowUpRightIcon className="w-3 h-3 ml-0.5 inline-block" />
                       </a>
                       <span style={{ fontSize: '10px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                         PÚBLICO
@@ -543,6 +552,7 @@ export function InstagramReelsSection({ initialPosts }: Props) {
           <InstagramIcon size={20} />
           Síguenos en @soleandodr
         </a>
+      </div>
       </div>
 
       <style>{`

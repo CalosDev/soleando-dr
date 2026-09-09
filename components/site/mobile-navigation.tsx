@@ -95,7 +95,7 @@ export function MobileNavigation({ isOpen, onClose, isAuthenticated }: MobileNav
                 alt="Soleando Logo"
                 width={140}
                 height={42}
-                className="h-9 w-auto object-contain"
+                className="h-9 w-auto origin-left scale-[1.45] object-contain"
               />
             </Link>
             <button

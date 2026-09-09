@@ -4,7 +4,10 @@ export const dynamic = 'force-dynamic'
 import Link from 'next/link'
 import { getPublishedOffers } from '@/app/actions/offers'
 import type { Offer } from '@/lib/db/schema'
+import { getOfferImageSrc } from '@/lib/offer-image'
+import { getOfferDisplayTitle } from '@/lib/offer-utils'
 import { ArrowUpRightIcon } from '@/components/icons'
+import { MissingOfferImage } from '@/components/offers/missing-offer-image'
 
 export default async function OffersPage() {
   let items: Offer[] = []
@@ -40,28 +43,37 @@ export default async function OffersPage() {
       </section>
       <section className={`offers-catalog-grid${items.length === 1 ? ' is-single' : ''}`}>
         {items.length ? (
-          items.map((item, index) => (
-            <Link className="offers-catalog-card" href={`/ofertas/${item.slug}`} key={item.id}>
-              <div className="offers-catalog-image">
-                <Image
-                  src={item.imageUrl}
-                  alt={item.title}
-                  fill
-                  sizes={items.length === 1 ? '(max-width: 800px) 90vw, 46vw' : '(max-width: 700px) 90vw, 33vw'}
-                  loading={index === 0 ? 'eager' : 'lazy'}
-                />
-              </div>
-              <div className="offers-catalog-copy">
-                <span>{item.category} · {item.destination}</span>
-                <h2>{item.title}</h2>
-                <p>{item.description}</p>
-                <strong className="offers-catalog-price">
-                  {item.price ? `${item.currency} ${item.price}` : 'Consultar disponibilidad'}
-                  <ArrowUpRightIcon className="w-3 h-3 inline-block" />
-                </strong>
-              </div>
-            </Link>
-          ))
+          items.map((item, index) => {
+            const imageSrc = getOfferImageSrc(item.imageUrl)
+            const title = getOfferDisplayTitle(item.title)
+
+            return (
+              <Link className="offers-catalog-card" href={`/ofertas/${item.slug}`} key={item.id}>
+                <div className="offers-catalog-image">
+                  {imageSrc ? (
+                    <Image
+                      src={imageSrc}
+                      alt={title}
+                      fill
+                      sizes={items.length === 1 ? '(max-width: 800px) 90vw, 46vw' : '(max-width: 700px) 90vw, 33vw'}
+                      loading={index === 0 ? 'eager' : 'lazy'}
+                    />
+                  ) : (
+                    <MissingOfferImage title={title} />
+                  )}
+                </div>
+                <div className="offers-catalog-copy">
+                  <span>{item.category} · {item.destination}</span>
+                  <h2>{title}</h2>
+                  <p>{item.description}</p>
+                  <strong className="offers-catalog-price">
+                    {item.price ? `${item.currency} ${item.price}` : 'Consultar disponibilidad'}
+                    <ArrowUpRightIcon className="w-3 h-3 inline-block" />
+                  </strong>
+                </div>
+              </Link>
+            )
+          })
         ) : (
           <div className="empty-public">
             <h2>Estamos preparando nuevas experiencias.</h2>

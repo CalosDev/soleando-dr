@@ -201,6 +201,9 @@ export function ExperiencesCatalog({ initialExperiences }: ExperiencesCatalogPro
             )
           })}
         </div>
+        <p className="sm:hidden -mt-2 text-[11px] font-medium text-stone-400">
+          Desliza para ver más categorías →
+        </p>
       </div>
 
       {/* Results Counter & Active Filters Summary */}

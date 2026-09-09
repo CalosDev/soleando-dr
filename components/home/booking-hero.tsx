@@ -1,6 +1,8 @@
 import Image from 'next/image'
+import Link from 'next/link'
 import { HotelSearchForm } from './hotel-search-form'
-import { ShieldCheck, MessageCircle, MapPin } from 'lucide-react'
+import { ArrowUpRight, ShieldCheck, MessageCircle, MapPin } from 'lucide-react'
+import { siteConfig } from '@/config/site'
 
 export function BookingHero() {
   return (
@@ -58,6 +60,26 @@ export function BookingHero() {
             <span>Expertos locales en RD</span>
           </div>
         </div>
+
+        <aside className="mx-auto flex max-w-2xl flex-col items-center justify-between gap-3 border-t border-white/20 pt-5 text-center sm:flex-row sm:text-left" aria-label="Asesoría personalizada">
+          <p className="max-w-md text-sm leading-relaxed text-stone-200">
+            ¿Prefieres planearlo con alguien? Cuéntanos tus fechas e ideas y te ayudamos a elegir.
+          </p>
+          <div className="flex shrink-0 items-center gap-4 text-sm font-bold">
+            <Link href="/experiencias" className="text-white underline decoration-white/40 underline-offset-4 transition-colors hover:text-[#fadc40]">
+              Ver experiencias
+            </Link>
+            <a
+              href={siteConfig.whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-2.5 text-stone-900 shadow-lg transition-transform hover:scale-[1.02] hover:bg-[#fadc40] focus:outline-hidden focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-stone-900"
+            >
+              Hablar con un asesor
+              <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
+            </a>
+          </div>
+        </aside>
       </div>
     </section>
   )

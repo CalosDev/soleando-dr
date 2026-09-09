@@ -8,7 +8,9 @@ import { offers, type Offer } from '@/lib/db/schema'
 import { and, eq } from 'drizzle-orm'
 import { SEED_OFFERS } from '@/lib/seed-data'
 import { getPublishedOffers } from '@/app/actions/offers'
-import { parseOfferContent } from '@/lib/offer-utils'
+import { getOfferImageSrc } from '@/lib/offer-image'
+import { getOfferDisplayTitle, parseOfferContent } from '@/lib/offer-utils'
+import { MissingOfferImage } from '@/components/offers/missing-offer-image'
 import {
   ArrowUpRightIcon,
   WhatsappIcon,
@@ -60,13 +62,15 @@ export async function generateMetadata({
     }
   }
 
+  const imageSrc = getOfferImageSrc(offer.imageUrl)
+
   return {
-    title: `${offer.title} | Soleando`,
+    title: `${getOfferDisplayTitle(offer.title)} | Soleando`,
     description: offer.description,
     openGraph: {
-      title: `${offer.title} | Soleando`,
+      title: `${getOfferDisplayTitle(offer.title)} | Soleando`,
       description: offer.description,
-      images: offer.imageUrl ? [{ url: offer.imageUrl }] : undefined,
+      images: imageSrc ? [{ url: imageSrc }] : undefined,
     },
   }
 }
@@ -103,12 +107,14 @@ export default async function OfferDetailPage({
 
   const formattedPrice = formatPriceValue(offer.price)
   const currency = offer.currency || 'USD'
+  const offerImageSrc = getOfferImageSrc(offer.imageUrl)
+  const offerTitle = getOfferDisplayTitle(offer.title)
 
   // Organizar el contenido inteligentemente (narrativa, ruta, inclusiones)
   const parsedContent = parseOfferContent(offer.description, offer.includes)
 
   const whatsappMessage = encodeURIComponent(
-    `Hola Soleando, me interesa la experiencia "${offer.title}". ¿Me brindan más información y disponibilidad?`
+    `Hola Soleando, me interesa la experiencia "${offerTitle}". ¿Me brindan más información y disponibilidad?`
   )
   const whatsappUrl = `https://api.whatsapp.com/message/D3DXUHVK575TH1?autoload=1&app_absent=0&text=${whatsappMessage}`
 
@@ -172,7 +178,7 @@ export default async function OfferDetailPage({
           <span>/</span>
           <Link href="/ofertas" className="hover:text-stone-900 transition-colors">Ofertas</Link>
           <span>/</span>
-          <span className="font-medium truncate" style={{ color: '#1c1917' }}>{offer.title}</span>
+          <span className="font-medium truncate" style={{ color: '#1c1917' }}>{offerTitle}</span>
         </nav>
 
         {/* Vitrina 2 columnas */}
@@ -186,15 +192,21 @@ export default async function OfferDetailPage({
                 border: '1px solid #ede8e1',
               }}
             >
-              <Image
-                src={offer.imageUrl}
-                alt={offer.title}
-                width={1200}
-                height={1200}
-                priority
-                sizes="(max-width: 1024px) 100vw, 50vw"
-                className="w-full h-auto object-contain block rounded-3xl"
-              />
+              {offerImageSrc ? (
+                <Image
+                  src={offerImageSrc}
+                  alt={offerTitle}
+                  width={1200}
+                  height={1200}
+                  priority
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  className="w-full h-auto object-contain block rounded-3xl"
+                />
+              ) : (
+                <div className="relative aspect-square w-full">
+                  <MissingOfferImage title={offerTitle} />
+                </div>
+              )}
 
               {/* Insignia destacada discreta */}
               {offer.featured && (
@@ -232,7 +244,7 @@ export default async function OfferDetailPage({
                 className="font-serif text-3xl sm:text-4xl lg:text-5xl leading-[1.08] tracking-tight mb-4"
                 style={{ color: '#1c1917' }}
               >
-                {offer.title}
+                {offerTitle}
               </h1>
 
               {/* Párrafos narrativos limpios y organizados */}
@@ -461,6 +473,8 @@ export default async function OfferDetailPage({
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {otherOffers.map((other) => {
                 const otherPrice = formatPriceValue(other.price)
+                const otherImageSrc = getOfferImageSrc(other.imageUrl)
+                const otherTitle = getOfferDisplayTitle(other.title)
                 return (
                   <Link
                     key={other.id}
@@ -472,13 +486,17 @@ export default async function OfferDetailPage({
                     }}
                   >
                     <div className="relative aspect-[4/3] w-full bg-stone-100 overflow-hidden">
-                      <Image
-                        src={other.imageUrl}
-                        alt={other.title}
-                        fill
-                        sizes="(max-width: 640px) 100vw, 33vw"
-                        className="object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
+                      {otherImageSrc ? (
+                        <Image
+                          src={otherImageSrc}
+                          alt={otherTitle}
+                          fill
+                          sizes="(max-width: 640px) 100vw, 33vw"
+                          className="object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                      ) : (
+                        <MissingOfferImage title={otherTitle} />
+                      )}
                       <span
                         className="absolute top-3 left-3 px-2.5 py-1 rounded-full text-[10px] font-semibold text-white"
                         style={{ backgroundColor: 'rgba(0, 0, 0, 0.65)' }}
@@ -492,7 +510,7 @@ export default async function OfferDetailPage({
                           {other.destination}
                         </span>
                         <h3 className="font-serif text-lg text-stone-900 leading-tight group-hover:text-[#f64d0b] transition-colors line-clamp-2">
-                          {other.title}
+                          {otherTitle}
                         </h3>
                       </div>
                       <div

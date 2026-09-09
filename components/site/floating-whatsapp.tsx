@@ -35,6 +35,7 @@ export function FloatingWhatsApp() {
   whatsappUrl.searchParams.set('text', prefilledMessage)
   const encodedUrl = whatsappUrl.toString()
   const isDetailPage = /^\/(hoteles|experiencias)\/[^/]+$/.test(pathname)
+  const showWelcomeMessage = !hasDismissed && pathname !== '/'
 
   return (
     <aside
@@ -44,7 +45,7 @@ export function FloatingWhatsApp() {
       }`}
     >
       {/* Floating Prompt Bubble (can be dismissed) */}
-      {!hasDismissed && (
+      {showWelcomeMessage && (
         <div
           role="region"
           aria-label="Mensaje de bienvenida"

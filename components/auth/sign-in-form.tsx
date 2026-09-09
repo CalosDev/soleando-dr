@@ -49,4 +49,3 @@ export function SignInForm({ nextPath, isAuthConfigured }: SignInFormProps) {
     <p className="customer-auth-alternate">¿Aún no tienes cuenta? <Link href={`/registro?next=${encodeURIComponent(nextPath)}`}>Regístrate</Link></p>
   </form>
 }
-

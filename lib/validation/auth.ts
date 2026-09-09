@@ -18,4 +18,3 @@ export const signUpSchema = z.object({
     context.addIssue({ code: 'custom', path: ['confirmPassword'], message: 'Las contraseñas no coinciden.' })
   }
 })
-

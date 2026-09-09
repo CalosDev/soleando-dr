@@ -22,4 +22,3 @@ export async function requireUser(nextPath = '/cuenta') {
   if (!user) redirect(`/login?next=${encodeURIComponent(nextPath)}`)
   return user
 }
-

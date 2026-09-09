@@ -53,4 +53,3 @@ export function SignUpForm({ nextPath, isAuthConfigured }: SignUpFormProps) {
     <p className="customer-auth-alternate">¿Ya tienes cuenta? <Link href={`/login?next=${encodeURIComponent(nextPath)}`}>Inicia sesión</Link></p>
   </form>
 }
-

@@ -7,4 +7,3 @@ export default async function AccountLayout({ children }: Readonly<{ children: R
   await requireUser('/cuenta')
   return children
 }
-

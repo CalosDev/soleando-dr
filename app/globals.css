@@ -95,6 +95,7 @@ a { color: inherit; text-decoration: none; }
 @media(max-width:700px){.admin-heading{align-items:start;flex-direction:column}.admin-stats{flex-direction:column}.admin-list-head{display:none}.admin-row{grid-template-columns:1fr;gap:10px;padding:22px 0}.admin-row-actions{justify-self:start}.admin-actions{margin-top:6px}.admin-auth-card{padding:35px 25px}.admin-auth-card .brand{margin-bottom:55px}.admin-auth-card h1{font-size:55px}.form-grid,.offers-grid,.detail-grid{grid-template-columns:1fr}.offers-hero{padding:70px 8vw 50px}.offers-grid{padding:0 8vw 70px}.public-offer-image{aspect-ratio:4/5;height:auto}.detail-image{min-height:auto;max-width:100%}.detail-copy{padding:65px 8vw}.detail-copy .text-link{margin:20px 0 0;display:flex}}
 
 /* Public offers catalog */
+.admin-list-head,.admin-row{grid-template-columns:1fr 120px 170px}
 .offers-page {
   background:
     radial-gradient(circle at 88% 8%, rgba(250, 220, 64, 0.16), transparent 28rem),

@@ -12,7 +12,6 @@ import { parseOfferContent } from '@/lib/offer-utils'
 import {
   ArrowUpRightIcon,
   WhatsappIcon,
-  InstagramOutlineIcon,
   MapPinOutlineIcon,
   CheckIcon,
   CalendarOutlineIcon,
@@ -214,23 +213,6 @@ export default async function OfferDetailPage({
                 <span>{offer.destination}</span>
               </span>
 
-              {offer.instagramUrl && (
-                <a
-                  href={offer.instagramUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium transition-colors shadow-xs"
-                  style={{
-                    backgroundColor: '#ffffff',
-                    border: '1px solid #e7e2db',
-                    color: '#292524',
-                  }}
-                >
-                  <InstagramOutlineIcon className="w-3.5 h-3.5" />
-                  <span>Ver en Instagram</span>
-                  <ArrowUpRightIcon className="w-2.5 h-2.5" />
-                </a>
-              )}
             </div>
           </div>
 
@@ -432,24 +414,6 @@ export default async function OfferDetailPage({
                   <ArrowUpRightIcon className="w-3.5 h-3.5 text-white" />
                 </a>
 
-                {offer.instagramUrl && (
-                  <a
-                    href={offer.instagramUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full flex items-center justify-center gap-2 py-3 px-5 rounded-full font-medium text-xs sm:text-sm transition-colors"
-                    style={{
-                      backgroundColor: 'transparent',
-                      border: '1px solid #d6d3cd',
-                      color: '#44403c',
-                      display: 'flex',
-                    }}
-                  >
-                    <InstagramOutlineIcon className="w-4 h-4" />
-                    <span>Ver publicación original en Instagram</span>
-                    <ArrowUpRightIcon className="w-3 h-3" />
-                  </a>
-                )}
               </div>
 
               {/* Garantías y tranquilidad */}

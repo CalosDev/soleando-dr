@@ -23,40 +23,7 @@ export function GsapScrollAnimations() {
         ease: 'power3.out',
       })
 
-      // 2. Instagram Reels Section Entrance
-      ScrollTrigger.batch('.ig-card-item', {
-        start: 'top 85%',
-        once: true,
-        onEnter: (batch) => {
-          gsap.fromTo(
-            batch,
-            { opacity: 0, y: 50, scale: 0.96 },
-            {
-              opacity: 1,
-              y: 0,
-              scale: 1,
-              stagger: 0.12,
-              duration: 0.85,
-              ease: 'power2.out',
-              overwrite: true,
-            }
-          )
-        },
-      })
-
-      gsap.from('#instagram .section-heading', {
-        scrollTrigger: {
-          trigger: '#instagram',
-          start: 'top 80%',
-          once: true,
-        },
-        y: 35,
-        opacity: 0,
-        duration: 0.9,
-        ease: 'power2.out',
-      })
-
-      // 3. Offers Carousel Section Entrance
+      // 2. Offers Carousel Section Entrance
       gsap.from('#ofertas .section-heading', {
         scrollTrigger: {
           trigger: '#ofertas',

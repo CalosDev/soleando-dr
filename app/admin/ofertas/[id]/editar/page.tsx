@@ -32,7 +32,7 @@ export default async function EditOfferPage({ params }: { params: Promise<{ id: 
           <em>detalle.</em>
         </h1>
         <p className="muted">
-          Las modificaciones manuales conservarán prioridad cuando conectemos Instagram.
+          Actualiza cada detalle de esta oferta desde un único panel.
         </p>
         <OfferForm offer={offer} />
       </section>

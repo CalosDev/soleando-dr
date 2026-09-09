@@ -11,7 +11,7 @@ const offerSchema = z.object({
   title: z.string().trim().min(2), destination: z.string().trim().min(2), category: z.string().trim().min(2),
   description: z.string().trim().min(10), price: z.string().trim().optional(), currency: z.string().default('USD'),
   dateLabel: z.string().trim().optional(), includes: z.string().optional(), imageUrl: z.string().min(1).refine(v => v.startsWith('/') || v.startsWith('http') || v.startsWith('data:image/'), { message: 'Invalid URL' }),
-  instagramUrl: z.string().url().optional().or(z.literal('')), featured: z.boolean().default(false),
+  featured: z.boolean().default(false),
   status: z.enum(['draft', 'published', 'archived']).default('draft'),
 })
 
@@ -24,8 +24,7 @@ function toValues(data: z.infer<typeof offerSchema>) {
     title: data.title, destination: data.destination, category: data.category, description: data.description,
     price: data.price || null, currency: data.currency, dateLabel: data.dateLabel || null,
     includes: data.includes?.split(',').map((item) => item.trim()).filter(Boolean) || [], imageUrl: data.imageUrl,
-    instagramUrl: data.instagramUrl || null, featured: data.featured, status: data.status,
-    manualOverrides: Object.keys(data), updatedAt: new Date(),
+    featured: data.featured, status: data.status, updatedAt: new Date(),
   }
 }
 
@@ -60,8 +59,6 @@ export async function createOffer(input: unknown) {
     ...toValues(data),
     id,
     slug: `${slugify(data.title)}-${id.slice(0, 6)}`,
-    source: 'manual',
-    instagramMediaId: null,
     createdAt: new Date(),
   }
 

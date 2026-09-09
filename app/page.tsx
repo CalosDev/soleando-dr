@@ -3,7 +3,6 @@ import Image from 'next/image'
 import { HeroCinematicScroll } from '@/components/hero-cinematic-scroll'
 import { OffersCarousel, type CarouselOffer } from '@/components/offers-carousel'
 import { getPublishedOffers } from '@/app/actions/offers'
-import { InstagramReelsSection } from '@/components/instagram-reels-section'
 import { GsapScrollAnimations } from '@/components/gsap-scroll-animations'
 
 import { ArrowUpRightIcon, WhatsappIcon, InstagramOutlineIcon, MapPinOutlineIcon } from '@/components/icons'
@@ -56,7 +55,6 @@ export default async function Page() {
           />
         </a>
         <nav className="desktop-nav" aria-label="Navegación principal">
-          <a href="#instagram">Instagram</a>
           <a href="#ofertas">Ofertas</a>
           <a href="#nosotros">Nosotros</a>
           <a href="#contacto">Contacto</a>
@@ -73,9 +71,6 @@ export default async function Page() {
 
       {/* Hero Principal Cinemático */}
       <HeroCinematicScroll />
-
-      {/* Sección de Instagram */}
-      <InstagramReelsSection />
 
       {/* Sección de Ofertas en Carrusel */}
       <section id="ofertas" className="relative overflow-hidden bg-[var(--background)]">

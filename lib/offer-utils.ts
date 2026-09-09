@@ -9,6 +9,15 @@ export interface ParsedOfferContent {
   includes: ParsedIncludeItem[]
 }
 
+export function getOfferDisplayTitle(title: string): string {
+  return title
+    .replace(/[\u{1F1E6}-\u{1F1FF}]{2}/gu, '')
+    .replace(/[✨✦⭐]/gu, '')
+    .replace(/\s+\b[A-Z]{2}\b\s*$/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
 /**
  * Parses and organizes offer text:
  * 1. Extracts introductory narrative paragraphs.

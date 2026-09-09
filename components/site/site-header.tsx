@@ -121,7 +121,7 @@ export function SiteHeader({ variant = 'solid' }: SiteHeaderProps) {
               alt="Soleando Logo"
               width={160}
               height={48}
-              className="h-9 sm:h-10 md:h-11 w-auto object-contain drop-shadow-xs transition-transform duration-300 group-hover:brightness-105"
+              className="h-9 sm:h-10 md:h-11 w-auto origin-left scale-[1.45] object-contain drop-shadow-xs transition-transform duration-300 group-hover:brightness-105"
               priority
             />
           </Link>

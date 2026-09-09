@@ -1,13 +1,11 @@
 import Link from 'next/link'
-import { getAdminUser } from '@/lib/admin-auth'
-import { redirect } from 'next/navigation'
+import { requireAdmin } from '@/lib/auth-session'
 import { OfferForm } from '@/components/offer-form'
 
 export const dynamic = 'force-dynamic'
 
 export default async function NewOfferPage() {
-  const user = await getAdminUser()
-  if (!user) redirect('/admin/login')
+  await requireAdmin('/admin/ofertas/nueva')
 
   return (
     <main className="admin-shell">

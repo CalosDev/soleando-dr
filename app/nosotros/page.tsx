@@ -1,0 +1,113 @@
+import type { Metadata } from 'next'
+import Image from 'next/image'
+import { SiteHeader } from '@/components/site/site-header'
+import { SiteFooter } from '@/components/site/site-footer'
+import { siteConfig } from '@/config/site'
+import { Heart, Sun, MapPin, Users } from 'lucide-react'
+import { WhatsappIcon } from '@/components/icons'
+
+export const metadata: Metadata = {
+  title: 'Sobre Nosotros | Soleando DR',
+  description: 'Conoce la historia, el equipo y la visión de Soleando DR, tu plataforma de viajes y hoteles en el Caribe.',
+}
+
+export default function NosotrosPage() {
+  return (
+    <div className="min-h-screen flex flex-col bg-[#fdfbf7]">
+      <SiteHeader variant="solid" />
+
+      <main className="flex-1">
+        {/* Hero Nosotros */}
+        <section className="bg-stone-900 text-white py-16 lg:py-24 px-4 sm:px-6 lg:px-8 text-center space-y-4">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-white/10 text-[#fadc40]">
+            <Sun className="w-3.5 h-3.5" />
+            <span>Nuestra Historia</span>
+          </div>
+          <h1 className="font-serif text-3xl sm:text-5xl lg:text-6xl font-normal leading-tight max-w-3xl mx-auto">
+            El Caribe se disfruta<br />
+            <em className="text-[#fadc40] italic font-serif">con calma y de verdad.</em>
+          </h1>
+          <p className="text-stone-300 max-w-xl mx-auto text-sm sm:text-base leading-relaxed">
+            Nacimos con una idea clara: conectar a los viajeros con lo mejor de República Dominicana a través de una atención cercana, honesta y sin complicaciones.
+          </p>
+        </section>
+
+        {/* Historia & Manifiesto */}
+        <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20 space-y-16">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-16 items-center">
+            <div className="relative aspect-4/3 rounded-3xl overflow-hidden shadow-xl border border-[#ede8e1]">
+              <Image
+                src="/soleando-paradise.jpg"
+                alt="Paisaje tropical de Soleando"
+                fill
+                sizes="(max-width: 768px) 100vw, 50vw"
+                className="object-cover"
+              />
+            </div>
+
+            <div className="space-y-4">
+              <span className="text-xs font-bold uppercase tracking-wider text-[#f64d0b]">
+                Pasión por nuestro país
+              </span>
+              <h2 className="font-serif text-3xl text-stone-900 font-normal leading-snug">
+                Más que una agencia, tus aliados de viaje.
+              </h2>
+              <p className="text-sm sm:text-base text-stone-600 leading-relaxed">
+                Creemos que los mejores recuerdos no se planean demasiado. Se encuentran en una playa escondida, en una conversación en el barco y en ese momento exacto en que el sol toca el horizonte.
+              </p>
+              <p className="text-sm sm:text-base text-stone-600 leading-relaxed">
+                Hoy evolucionamos hacia una plataforma integral de reservas hoteleras y experiencias, manteniendo siempre lo que nos hace únicos: el trato cálido y la recomendación sincera.
+              </p>
+            </div>
+          </div>
+
+          {/* Valores Clave */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 pt-8 border-t border-[#ede8e1]">
+            <div className="space-y-2 p-6 rounded-3xl bg-white border border-[#ede8e1]">
+              <Heart className="w-6 h-6 text-[#f64d0b]" />
+              <h3 className="font-serif text-lg text-stone-900 font-normal">Trato Humano</h3>
+              <p className="text-xs text-stone-600 leading-relaxed">
+                Detrás de cada pantalla hay personas reales dispuestas a ayudarte a que tu viaje salga perfecto.
+              </p>
+            </div>
+            <div className="space-y-2 p-6 rounded-3xl bg-white border border-[#ede8e1]">
+              <MapPin className="w-6 h-6 text-[#f64d0b]" />
+              <h3 className="font-serif text-lg text-stone-900 font-normal">Criterio Local</h3>
+              <p className="text-xs text-stone-600 leading-relaxed">
+                Conocemos cada rincón, resort y playa porque vivimos y respiramos República Dominicana.
+              </p>
+            </div>
+            <div className="space-y-2 p-6 rounded-3xl bg-white border border-[#ede8e1]">
+              <Users className="w-6 h-6 text-[#f64d0b]" />
+              <h3 className="font-serif text-lg text-stone-900 font-normal">Viajeros Felices</h3>
+              <p className="text-xs text-stone-600 leading-relaxed">
+                Tu descanso y tranquilidad son nuestra mayor prioridad desde el primer mensaje hasta tu regreso a casa.
+              </p>
+            </div>
+          </div>
+
+          {/* CTA WhatsApp */}
+          <div className="text-center bg-white rounded-3xl p-8 sm:p-12 border border-[#ede8e1] space-y-4">
+            <h3 className="font-serif text-2xl text-stone-900 font-normal">
+              ¿Listo para planear tu próxima escapada?
+            </h3>
+            <p className="text-sm text-stone-600 max-w-md mx-auto">
+              Escríbenos directamente y un asesor de Soleando te guiará paso a paso.
+            </p>
+            <a
+              href={siteConfig.whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-[#f64d0b] text-white font-bold text-sm shadow-md hover:bg-[#e04408] transition-all"
+            >
+              <WhatsappIcon className="w-4 h-4 text-white" />
+              <span>Conversar con nosotros</span>
+            </a>
+          </div>
+        </section>
+      </main>
+
+      <SiteFooter />
+    </div>
+  )
+}

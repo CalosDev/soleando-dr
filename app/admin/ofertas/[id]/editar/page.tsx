@@ -1,14 +1,13 @@
 import Link from 'next/link'
-import { getAdminUser } from '@/lib/admin-auth'
+import { requireAdmin } from '@/lib/auth-session'
 import { getAdminOffer } from '@/app/actions/offers'
-import { notFound, redirect } from 'next/navigation'
+import { notFound } from 'next/navigation'
 import { OfferForm } from '@/components/offer-form'
 
 export const dynamic = 'force-dynamic'
 
 export default async function EditOfferPage({ params }: { params: Promise<{ id: string }> }) {
-  const user = await getAdminUser()
-  if (!user) redirect('/admin/login')
+  await requireAdmin('/admin')
 
   const offer = await getAdminOffer((await params).id)
   if (!offer) notFound()
@@ -32,7 +31,7 @@ export default async function EditOfferPage({ params }: { params: Promise<{ id: 
           <em>detalle.</em>
         </h1>
         <p className="muted">
-          Las modificaciones manuales conservarán prioridad cuando conectemos Instagram.
+          Actualiza la información, precios y detalles de la oferta.
         </p>
         <OfferForm offer={offer} />
       </section>

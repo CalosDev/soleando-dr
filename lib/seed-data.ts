@@ -10,12 +10,8 @@ export interface SeedOffer {
   dateLabel: string | null
   includes: string[]
   imageUrl: string
-  instagramUrl: string | null
-  instagramMediaId: string | null
   status: 'draft' | 'published' | 'archived'
   featured: boolean
-  source: 'manual' | 'instagram'
-  manualOverrides: string[]
   createdAt: Date
   updatedAt: Date
 }
@@ -43,12 +39,8 @@ export const SEED_OFFERS: SeedOffer[] = [
       'Seguro de viaje y equipaje'
     ],
     imageUrl: '/soleando-peru.jpg',
-    instagramUrl: 'https://www.instagram.com/p/Dc1cfRMRO6K/',
-    instagramMediaId: '3978211139917246090',
     status: 'published',
     featured: true,
-    source: 'instagram',
-    manualOverrides: [],
     createdAt: new Date(),
     updatedAt: new Date(),
   },

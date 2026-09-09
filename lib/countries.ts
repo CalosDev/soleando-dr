@@ -1,0 +1,17 @@
+export const countries = [
+  ['DO', 'República Dominicana'],
+  ['US', 'Estados Unidos'],
+  ['CA', 'Canadá'],
+  ['ES', 'España'],
+  ['MX', 'México'],
+  ['CO', 'Colombia'],
+  ['VE', 'Venezuela'],
+  ['AR', 'Argentina'],
+  ['CL', 'Chile'],
+  ['PE', 'Perú'],
+  ['BR', 'Brasil'],
+  ['FR', 'Francia'],
+  ['DE', 'Alemania'],
+  ['IT', 'Italia'],
+  ['GB', 'Reino Unido'],
+] as const

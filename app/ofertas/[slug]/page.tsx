@@ -9,6 +9,7 @@ import { and, eq } from 'drizzle-orm'
 import { SEED_OFFERS } from '@/lib/seed-data'
 import { getPublishedOffers } from '@/app/actions/offers'
 import { parseOfferContent } from '@/lib/offer-utils'
+import { siteConfig } from '@/config/site'
 import {
   ArrowUpRightIcon,
   WhatsappIcon,
@@ -106,10 +107,11 @@ export default async function OfferDetailPage({
   // Organizar el contenido inteligentemente (narrativa, ruta, inclusiones)
   const parsedContent = parseOfferContent(offer.description, offer.includes)
 
-  const whatsappMessage = encodeURIComponent(
+  const whatsappMessage =
     `Hola Soleando, me interesa la experiencia "${offer.title}". ¿Me brindan más información y disponibilidad?`
-  )
-  const whatsappUrl = `https://api.whatsapp.com/message/D3DXUHVK575TH1?autoload=1&app_absent=0&text=${whatsappMessage}`
+  const whatsappUrlWithMessage = new URL(siteConfig.whatsappUrl)
+  whatsappUrlWithMessage.searchParams.set('text', whatsappMessage)
+  const whatsappUrl = whatsappUrlWithMessage.toString()
 
   return (
     <div
@@ -146,7 +148,7 @@ export default async function OfferDetailPage({
               <span>Ver todas las ofertas</span>
             </Link>
             <a
-              href="https://api.whatsapp.com/message/D3DXUHVK575TH1?autoload=1&app_absent=0"
+              href={siteConfig.whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="hidden sm:inline-flex items-center gap-1.5 text-xs font-semibold px-4 py-2 rounded-full transition-colors shadow-sm"
@@ -535,7 +537,7 @@ export default async function OfferDetailPage({
               Contáctanos directamente por WhatsApp y nuestro equipo armará una experiencia inolvidable para ti y tus acompañantes.
             </p>
             <a
-              href="https://api.whatsapp.com/message/D3DXUHVK575TH1?autoload=1&app_absent=0"
+              href={siteConfig.whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 py-3.5 px-7 rounded-full text-xs sm:text-sm font-semibold transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5 active:translate-y-0"
@@ -571,7 +573,7 @@ export default async function OfferDetailPage({
             <Link href="/" className="hover:text-stone-900 transition-colors">Inicio</Link>
             <Link href="/ofertas" className="hover:text-stone-900 transition-colors">Ofertas</Link>
             <a
-              href="https://instagram.com/soleandodr"
+              href={siteConfig.instagramUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-stone-900 transition-colors flex items-center gap-1"

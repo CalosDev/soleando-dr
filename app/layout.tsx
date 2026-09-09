@@ -3,14 +3,16 @@ import type { Metadata, Viewport } from 'next'
 import { DM_Sans, DM_Serif_Display, Anton } from 'next/font/google'
 import { PwaProvider } from '@/components/pwa-provider'
 import './globals.css'
+import './new-home.css'
 import { Toaster } from 'sileo'
 const dmSans = DM_Sans({ subsets: ['latin'], variable: '--font-body' })
 const dmSerif = DM_Serif_Display({ subsets: ['latin'], weight: '400', variable: '--font-display' })
 const anton = Anton({ subsets: ['latin'], weight: '400', variable: '--font-anton' })
 
 export const metadata: Metadata = {
-  title: 'Soleando | Excursiones que se quedan contigo',
-  description: 'Descubre excursiones, tours y experiencias auténticas en República Dominicana con Soleando.',
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
+  title: { default: 'Soleando DR | Hoteles, viajes y experiencias', template: '%s | Soleando DR' },
+  description: 'Descubre hoteles, destinos y experiencias para tu próximo viaje con Soleando en República Dominicana.',
   manifest: '/manifest.webmanifest',
   appleWebApp: {
     capable: true,

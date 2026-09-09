@@ -12,7 +12,7 @@ const offerSchema = z.object({
   title: z.string().trim().min(2), destination: z.string().trim().min(2), category: z.string().trim().min(2),
   description: z.string().trim().min(10), price: z.string().trim().optional(), currency: z.string().default('USD'),
   dateLabel: z.string().trim().optional(), includes: z.string().optional(), imageUrl: z.string().min(1).refine(v => v.startsWith('/') || v.startsWith('http') || v.startsWith('data:image/'), { message: 'Invalid URL' }),
-  instagramUrl: z.string().url().optional().or(z.literal('')), featured: z.boolean().default(false),
+  featured: z.boolean().default(false),
   status: z.enum(['draft', 'published', 'archived']).default('draft'),
 })
 
@@ -21,12 +21,14 @@ let inMemoryDemoOffers: Offer[] = []
 async function requireAdmin() {
   const cookieStore = await cookies()
   if (cookieStore.get('soleando_demo_session')?.value === 'true') {
-    return { id: 'demo-admin-id', name: 'Administrador Demo', email: 'admin@soleando.com' }
+    return { id: 'demo-admin-id', name: 'Administrador Demo', email: 'admin@soleando.com', role: 'admin' }
   }
 
   try {
-    const session = await auth.api.getSession({ headers: await headers() })
-    if (session?.user) return session.user
+    const session = await auth?.api.getSession({ headers: await headers() })
+    if (session?.user && (session.user as { role?: string }).role === 'admin') {
+      return session.user
+    }
   } catch {
     // DB error
   }
@@ -43,12 +45,14 @@ function toValues(data: z.infer<typeof offerSchema>) {
     title: data.title, destination: data.destination, category: data.category, description: data.description,
     price: data.price || null, currency: data.currency, dateLabel: data.dateLabel || null,
     includes: data.includes?.split(',').map((item) => item.trim()).filter(Boolean) || [], imageUrl: data.imageUrl,
-    instagramUrl: data.instagramUrl || null, featured: data.featured, status: data.status,
-    manualOverrides: Object.keys(data), updatedAt: new Date(),
+    featured: data.featured, status: data.status,
+    updatedAt: new Date(),
   }
 }
 
 export async function getPublishedOffers(): Promise<Offer[]> {
+  if (!db) return inMemoryDemoOffers.filter((o) => o.status === 'published')
+
   try {
     const dbRes = await db.select().from(offers).where(eq(offers.status, 'published')).orderBy(desc(offers.featured), desc(offers.createdAt))
     if (dbRes && dbRes.length > 0) return dbRes
@@ -58,6 +62,8 @@ export async function getPublishedOffers(): Promise<Offer[]> {
 
 export async function getAdminOffers(): Promise<Offer[]> {
   await requireAdmin()
+  if (!db) return inMemoryDemoOffers
+
   try {
     const dbRes = await db.select().from(offers).orderBy(desc(offers.updatedAt))
     if (dbRes && dbRes.length > 0) return dbRes
@@ -67,6 +73,8 @@ export async function getAdminOffers(): Promise<Offer[]> {
 
 export async function getAdminOffer(id: string): Promise<Offer | undefined> {
   await requireAdmin()
+  if (!db) return inMemoryDemoOffers.find((o) => o.id === id)
+
   try {
     const result = await db.select().from(offers).where(eq(offers.id, id))
     if (result[0]) return result[0]
@@ -82,15 +90,17 @@ export async function createOffer(input: unknown) {
     ...toValues(data),
     id,
     slug: `${slugify(data.title)}-${id.slice(0, 6)}`,
-    source: 'manual',
-    instagramMediaId: null,
     createdAt: new Date(),
   }
 
-  try {
-    await db.insert(offers).values(newOffer)
-  } catch {
+  if (!db) {
     inMemoryDemoOffers = [newOffer, ...inMemoryDemoOffers]
+  } else {
+    try {
+      await db.insert(offers).values(newOffer)
+    } catch {
+      inMemoryDemoOffers = [newOffer, ...inMemoryDemoOffers]
+    }
   }
 
   revalidatePath('/')
@@ -104,10 +114,14 @@ export async function updateOffer(id: string, input: unknown) {
   const data = offerSchema.parse(input)
   const updatedValues = toValues(data)
 
-  try {
-    await db.update(offers).set(updatedValues).where(eq(offers.id, id))
-  } catch {
+  if (!db) {
     inMemoryDemoOffers = inMemoryDemoOffers.map((o) => (o.id === id ? { ...o, ...updatedValues } : o))
+  } else {
+    try {
+      await db.update(offers).set(updatedValues).where(eq(offers.id, id))
+    } catch {
+      inMemoryDemoOffers = inMemoryDemoOffers.map((o) => (o.id === id ? { ...o, ...updatedValues } : o))
+    }
   }
 
   revalidatePath('/')
@@ -119,10 +133,14 @@ export async function updateOffer(id: string, input: unknown) {
 
 export async function archiveOffer(id: string) {
   await requireAdmin()
-  try {
-    await db.update(offers).set({ status: 'archived', updatedAt: new Date() }).where(eq(offers.id, id))
-  } catch {
+  if (!db) {
     inMemoryDemoOffers = inMemoryDemoOffers.map((o) => (o.id === id ? { ...o, status: 'archived', updatedAt: new Date() } : o))
+  } else {
+    try {
+      await db.update(offers).set({ status: 'archived', updatedAt: new Date() }).where(eq(offers.id, id))
+    } catch {
+      inMemoryDemoOffers = inMemoryDemoOffers.map((o) => (o.id === id ? { ...o, status: 'archived', updatedAt: new Date() } : o))
+    }
   }
 
   revalidatePath('/')
@@ -133,10 +151,14 @@ export async function archiveOffer(id: string) {
 
 export async function deleteOffer(id: string) {
   await requireAdmin()
-  try {
-    await db.delete(offers).where(eq(offers.id, id))
-  } catch {
+  if (!db) {
     inMemoryDemoOffers = inMemoryDemoOffers.filter((o) => o.id !== id)
+  } else {
+    try {
+      await db.delete(offers).where(eq(offers.id, id))
+    } catch {
+      inMemoryDemoOffers = inMemoryDemoOffers.filter((o) => o.id !== id)
+    }
   }
 
   revalidatePath('/')

@@ -1,11 +1,11 @@
-const CACHE_NAME = 'soleando-cache-v1'
+const CACHE_NAME = 'soleando-cache-v2'
 
 const PRECACHE_ASSETS = [
   '/',
   '/manifest.json',
-  '/icon-192.png',
-  '/icon-512.png',
-  '/apple-icon.png',
+  '/Soleando.ico',
+  '/favicon.ico',
+  '/maskable-icon-512.png',
   '/soleando-hero.webp',
   '/soleando-paradise.jpg',
 ]

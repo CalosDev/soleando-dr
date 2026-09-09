@@ -1,7 +1,5 @@
-import { auth } from '@/lib/auth'
+import { requireAdmin } from '@/lib/auth-session'
 import { getAdminOffers } from '@/app/actions/offers'
-import { headers, cookies } from 'next/headers'
-import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { AdminOfferActions } from '@/components/admin-offer-actions'
 import { SignOutButton } from '@/components/sign-out-button'
@@ -10,23 +8,7 @@ import type { Offer } from '@/lib/db/schema'
 export const dynamic = 'force-dynamic'
 
 export default async function AdminPage() {
-  const cookieStore = await cookies()
-  const isDemo = cookieStore.get('soleando_demo_session')?.value === 'true'
-
-  let user = isDemo ? { name: 'Administrador Demo', email: 'admin@soleando.com' } : null
-
-  if (!user) {
-    try {
-      const session = await auth.api.getSession({ headers: await headers() })
-      if (session?.user) {
-        user = session.user
-      }
-    } catch {
-      // ignore
-    }
-  }
-
-  if (!user) redirect('/admin/login')
+  const user = await requireAdmin('/admin')
 
   let items: Offer[] = []
   try {
@@ -59,41 +41,11 @@ export default async function AdminPage() {
           >
             🏷️ Catálogo de Ofertas
           </Link>
-          <Link
-            href="/admin/instagram"
-            style={{
-              padding: '8px 16px',
-              borderRadius: '8px',
-              fontSize: '14px',
-              fontWeight: 600,
-              color: '#64748b',
-              textDecoration: 'none',
-              background: 'transparent',
-            }}
-          >
-            📸 Carrusel de Instagram
-          </Link>
         </nav>
 
         <div className="admin-user">
           <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
             {user.name || user.email}
-            {isDemo && (
-              <span
-                style={{
-                  background: 'var(--coral)',
-                  color: 'white',
-                  fontSize: '9px',
-                  fontWeight: 700,
-                  padding: '3px 8px',
-                  borderRadius: '12px',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.06em',
-                }}
-              >
-                Modo Demo
-              </span>
-            )}
           </span>
           <a href="/">Ver sitio ↗</a>
           <SignOutButton />
@@ -101,49 +53,6 @@ export default async function AdminPage() {
       </header>
 
       <section className="admin-content">
-        {/* Banner to jump to Instagram Carrusel */}
-        <div
-          style={{
-            background: 'linear-gradient(135deg, #fff7ed 0%, #fef2f2 100%)',
-            border: '1.5px solid #fed7aa',
-            borderRadius: '12px',
-            padding: '16px 20px',
-            marginBottom: '24px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: '16px',
-            flexWrap: 'wrap',
-          }}
-        >
-          <div>
-            <strong style={{ color: '#9a3412', fontSize: '15px', display: 'block', marginBottom: '2px' }}>
-              📸 Administrador de Posts & Reels de Instagram
-            </strong>
-            <span style={{ color: '#c2410c', fontSize: '13px' }}>
-              Pega cualquier link de Instagram para autocompletarlo y actualizar el carrusel de la página principal.
-            </span>
-          </div>
-          <Link
-            href="/admin/instagram"
-            style={{
-              padding: '10px 18px',
-              borderRadius: '8px',
-              background: '#ea580c',
-              color: '#ffffff',
-              fontWeight: 700,
-              fontSize: '13px',
-              textDecoration: 'none',
-              boxShadow: '0 2px 8px rgba(234,88,12,0.25)',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-            }}
-          >
-            Gestionar Carrusel de Instagram ↗
-          </Link>
-        </div>
-
         <div className="admin-heading">
           <div>
             <p className="eyebrow">Panel de ofertas</p>
@@ -153,7 +62,7 @@ export default async function AdminPage() {
               <em>siempre listo.</em>
             </h1>
             <p className="muted">
-              Crea ofertas manuales ahora. Más adelante podremos sincronizar las de Instagram sin perder tus ediciones.
+              Crea y gestiona las ofertas disponibles en la plataforma.
             </p>
           </div>
           <Link className="button button-sun" href="/admin/ofertas/nueva">
@@ -170,14 +79,13 @@ export default async function AdminPage() {
             <span>Publicadas</span>
           </div>
           <div>
-            <strong>{items.filter((item) => item.source === 'instagram').length}</strong>
-            <span>Desde Instagram</span>
+            <strong>{items.filter((item) => item.status === 'draft').length}</strong>
+            <span>Borradores</span>
           </div>
         </div>
         <div className="admin-list">
           <div className="admin-list-head">
             <span>Oferta</span>
-            <span>Origen</span>
             <span>Estado</span>
           </div>
           {items.length ? (
@@ -189,7 +97,6 @@ export default async function AdminPage() {
                     {item.destination} · {item.category}
                   </small>
                 </div>
-                <span className="source-pill">{item.source === 'instagram' ? 'Instagram' : 'Manual'}</span>
                 <span className={`status-pill status-${item.status}`}>
                   {item.status === 'published' ? 'Publicada' : item.status === 'archived' ? 'Archivada' : 'Borrador'}
                 </span>

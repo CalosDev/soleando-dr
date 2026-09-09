@@ -31,7 +31,9 @@ export function FloatingWhatsApp() {
     contextualBadge = 'Cruceros por el Caribe'
   }
 
-  const encodedUrl = `${siteConfig.whatsappUrl}?text=${encodeURIComponent(prefilledMessage)}`
+  const whatsappUrl = new URL(siteConfig.whatsappUrl)
+  whatsappUrl.searchParams.set('text', prefilledMessage)
+  const encodedUrl = whatsappUrl.toString()
   const isDetailPage = /^\/(hoteles|experiencias)\/[^/]+$/.test(pathname)
 
   return (
@@ -46,7 +48,7 @@ export function FloatingWhatsApp() {
         <div
           role="region"
           aria-label="Mensaje de bienvenida"
-          className="relative bg-white text-stone-900 px-4 py-3 rounded-2xl shadow-xl border border-stone-200/80 max-w-[280px] sm:max-w-xs transition-all duration-300 animate-in fade-in slide-in-from-bottom-3"
+          className="relative hidden sm:block bg-white text-stone-900 px-4 py-3 rounded-2xl shadow-xl border border-stone-200/80 max-w-[280px] sm:max-w-xs transition-all duration-300 animate-in fade-in slide-in-from-bottom-3"
         >
           <button
             type="button"

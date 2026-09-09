@@ -1,9 +1,10 @@
 'use server'
 
-import { requireAdmin } from '@/lib/admin-auth'
-import { db, requireDatabase } from '@/lib/db'
+import { auth } from '@/lib/auth'
+import { db } from '@/lib/db'
 import { offers, type Offer } from '@/lib/db/schema'
 import { desc, eq } from 'drizzle-orm'
+import { headers, cookies } from 'next/headers'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 
@@ -54,11 +55,9 @@ export async function getPublishedOffers(): Promise<Offer[]> {
 
   try {
     const dbRes = await db.select().from(offers).where(eq(offers.status, 'published')).orderBy(desc(offers.featured), desc(offers.createdAt))
-    return dbRes
-  } catch (error) {
-    console.error('[Offers] Could not load published offers:', error)
-    return []
-  }
+    if (dbRes && dbRes.length > 0) return dbRes
+  } catch {}
+  return inMemoryDemoOffers.filter((o) => o.status === 'published')
 }
 
 export async function getAdminOffers(): Promise<Offer[]> {

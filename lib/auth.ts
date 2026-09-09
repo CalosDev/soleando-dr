@@ -16,7 +16,7 @@ export const auth = pool && authSecret
       trustedOrigins: process.env.NODE_ENV === 'development' ? ['http://localhost:3000', ...originValues] : productionOrigins,
       emailAndPassword: {
         enabled: true,
-        disableSignUp: true,
+        disableSignUp: false,
       },
       plugins: [admin()],
     })

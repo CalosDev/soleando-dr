@@ -3,6 +3,7 @@
 import { FormEvent, useState } from 'react'
 import { authClient } from '@/lib/auth-client'
 import { useRouter } from 'next/navigation'
+import { signInSchema } from '@/lib/validation/auth'
 
 export default function AdminLogin() {
   const router = useRouter()
@@ -16,18 +17,28 @@ export default function AdminLogin() {
     setLoading(true)
     setError('')
 
-    const cleanEmail = email.trim().toLowerCase()
+    const parsed = signInSchema.safeParse({ email, password })
+    if (!parsed.success) {
+      setError(parsed.error.issues[0]?.message ?? 'Revisa los datos introducidos.')
+      setLoading(false)
+      return
+    }
 
     try {
       const result = await authClient.signIn.email({
-        email: cleanEmail,
-        password,
+        ...parsed.data,
       })
       if (result.error) {
         setError('No pudimos validar tus credenciales.')
       } else {
-        router.push('/admin')
-        router.refresh()
+        const session = await authClient.getSession()
+        if (session.data?.user.role === 'admin') {
+          router.push('/admin')
+          router.refresh()
+        } else {
+          await authClient.signOut()
+          setError('No tienes acceso al panel administrativo.')
+        }
       }
     } catch {
       setError('El servicio de autenticación no está disponible.')
@@ -57,6 +68,7 @@ export default function AdminLogin() {
             <input
               name="email"
               type="email"
+              autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -67,12 +79,13 @@ export default function AdminLogin() {
             <input
               name="password"
               type="password"
+              autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
           </label>
-          {error && <p className="form-error">{error}</p>}
+          {error && <p className="form-error" role="alert">{error}</p>}
           <button className="button button-sun" disabled={loading}>
             {loading ? 'Entrando…' : 'Entrar al panel ↗'}
           </button>

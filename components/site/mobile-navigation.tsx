@@ -4,7 +4,9 @@ import Link from 'next/link'
 import { useEffect, useId, useState } from 'react'
 import { siteConfig } from '@/config/site'
 
-export function MobileNavigation() {
+type MobileNavigationProps = { user: { name: string } | null }
+
+export function MobileNavigation({ user }: MobileNavigationProps) {
   const [isOpen, setIsOpen] = useState(false)
   const menuId = useId()
 
@@ -40,6 +42,10 @@ export function MobileNavigation() {
             {siteConfig.navigation.map((item) => (
               <Link key={item.href} href={item.href} onClick={() => setIsOpen(false)}>{item.label}</Link>
             ))}
+            {user ? <Link href="/cuenta" onClick={() => setIsOpen(false)}>Mi cuenta</Link> : <>
+              <Link href="/login" onClick={() => setIsOpen(false)}>Iniciar sesión</Link>
+              <Link href="/registro" onClick={() => setIsOpen(false)}>Crear cuenta</Link>
+            </>}
           </nav>
           <a className="site-button site-button-primary" href={siteConfig.whatsappUrl} target="_blank" rel="noopener noreferrer" onClick={() => setIsOpen(false)}>
             Hablar por WhatsApp

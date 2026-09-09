@@ -4,6 +4,7 @@ export const dynamic = 'force-dynamic'
 import Link from 'next/link'
 import { getPublishedOffers } from '@/app/actions/offers'
 import type { Offer } from '@/lib/db/schema'
+import { getOfferImageSrc } from '@/lib/offer-image'
 import { ArrowUpRightIcon } from '@/components/icons'
 
 export default async function OffersPage() {
@@ -44,7 +45,7 @@ export default async function OffersPage() {
             <Link className="offers-catalog-card" href={`/ofertas/${item.slug}`} key={item.id}>
               <div className="offers-catalog-image">
                 <Image
-                  src={item.imageUrl}
+                  src={getOfferImageSrc(item.imageUrl)}
                   alt={item.title}
                   fill
                   sizes={items.length === 1 ? '(max-width: 800px) 90vw, 46vw' : '(max-width: 700px) 90vw, 33vw'}

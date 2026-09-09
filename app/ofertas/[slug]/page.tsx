@@ -8,6 +8,7 @@ import { offers, type Offer } from '@/lib/db/schema'
 import { and, eq } from 'drizzle-orm'
 import { SEED_OFFERS } from '@/lib/seed-data'
 import { getPublishedOffers } from '@/app/actions/offers'
+import { getOfferImageSrc } from '@/lib/offer-image'
 import { parseOfferContent } from '@/lib/offer-utils'
 import {
   ArrowUpRightIcon,
@@ -66,7 +67,7 @@ export async function generateMetadata({
     openGraph: {
       title: `${offer.title} | Soleando`,
       description: offer.description,
-      images: offer.imageUrl ? [{ url: offer.imageUrl }] : undefined,
+      images: offer.imageUrl ? [{ url: getOfferImageSrc(offer.imageUrl) }] : undefined,
     },
   }
 }
@@ -103,6 +104,7 @@ export default async function OfferDetailPage({
 
   const formattedPrice = formatPriceValue(offer.price)
   const currency = offer.currency || 'USD'
+  const offerImageSrc = getOfferImageSrc(offer.imageUrl)
 
   // Organizar el contenido inteligentemente (narrativa, ruta, inclusiones)
   const parsedContent = parseOfferContent(offer.description, offer.includes)
@@ -187,7 +189,7 @@ export default async function OfferDetailPage({
               }}
             >
               <Image
-                src={offer.imageUrl}
+                src={offerImageSrc}
                 alt={offer.title}
                 width={1200}
                 height={1200}
@@ -473,7 +475,7 @@ export default async function OfferDetailPage({
                   >
                     <div className="relative aspect-[4/3] w-full bg-stone-100 overflow-hidden">
                       <Image
-                        src={other.imageUrl}
+                        src={getOfferImageSrc(other.imageUrl)}
                         alt={other.title}
                         fill
                         sizes="(max-width: 640px) 100vw, 33vw"

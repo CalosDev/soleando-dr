@@ -757,6 +757,8 @@
   background: linear-gradient(90deg, #FFE600, #f64d0b);
 }
 
+.admin-form{background:#f1eee8;margin-top:48px;padding:30px}.admin-form-grid{display:grid;gap:18px;grid-template-columns:repeat(2,minmax(0,1fr))}.admin-form label{display:flex;flex-direction:column;font-size:11px;gap:8px;letter-spacing:.08em;text-transform:uppercase}.admin-form input,.admin-form textarea,.admin-form select{background:transparent;border:1px solid var(--line);color:var(--ink);font:inherit;font-size:15px;letter-spacing:0;padding:13px;text-transform:none}.admin-form textarea{resize:vertical}.admin-form-full{grid-column:1/-1}.admin-form-actions{display:flex;gap:12px;justify-content:flex-end;margin-top:26px}.admin-form-actions button{border:0;cursor:pointer}.button-ghost{border:1px solid var(--line);color:var(--ink)}.admin-row-actions form{margin:0}.admin-row-actions button{background:transparent;border:0;border-bottom:1px solid currentColor;color:var(--muted);cursor:pointer;font:inherit;font-size:12px;padding:0}@media(max-width:700px){.admin-form{padding:22px}.admin-form-grid{grid-template-columns:1fr}.admin-form-full{grid-column:auto}.admin-form-actions{align-items:stretch;flex-direction:column-reverse}.admin-form-actions .button{text-align:center;justify-content:center}}
+
 @media (max-width: 1024px) {
   .carousel-offer-card {
     flex: 0 0 calc((100% - 20px) / 2);

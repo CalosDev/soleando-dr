@@ -8,7 +8,7 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "test": "node scripts/test-phase15a.mjs",
-    "sync:catalog": "tsx scripts/sync-catalog.ts"
+    "seed:catalog": "tsx scripts/sync-catalog.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",

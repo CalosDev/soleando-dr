@@ -1,6 +1,6 @@
 import 'server-only'
 
-import { and, asc, eq } from 'drizzle-orm'
+import { and, asc, eq, inArray } from 'drizzle-orm'
 
 import { CRUISES_DATA, type Cruise } from '@/data/cruises'
 import { POPULAR_DESTINATIONS, type Destination } from '@/data/destinations'
@@ -9,14 +9,20 @@ import { MOCK_HOTELS, type MockHotel } from '@/data/mock-hotels'
 import { db } from '@/lib/db'
 import { catalogItems } from '@/lib/db/schema'
 
-export type CatalogKind = 'destination' | 'experience' | 'cruise' | 'hotel'
+export type CatalogKind =
+  | 'destination'
+  | 'hotel'
+  | 'tour'
+  | 'excursion_national'
+  | 'excursion_international'
+  | 'cruise'
 
 function isCatalogRecord(value: unknown): value is { id: string; slug?: string } {
   return typeof value === 'object' && value !== null && typeof (value as { id?: unknown }).id === 'string'
 }
 
 async function getCatalogItems<T extends { id: string }>(
-  kind: CatalogKind,
+  kinds: readonly CatalogKind[],
   fallback: readonly T[],
 ): Promise<T[]> {
   if (!db) return [...fallback]
@@ -25,7 +31,7 @@ async function getCatalogItems<T extends { id: string }>(
     const rows = await db
       .select({ content: catalogItems.content })
       .from(catalogItems)
-      .where(and(eq(catalogItems.kind, kind), eq(catalogItems.status, 'published')))
+      .where(and(inArray(catalogItems.kind, [...kinds]), eq(catalogItems.status, 'published')))
       .orderBy(asc(catalogItems.sortOrder), asc(catalogItems.createdAt))
 
     const items = rows.map((row) => row.content).filter(isCatalogRecord) as T[]
@@ -37,19 +43,19 @@ async function getCatalogItems<T extends { id: string }>(
 }
 
 export function getDestinations(): Promise<Destination[]> {
-  return getCatalogItems('destination', POPULAR_DESTINATIONS)
+  return getCatalogItems(['destination'], POPULAR_DESTINATIONS)
 }
 
 export function getExperiences(): Promise<Experience[]> {
-  return getCatalogItems('experience', EXPERIENCES_DATA)
+  return getCatalogItems(['tour', 'excursion_national', 'excursion_international'], EXPERIENCES_DATA)
 }
 
 export function getCruises(): Promise<Cruise[]> {
-  return getCatalogItems('cruise', CRUISES_DATA)
+  return getCatalogItems(['cruise'], CRUISES_DATA)
 }
 
 export function getFeaturedHotels(): Promise<MockHotel[]> {
-  return getCatalogItems('hotel', MOCK_HOTELS)
+  return getCatalogItems(['hotel'], MOCK_HOTELS)
 }
 
 export async function getExperienceBySlug(slug: string): Promise<Experience | null> {

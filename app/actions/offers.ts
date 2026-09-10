@@ -4,7 +4,7 @@ import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { offers, type Offer } from '@/lib/db/schema'
 import { desc, eq } from 'drizzle-orm'
-import { headers, cookies } from 'next/headers'
+import { headers } from 'next/headers'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 
@@ -19,19 +19,12 @@ const offerSchema = z.object({
 let inMemoryDemoOffers: Offer[] = []
 
 async function requireAdmin() {
-  const cookieStore = await cookies()
-  if (cookieStore.get('soleando_demo_session')?.value === 'true') {
-    return { id: 'demo-admin-id', name: 'Administrador Demo', email: 'admin@soleando.com', role: 'admin' }
-  }
-
   try {
     const session = await auth?.api.getSession({ headers: await headers() })
     if (session?.user && (session.user as { role?: string }).role === 'admin') {
       return session.user
     }
-  } catch {
-    // DB error
-  }
+  } catch {}
 
   throw new Error('Unauthorized')
 }

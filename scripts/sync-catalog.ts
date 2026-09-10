@@ -8,7 +8,7 @@ import { POPULAR_DESTINATIONS } from '../data/destinations'
 import { EXPERIENCES_DATA } from '../data/experiences'
 import { MOCK_HOTELS } from '../data/mock-hotels'
 
-type CatalogKind = 'destination' | 'experience' | 'cruise' | 'hotel'
+type CatalogKind = 'destination' | 'hotel' | 'tour' | 'excursion_national' | 'excursion_international' | 'cruise'
 
 function loadLocalEnvironment(): void {
   const envPath = resolve(process.cwd(), '.env.local')
@@ -36,7 +36,7 @@ type CatalogPayload = { id: string; slug?: string }
 
 const entries: Array<{ kind: CatalogKind; item: CatalogPayload; sortOrder: number }> = [
   ...POPULAR_DESTINATIONS.map((item, sortOrder) => ({ kind: 'destination' as const, item, sortOrder })),
-  ...EXPERIENCES_DATA.map((item, sortOrder) => ({ kind: 'experience' as const, item, sortOrder })),
+  ...EXPERIENCES_DATA.map((item, sortOrder) => ({ kind: 'excursion_national' as const, item, sortOrder })),
   ...CRUISES_DATA.map((item, sortOrder) => ({ kind: 'cruise' as const, item, sortOrder })),
   ...MOCK_HOTELS.map((item, sortOrder) => ({ kind: 'hotel' as const, item, sortOrder })),
 ]
@@ -54,18 +54,13 @@ async function main(): Promise<void> {
       await pool.query(
         `insert into public.catalog_items (id, kind, slug, content, status, sort_order)
          values ($1, $2, $3, $4::jsonb, 'published', $5)
-         on conflict (kind, slug) do update
-         set id = excluded.id,
-             content = excluded.content,
-             status = excluded.status,
-             sort_order = excluded.sort_order,
-             updated_at = now()`,
+         on conflict (kind, slug) do nothing`,
         [id, kind, slug, JSON.stringify(item), sortOrder],
       )
     }
 
     await pool.query('commit')
-    console.log(`Catálogo sincronizado: ${entries.length} registros.`)
+    console.log(`Catálogo inicial verificado: ${entries.length} registros. Los existentes no se modificaron.`)
   } catch (error) {
     await pool.query('rollback')
     throw error

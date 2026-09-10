@@ -3,31 +3,17 @@
 import { useEffect, useState } from 'react'
 import { LoaderCircle, ShieldCheck } from 'lucide-react'
 
-const vendorScripts = `<!doctype html>
-<html lang="es">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <base target="_blank" />
-    <script src="https://www.grupogonzalez.com.do/es/microsite/soleandord/engine/v2-scripts"></script>
-  </head>
-  <body>
-    <div id="bmEngine">
-      <script src="https://www.grupogonzalez.com.do/es/microsite/soleandord/engine/v2?type=hotel"></script>
-    </div>
-  </body>
-</html>`
+const vendorEngineUrl = 'https://www.grupogonzalez.com.do/es/microsite/soleandord#bmTabhotel-pane'
 
 /**
- * Runs the supplier's document.write-based engine in an isolated document.
- * This prevents its global CSS and scripts from changing Soleando's React tree.
+ * Loads the supplier-hosted microsite at its hotel form anchor. Keeping the
+ * vendor origin is required for its destination autocomplete requests.
  */
 export function HotelBookingEngine() {
   const [loaded, setLoaded] = useState(false)
 
   useEffect(() => {
-    // The supplier injects its UI asynchronously with document.write, which
-    // does not reliably produce a second iframe load event.
+    // Keep a fallback for browsers that delay the cross-origin load event.
     const timeout = window.setTimeout(() => setLoaded(true), 1800)
     return () => window.clearTimeout(timeout)
   }, [])
@@ -46,8 +32,8 @@ export function HotelBookingEngine() {
         <iframe
           title="Buscador de hoteles de Soleando"
           className="hotel-engine-frame"
-          srcDoc={vendorScripts}
-          sandbox="allow-forms allow-popups allow-scripts allow-top-navigation-by-user-activation"
+          src={vendorEngineUrl}
+          sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-top-navigation-by-user-activation"
           referrerPolicy="strict-origin-when-cross-origin"
           onLoad={() => setLoaded(true)}
         />

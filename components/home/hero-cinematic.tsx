@@ -112,7 +112,9 @@ export function HeroCinematic() {
       gsap.set(paradiseMediaRef.current, { opacity: 0, scale: 1.08 })
       gsap.set(badgeRef.current, { opacity: 0, y: -14 })
       gsap.set(subtitleRef.current, { opacity: 0, y: 14 })
-      gsap.set(climaxContentRef.current, { opacity: 0, y: 24, pointerEvents: 'none' })
+      // The hotel search is the primary conversion action. Keep it available
+      // from the first render; the cinematic sequence is only an enhancement.
+      gsap.set(climaxContentRef.current, { opacity: 1, y: 0, pointerEvents: 'auto' })
       gsap.set(controlsRef.current, { opacity: 0 })
 
       // Frases caracteres iniciales
@@ -249,20 +251,6 @@ export function HeroCinematic() {
         )
       }
 
-      // Revelación suave del buscador de hoteles
-      tl.to(
-        climaxContentRef.current,
-        {
-          opacity: 1,
-          y: 0,
-          pointerEvents: 'auto',
-          duration: 0.8,
-          ease: 'power3.out',
-        },
-        7.35
-      )
-
-
       // Ken Burns continuo y suave en el fondo paraíso
       tl.to(
         paradiseMediaRef.current,
@@ -306,7 +294,7 @@ export function HeroCinematic() {
             alt="Playa tropical con palmeras en República Dominicana"
             fill
             priority
-            quality={95}
+            quality={85}
             sizes="100vw"
             className="object-cover object-bottom"
           />
@@ -322,8 +310,7 @@ export function HeroCinematic() {
             src="/soleando-paradise.jpg"
             alt="Paraíso caribeño de República Dominicana"
             fill
-            priority
-            quality={95}
+            quality={85}
             sizes="100vw"
             className="object-cover object-center"
           />
@@ -469,7 +456,7 @@ export function HeroCinematic() {
         </div>
 
         {/* Bloque interactivo: Buscador de Hoteles */}
-        <div ref={climaxContentRef} className="w-full opacity-0 pointer-events-none relative z-30">
+        <div ref={climaxContentRef} className="relative z-30 w-full opacity-100 pointer-events-auto">
           <div className="w-full">
             <HotelSearchForm />
           </div>

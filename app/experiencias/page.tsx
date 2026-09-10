@@ -4,6 +4,7 @@ import { SiteFooter } from '@/components/site/site-footer'
 import { EXPERIENCES_DATA } from '@/data/experiences'
 import { ExperiencesCatalog } from '@/components/experiences/experiences-catalog'
 import { Compass, Sparkles } from 'lucide-react'
+import Image from 'next/image'
 
 export const metadata: Metadata = {
   title: 'Excursiones & Tours en República Dominicana | Soleando DR',
@@ -17,21 +18,30 @@ export default function ExperienciasPage() {
 
       <main className="flex-1 pb-20">
         {/* Banner Superior con Identidad Soleando & Cocoros */}
-        <section className="bg-stone-900 text-white py-16 px-4 sm:px-6 lg:px-8 text-center space-y-4">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-white/10 text-[#fadc40]">
-            <Compass className="w-3.5 h-3.5" />
-            <span>Descubre República Dominicana</span>
+        <section className="relative text-white pt-20 pb-28 sm:pt-28 sm:pb-36 px-4 sm:px-6 lg:px-8 text-center space-y-5 overflow-hidden">
+          {/* Imagen de fondo con todo el tono oscuro uniforme */}
+          <div className="absolute inset-0 z-0 bg-stone-950">
+            <Image
+              src="/alghozy-fkMae_hrBrI-unsplash.svg"
+              alt="Fondo Excursiones"
+              fill
+              className="object-cover object-center brightness-50 contrast-105"
+              priority
+            />
+            {/* Overlay uniforme para tono oscuro sin franjas */}
+            <div className="absolute inset-0 bg-black/40 pointer-events-none" />
           </div>
-          <h1 className="font-serif text-3xl sm:text-5xl font-normal leading-tight">
+
+          <h1 className="relative z-10 font-serif text-4xl sm:text-6xl font-normal leading-tight text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)]">
             Excursiones & Tours Soleando
           </h1>
-          <p className="text-stone-300 max-w-2xl mx-auto text-sm sm:text-base leading-relaxed">
+          <p className="relative z-10 text-white font-medium max-w-2xl mx-auto text-sm sm:text-lg leading-relaxed drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)] pb-4">
             Playas de aguas cristalinas, adrenalina en buggies 4x4, cascadas en la selva y recorridos coloniales guiados por expertos locales con atención personalizada.
           </p>
         </section>
 
-        {/* Catálogo Interactivo con Buscador y Filtros */}
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10">
+        {/* Catálogo Interactivo con Buscador Flotante (Overlap) */}
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-12 sm:-mt-16 relative z-20">
           <ExperiencesCatalog initialExperiences={EXPERIENCES_DATA} />
         </section>
       </main>

@@ -19,17 +19,26 @@ export default function CrucerosPage() {
       <SiteHeader variant="solid" />
 
       <main className="flex-1">
-        {/* Banner Superior */}
-        <section className="bg-stone-900 text-white py-16 px-4 sm:px-6 lg:px-8 text-center space-y-4">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-white/10 text-[#fadc40]">
-            <Ship className="w-3.5 h-3.5" />
-            <span>Navega el Caribe</span>
+        {/* Banner Superior con Portada de Cruceros */}
+        <section className="relative text-white pt-20 pb-28 sm:pt-28 sm:pb-36 px-4 sm:px-6 lg:px-8 text-center space-y-5 overflow-hidden">
+          {/* Imagen de fondo con tono oscuro uniforme */}
+          <div className="absolute inset-0 z-0 bg-stone-950">
+            <Image
+              src="/alonso-reyes-LWFdBz4d6nE-unsplash.jpg"
+              alt="Portada Cruceros por el Caribe"
+              fill
+              className="object-cover object-center brightness-50 contrast-105"
+              priority
+            />
+            {/* Overlay uniforme para tono oscuro sin franjas */}
+            <div className="absolute inset-0 bg-black/40 pointer-events-none" />
           </div>
-          <h1 className="font-serif text-3xl sm:text-5xl font-normal">
-            Cruceros por el Caribe
+
+          <h1 className="relative z-10 font-serif text-4xl sm:text-6xl font-normal leading-tight text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)]">
+            Cruceros por el Mundo
           </h1>
-          <p className="text-stone-300 max-w-xl mx-auto text-sm sm:text-base">
-            Itinerarios seleccionados con las principales navieras del mundo. Salidas desde puertos dominicanos y Florida.
+          <p className="relative z-10 text-white font-medium max-w-xl mx-auto text-sm sm:text-lg leading-relaxed drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)] pb-4">
+            Itinerarios seleccionados con las principales navieras del mundo. Salidas desde todos los puertos del planeta.
           </p>
         </section>
 
@@ -90,10 +99,10 @@ export default function CrucerosPage() {
 
                   <Link
                     href={`/cruceros/${cruise.id}`}
-                    className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full text-xs font-bold bg-[#f64d0b] text-white hover:bg-[#e04408] transition-all shadow-xs"
+                    className="group/btn inline-flex items-center gap-1.5 px-4.5 py-2.5 rounded-full text-xs font-bold bg-[#f64d0b] text-white hover:bg-[#e04408] transition-all duration-300 shadow-xs hover:shadow-md hover:shadow-orange-500/25 hover:scale-105 shrink-0"
                   >
                     <span>Ver detalles</span>
-                    <ArrowUpRightIcon className="w-2.5 h-2.5 text-white" />
+                    <ArrowUpRightIcon className="w-3 h-3 text-white transition-transform duration-300 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5" />
                   </Link>
                 </div>
               </article>

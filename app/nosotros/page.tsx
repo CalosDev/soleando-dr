@@ -18,16 +18,25 @@ export default function NosotrosPage() {
 
       <main className="flex-1">
         {/* Hero Nosotros */}
-        <section className="bg-stone-900 text-white py-16 lg:py-24 px-4 sm:px-6 lg:px-8 text-center space-y-4">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-white/10 text-[#fadc40]">
-            <Sun className="w-3.5 h-3.5" />
-            <span>Nuestra Historia</span>
+        <section className="relative text-white pt-20 pb-28 sm:pt-28 sm:pb-36 px-4 sm:px-6 lg:px-8 text-center space-y-5 overflow-hidden">
+          {/* Imagen de fondo con tono oscuro uniforme */}
+          <div className="absolute inset-0 z-0 bg-stone-950">
+            <Image
+              src="/ViveSolenado.jpg"
+              alt="Sobre Nosotros - Soleando DR"
+              fill
+              className="object-cover object-center brightness-50 contrast-105"
+              priority
+            />
+            {/* Overlay uniforme para tono oscuro sin franjas */}
+            <div className="absolute inset-0 bg-black/40 pointer-events-none" />
           </div>
-          <h1 className="font-serif text-3xl sm:text-5xl lg:text-6xl font-normal leading-tight max-w-3xl mx-auto">
-            El Caribe se disfruta<br />
-            <em className="text-[#fadc40] italic font-serif">con calma y de verdad.</em>
+
+          
+          <h1 className="relative z-10 font-serif text-3xl sm:text-5xl lg:text-6xl font-normal leading-tight max-w-3xl mx-auto text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)]">
+            <em className="text-[#fadc40] italic font-serif">Soleando DR</em>
           </h1>
-          <p className="text-stone-300 max-w-xl mx-auto text-sm sm:text-base leading-relaxed">
+          <p className="relative z-10 text-white font-medium max-w-xl mx-auto text-sm sm:text-base leading-relaxed drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
             Nacimos con una idea clara: conectar a los viajeros con lo mejor de República Dominicana a través de una atención cercana, honesta y sin complicaciones.
           </p>
         </section>
@@ -35,13 +44,13 @@ export default function NosotrosPage() {
         {/* Historia & Manifiesto */}
         <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20 space-y-16">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-16 items-center">
-            <div className="relative aspect-4/3 rounded-3xl overflow-hidden shadow-xl border border-[#ede8e1]">
+            <div className="relative aspect-4/5 rounded-3xl overflow-hidden shadow-xl border border-[#ede8e1] bg-white">
               <Image
-                src="/soleando-paradise.jpg"
+                src="/igexport-DM0ilWduUhR.jpg"
                 alt="Paisaje tropical de Soleando"
                 fill
                 sizes="(max-width: 768px) 100vw, 50vw"
-                className="object-cover"
+                className="object-contain"
               />
             </div>
 

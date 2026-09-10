@@ -144,10 +144,10 @@ export function HotelCard({ hotel }: HotelCardProps) {
 
           <Link
             href={hotelHref}
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full text-xs font-bold bg-[#f64d0b] text-white hover:bg-[#e04408] transition-all transform hover:scale-102 shadow-sm animate-shimmer"
+            className="group/btn inline-flex items-center gap-1.5 px-4.5 py-2.5 rounded-full text-xs font-bold bg-[#f64d0b] text-white hover:bg-[#e04408] transition-all duration-300 shadow-xs hover:shadow-md hover:shadow-orange-500/25 hover:scale-105 shrink-0"
           >
             <span className="text-white font-bold">Ver detalles</span>
-            <ArrowUpRightIcon className="w-3 h-3 text-white" />
+            <ArrowUpRightIcon className="w-3 h-3 text-white transition-transform duration-300 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5" />
           </Link>
         </div>
       </div>

@@ -13,7 +13,8 @@ export const siteConfig = {
   whatsappNumber: '+1 (809) 000-0000',
   instagramUrl: 'https://www.instagram.com/soleandodr/',
   instagramHandle: '@soleandodr',
-  location: 'Santo Domingo, República Dominicana',
+  location: 'Aut. San Isidro, Santo Domingo Este, República Dominicana',
+  googleMapsUrl: 'https://maps.app.goo.gl/ToPYkwJ6CqP9rfGC7',
   mainNav: [
     { title: 'Inicio', href: '/' },
     { title: 'Hoteles', href: '/hoteles' },

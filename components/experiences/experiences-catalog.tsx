@@ -107,7 +107,7 @@ export function ExperiencesCatalog({ initialExperiences }: ExperiencesCatalogPro
   return (
     <div className="space-y-8">
       {/* Controls Container: Search & Filters Bar (Cocoros style) */}
-      <div className="bg-white rounded-3xl p-5 sm:p-6 border border-[#ede8e1] shadow-sm space-y-4">
+      <div className="bg-white rounded-3xl p-5 sm:p-6 border border-[#ede8e1] shadow-xl shadow-stone-900/10 backdrop-blur-xs space-y-4">
         {/* Top search & selectors row */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
           {/* Search Input */}
@@ -338,10 +338,10 @@ export function ExperiencesCatalog({ initialExperiences }: ExperiencesCatalogPro
 
                 <Link
                   href={`/experiencias/${exp.slug}`}
-                  className="inline-flex items-center gap-1.5 px-4 sm:px-5 py-2.5 rounded-full text-xs font-bold bg-[#f64d0b] text-white hover:bg-[#e04408] transition-all shadow-xs group-hover:scale-102 animate-shimmer"
+                  className="group/btn inline-flex items-center gap-1.5 px-4 sm:px-5 py-2.5 rounded-full text-xs font-bold bg-[#f64d0b] text-white hover:bg-[#e04408] transition-all duration-300 shadow-xs hover:shadow-md hover:shadow-orange-500/25 hover:scale-105 shrink-0"
                 >
                   <span>Ver detalles</span>
-                  <ArrowUpRightIcon className="w-2.5 h-2.5 text-white" />
+                  <ArrowUpRightIcon className="w-3 h-3 text-white transition-transform duration-300 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5" />
                 </Link>
               </div>
             </article>

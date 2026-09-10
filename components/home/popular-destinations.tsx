@@ -62,7 +62,7 @@ export function PopularDestinations() {
                   {dest.description}
                 </p>
                 <div className="pt-2">
-                  <span className="text-[11px] font-bold text-white/90 underline underline-offset-4 decoration-[#fadc40]">
+                  <span className="text-[11px] font-bold text-white/90">
                     Ver alojamientos en {dest.name} →
                   </span>
                 </div>

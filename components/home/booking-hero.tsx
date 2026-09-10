@@ -66,7 +66,7 @@ export function BookingHero() {
             ¿Prefieres planearlo con alguien? Cuéntanos tus fechas e ideas y te ayudamos a elegir.
           </p>
           <div className="flex shrink-0 items-center gap-4 text-sm font-bold">
-            <Link href="/experiencias" className="text-white underline decoration-white/40 underline-offset-4 transition-colors hover:text-[#fadc40]">
+            <Link href="/experiencias" className="text-white transition-colors hover:text-[#fadc40]">
               Ver experiencias
             </Link>
             <a

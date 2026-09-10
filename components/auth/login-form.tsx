@@ -102,11 +102,11 @@ function LoginFormContent() {
 
         {/* Email Field */}
         <div>
-          <label htmlFor="login-email" className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1.5">
+          <label htmlFor="login-email" className="block text-[11px] font-bold uppercase tracking-wider text-stone-700 mb-1.5">
             Correo electrónico
           </label>
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-stone-400">
+          <div className="relative group">
+            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-stone-400 group-focus-within:text-[#f64d0b] transition-colors">
               <Mail className="w-4 h-4" />
             </div>
             <input
@@ -117,7 +117,7 @@ function LoginFormContent() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="tu@correo.com"
-              className="w-full pl-10 pr-4 py-3 rounded-xl border border-[#ede8e1] bg-white text-stone-900 placeholder:text-stone-400 text-sm focus:outline-hidden focus:border-[#f64d0b] focus:ring-2 focus:ring-[#f64d0b]/20 transition-all"
+              className="w-full pl-10 pr-4 py-3 rounded-xl border border-stone-200 bg-stone-50/70 hover:bg-stone-50 focus:bg-white text-stone-900 placeholder:text-stone-400 text-sm shadow-xs focus:outline-hidden focus:border-[#f64d0b] focus:ring-4 focus:ring-[#f64d0b]/15 transition-all"
             />
           </div>
         </div>
@@ -125,18 +125,18 @@ function LoginFormContent() {
         {/* Password Field */}
         <div>
           <div className="flex items-center justify-between mb-1.5">
-            <label htmlFor="login-password" className="block text-xs font-bold uppercase tracking-wider text-stone-700">
+            <label htmlFor="login-password" className="block text-[11px] font-bold uppercase tracking-wider text-stone-700">
               Contraseña
             </label>
             <Link
               href="/recuperar-contrasena"
-              className="text-xs font-semibold text-[#f64d0b] hover:underline"
+              className="text-xs font-semibold text-[#f64d0b] hover:text-[#d43d06] transition-colors"
             >
               ¿Olvidaste tu contraseña?
             </Link>
           </div>
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-stone-400">
+          <div className="relative group">
+            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-stone-400 group-focus-within:text-[#f64d0b] transition-colors">
               <Lock className="w-4 h-4" />
             </div>
             <input
@@ -147,12 +147,12 @@ function LoginFormContent() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              className="w-full pl-10 pr-11 py-3 rounded-xl border border-[#ede8e1] bg-white text-stone-900 placeholder:text-stone-400 text-sm focus:outline-hidden focus:border-[#f64d0b] focus:ring-2 focus:ring-[#f64d0b]/20 transition-all"
+              className="w-full pl-10 pr-11 py-3 rounded-xl border border-stone-200 bg-stone-50/70 hover:bg-stone-50 focus:bg-white text-stone-900 placeholder:text-stone-400 text-sm shadow-xs focus:outline-hidden focus:border-[#f64d0b] focus:ring-4 focus:ring-[#f64d0b]/15 transition-all"
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-stone-400 hover:text-stone-600 transition-colors"
+              className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-stone-400 hover:text-stone-600 transition-colors cursor-pointer"
               aria-label={showPassword ? 'Ocultar contraseña' : 'Ver contraseña'}
             >
               {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -164,7 +164,7 @@ function LoginFormContent() {
         <button
           type="submit"
           disabled={isBusy}
-          className="w-full inline-flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl bg-[#f64d0b] hover:bg-[#e04408] text-white font-bold text-sm shadow-md transition-all duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed mt-2"
+          className="w-full inline-flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl bg-gradient-to-r from-[#f64d0b] via-[#ff5f15] to-[#f64d0b] hover:brightness-105 active:scale-[0.99] text-white font-bold text-sm shadow-md shadow-[#f64d0b]/25 hover:shadow-xl hover:shadow-[#f64d0b]/35 transition-all duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed mt-2"
         >
           {isBusy ? (
             <>
@@ -181,11 +181,11 @@ function LoginFormContent() {
       </form>
 
       {/* Footer Switch */}
-      <div className="mt-6 text-center text-sm text-stone-600">
+      <div className="mt-6 pt-4 border-t border-stone-100 text-center text-sm text-stone-600">
         ¿Aún no tienes cuenta?{' '}
         <Link
           href={rawNext ? `/registro?next=${encodeURIComponent(safeNext)}` : '/registro'}
-          className="font-bold text-[#f64d0b] hover:underline"
+          className="font-bold text-[#f64d0b] hover:text-[#d43d06] transition-colors"
         >
           Regístrate gratis
         </Link>

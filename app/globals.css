@@ -9,13 +9,14 @@
   --color-soleando-yellow: #FFE600;
   --color-soleando-orange: #FF6B00;
   --color-soleando-red: #E52300;
+  --color-stone-900: #0B1221;
 }
 
 :root {
   color-scheme: light;
   --background: #fdfbf7;
-  --foreground: #1c1917;
-  --ink: #1c1917;
+  --foreground: #0B1221;
+  --ink: #0B1221;
   --muted: #78716c;
   --cream: #fdfbf7;
   --paper: #fffffe;
@@ -387,8 +388,8 @@
 }
 
 .view-all-offers-btn:hover {
-  background: #1c1917;
-  border-color: #1c1917;
+  background: #0B1221;
+  border-color: #0B1221;
   box-shadow: 0 8px 24px rgba(28, 25, 23, 0.2);
   color: #ffffff;
   transform: translateY(-2px);
@@ -433,9 +434,9 @@
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .carousel-control-btn:hover:not(:disabled) {
-  background: #1c1917;
+  background: #0B1221;
   color: #ffffff;
-  border-color: #1c1917;
+  border-color: #0B1221;
   transform: scale(1.06);
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
 }
@@ -686,7 +687,7 @@
 
 .carousel-btn-primary {
   background: linear-gradient(135deg, #FFE600 0%, #FF6B00 50%, #E52300 100%);
-  color: #1c1917;
+  color: #0B1221;
   font-size: 10px;
   font-weight: 800;
   letter-spacing: 0.05em;

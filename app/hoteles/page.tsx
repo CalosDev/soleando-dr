@@ -1,5 +1,6 @@
 import { Suspense } from 'react'
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import { SiteHeader } from '@/components/site/site-header'
 import { SiteFooter } from '@/components/site/site-footer'
 import { HotelSearchForm } from '@/components/home/hotel-search-form'
@@ -80,18 +81,27 @@ async function HotelesContent({ searchParams }: HotelesPageProps) {
       <SiteHeader variant="solid" />
 
       <main className="flex-1">
-        {/* Search Header Banner */}
-        <section className="bg-stone-900 text-white py-12 sm:py-16 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto space-y-6">
-            <div className="space-y-2 text-center max-w-2xl mx-auto">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-white/10 text-[#fadc40]">
-                <Hotel className="w-3.5 h-3.5" />
-                <span>Búsqueda de Alojamientos</span>
-              </div>
-              <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-normal">
-                {matchedDestination ? `Hoteles en ${matchedDestination.name}` : 'Encuentra tu hotel en el Caribe'}
+        {/* Search Header Banner con Portada de Hoteles */}
+        <section className="relative text-white py-16 sm:py-24 px-4 sm:px-6 lg:px-8 overflow-hidden">
+          {/* Imagen de fondo con tono oscuro uniforme */}
+          <div className="absolute inset-0 z-0 bg-stone-950">
+            <Image
+              src="/sasha-kaunas-xEaAoizNFV8-unsplash.jpg"
+              alt="Hoteles y Resorts en República Dominicana"
+              fill
+              className="object-cover object-center brightness-50 contrast-105"
+              priority
+            />
+            {/* Overlay uniforme para tono oscuro sin franjas */}
+            <div className="absolute inset-0 bg-black/40 pointer-events-none" />
+          </div>
+
+          <div className="relative z-10 max-w-7xl mx-auto space-y-6">
+            <div className="space-y-2 text-center max-w-4xl mx-auto">
+              <h1 className="font-serif text-3xl sm:text-5xl lg:text-6xl font-normal text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)] sm:whitespace-nowrap">
+                {matchedDestination ? `Hoteles en ${matchedDestination.name}` : 'Encuentra tu hotel por el mundo'}
               </h1>
-              <p className="text-xs sm:text-sm text-stone-300">
+              <p className="text-xs sm:text-sm text-stone-200 font-medium drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)] max-w-2xl mx-auto">
                 Resorts todo incluido, hoteles boutique y escapadas de descanso seleccionadas por Soleando.
               </p>
             </div>
@@ -115,11 +125,6 @@ async function HotelesContent({ searchParams }: HotelesPageProps) {
           {/* Active Filters / Summary */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[#ede8e1]">
             <div className="space-y-1">
-              <h2 className="text-xl font-serif text-stone-900 font-normal">
-                {isProviderUnavailable
-                  ? 'Servicio no disponible'
-                  : `${hotels.length} ${hotels.length === 1 ? 'propiedad disponible' : 'propiedades disponibles'}`}
-              </h2>
               {checkIn && checkOut && !isProviderUnavailable && (
                 <p className="text-xs text-stone-500">
                   Fechas seleccionadas: <strong className="text-stone-700">{checkIn}</strong> al <strong className="text-stone-700">{checkOut}</strong> ({adults} adultos, {rooms} hab.)
@@ -127,12 +132,6 @@ async function HotelesContent({ searchParams }: HotelesPageProps) {
               )}
             </div>
 
-            {!isProviderUnavailable && (
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium bg-amber-50 text-amber-900 border border-amber-200/80">
-                <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-                <span>Tarifas referenciales provistas por HotelProvider</span>
-              </div>
-            )}
           </div>
 
           {/* Provider Unavailable Banner */}

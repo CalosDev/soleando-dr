@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import { SiteHeader } from '@/components/site/site-header'
 import { SiteFooter } from '@/components/site/site-footer'
 import { siteConfig } from '@/config/site'
@@ -18,17 +19,29 @@ export default function ContactoPage() {
 
       <main className="flex-1">
         {/* Banner Superior */}
-        <section className="bg-stone-900 text-white py-16 px-4 sm:px-6 lg:px-8 text-center space-y-4">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-white/10 text-[#fadc40]">
-            <MessageSquare className="w-3.5 h-3.5" />
-            <span>Estamos para ti</span>
+        <section className="relative text-white py-24 px-4 sm:px-6 lg:px-8 text-center overflow-hidden">
+          {/* Background Image */}
+          <div className="absolute inset-0 z-0">
+            <Image
+              src="/alghozy-3FmAo4JBvLM-unsplash.svg"
+              alt="Contacto Soleando DR"
+              fill
+              className="object-cover object-center"
+              priority
+            />
+            {/* Cinematic Overlay */}
+            <div className="absolute inset-0 bg-stone-900/60 backdrop-blur-[2px]" />
           </div>
-          <h1 className="font-serif text-3xl sm:text-5xl font-normal">
-            Hablemos de tu viaje
-          </h1>
-          <p className="text-stone-300 max-w-xl mx-auto text-sm sm:text-base">
-            ¿Tienes dudas sobre un hotel, disponibilidad o fechas? Escríbenos directamente y te responderemos a la brevedad.
-          </p>
+
+          <div className="relative z-10 space-y-4 mt-8">
+            
+            <h1 className="font-serif text-4xl sm:text-6xl font-normal drop-shadow-lg">
+              Hablemos de tu viaje
+            </h1>
+            <p className="text-white/95 max-w-xl mx-auto text-base sm:text-lg drop-shadow-md font-medium leading-relaxed">
+              ¿Tienes dudas sobre un hotel, disponibilidad o fechas? Escríbenos directamente y te responderemos a la brevedad.
+            </p>
+          </div>
         </section>
 
         {/* Canales de Contacto y Planificador */}
@@ -100,10 +113,12 @@ export default function ContactoPage() {
               <div className="w-12 h-12 rounded-full bg-stone-100 flex items-center justify-center text-stone-700 shrink-0">
                 <MapPin className="w-6 h-6 text-[#f64d0b]" />
               </div>
-              <div>
-                <strong className="text-stone-900 block text-base font-serif font-normal">Ubicación</strong>
-                <span className="text-xs text-stone-500">{siteConfig.location}</span>
-              </div>
+              <a className="group flex flex-col justify-center" href={siteConfig.googleMapsUrl} target="_blank" rel="noopener noreferrer">
+                <div>
+                  <strong className="text-stone-900 block text-base font-serif font-normal group-hover:text-[#f64d0b]">Ubicación</strong>
+                  <span className="text-xs text-stone-500">{siteConfig.location}</span>
+                </div>
+              </a>
             </div>
 
             <div className="flex items-center gap-4">

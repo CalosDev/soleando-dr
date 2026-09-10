@@ -234,25 +234,16 @@ _Enviado desde el portal oficial de Soleando DR_`
       <div className="bg-stone-900 text-white p-6 sm:p-8">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-stone-800 pb-6 mb-6">
           <div>
-            <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider bg-white/10 text-[#fadc40] mb-2">
-              <Sparkles className="w-3 h-3" />
-              <span>Cotizador Oficial Soleando</span>
-            </span>
+            
             <h2 className="font-serif text-2xl sm:text-3xl font-normal">
-              Solicita tu Cotización Personalizada
+             Solicitar cotización personalizada vía WhatsApp.
             </h2>
             <p className="text-xs sm:text-sm text-stone-300 mt-1">
-              Selecciona el servicio que buscas en República Dominicana y recibe atención directa sin intermediarios.
+              Selecciona el servicio que buscas y recibe atención directa sin intermediarios.
             </p>
           </div>
 
-          <div className="flex items-center gap-2 text-xs text-emerald-400 shrink-0 bg-emerald-950/60 border border-emerald-500/30 px-3.5 py-1.5 rounded-full">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-            </span>
-            <span className="font-bold">Asesores en WhatsApp</span>
-          </div>
+          
         </div>
 
         {/* Pasos */}

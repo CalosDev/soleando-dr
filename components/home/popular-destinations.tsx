@@ -1,10 +1,12 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { POPULAR_DESTINATIONS } from '@/data/destinations'
+import { getDestinations } from '@/features/catalog/repository'
 import { ArrowUpRightIcon, MapPinOutlineIcon } from '@/components/icons'
 import { RevealContainer } from '@/components/motion/reveal-container'
 
-export function PopularDestinations() {
+export async function PopularDestinations() {
+  const destinations = await getDestinations()
+
   return (
     <section className="py-20 lg:py-28 bg-[#fdfbf7]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
@@ -27,7 +29,7 @@ export function PopularDestinations() {
 
         {/* Destinations Grid */}
         <RevealContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8" staggerDelay={80}>
-          {POPULAR_DESTINATIONS.map((dest) => (
+          {destinations.map((dest) => (
             <Link
               key={dest.id}
               href={`/hoteles?destination=${dest.slug}`}

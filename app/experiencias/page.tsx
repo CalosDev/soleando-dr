@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { SiteHeader } from '@/components/site/site-header'
 import { SiteFooter } from '@/components/site/site-footer'
-import { EXPERIENCES_DATA } from '@/data/experiences'
+import { getExperiences } from '@/features/catalog/repository'
 import { ExperiencesCatalog } from '@/components/experiences/experiences-catalog'
 import { Compass, Sparkles } from 'lucide-react'
 import Image from 'next/image'
@@ -11,7 +11,9 @@ export const metadata: Metadata = {
   description: 'Descubre las mejores excursiones a Isla Saona, rutas de buggies, cascadas, Cayo Arena y tours culturales con transporte y traslados incluidos.',
 }
 
-export default function ExperienciasPage() {
+export default async function ExperienciasPage() {
+  const experiences = await getExperiences()
+
   return (
     <div className="min-h-screen flex flex-col bg-[#fdfbf7]">
       <SiteHeader variant="solid" />
@@ -42,7 +44,7 @@ export default function ExperienciasPage() {
 
         {/* Catálogo Interactivo con Buscador Flotante (Overlap) */}
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-12 sm:-mt-16 relative z-20">
-          <ExperiencesCatalog initialExperiences={EXPERIENCES_DATA} />
+          <ExperiencesCatalog initialExperiences={experiences} />
         </section>
       </main>
 

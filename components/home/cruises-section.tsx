@@ -1,10 +1,12 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { Ship, Anchor, ArrowUpRight, CheckCircle2 } from 'lucide-react'
-import { CRUISES_DATA } from '@/data/cruises'
+import { getCruises } from '@/features/catalog/repository'
 import { siteConfig } from '@/config/site'
 
-export function CruisesSection() {
+export async function CruisesSection() {
+  const cruises = await getCruises()
+
   return (
     <section className="py-20 lg:py-28 bg-[#1c1917] text-white overflow-hidden relative content-auto">
       {/* Decorative subtle texture/waves background */}
@@ -40,7 +42,7 @@ export function CruisesSection() {
 
         {/* Cruises Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {CRUISES_DATA.map((cruise) => (
+          {cruises.map((cruise) => (
             <div
               key={cruise.id}
               className="group bg-stone-900/80 rounded-3xl overflow-hidden border border-stone-800 hover:border-stone-700 shadow-xl transition-all duration-300 flex flex-col justify-between"

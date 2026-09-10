@@ -1,10 +1,12 @@
 import Link from 'next/link'
-import { MOCK_HOTELS } from '@/data/mock-hotels'
+import { getFeaturedHotels } from '@/features/catalog/repository'
 import { HotelCard } from '@/components/hotels/hotel-card'
 import { ArrowUpRight, Hotel } from 'lucide-react'
 import { RevealContainer } from '@/components/motion/reveal-container'
 
-export function FeaturedHotels() {
+export async function FeaturedHotels() {
+  const hotels = await getFeaturedHotels()
+
   return (
     <section className="py-20 lg:py-28 bg-[#f5f2eb]/60 border-y border-[#ede8e1]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
@@ -37,7 +39,7 @@ export function FeaturedHotels() {
 
         {/* Hotels Grid */}
         <RevealContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8" staggerDelay={80}>
-          {MOCK_HOTELS.slice(0, 6).map((hotel) => (
+          {hotels.slice(0, 6).map((hotel) => (
             <HotelCard key={hotel.id} hotel={hotel} />
           ))}
         </RevealContainer>

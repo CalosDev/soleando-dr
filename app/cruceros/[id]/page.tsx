@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { SiteHeader } from '@/components/site/site-header'
 import { SiteFooter } from '@/components/site/site-footer'
-import { CRUISES_DATA } from '@/data/cruises'
+import { getCruiseById, getCruises } from '@/features/catalog/repository'
 import { siteConfig } from '@/config/site'
 import { WhatsappIcon, ArrowUpRightIcon } from '@/components/icons'
 import {
@@ -27,12 +27,13 @@ interface CruiseDetailPageProps {
 }
 
 export async function generateStaticParams() {
-  return CRUISES_DATA.map((cruise) => ({ id: cruise.id }))
+  const cruises = await getCruises()
+  return cruises.map((cruise) => ({ id: cruise.id }))
 }
 
 export async function generateMetadata({ params }: CruiseDetailPageProps): Promise<Metadata> {
   const { id } = await params
-  const cruise = CRUISES_DATA.find((c) => c.id === id)
+  const cruise = await getCruiseById(id)
 
   if (!cruise) {
     return {
@@ -54,7 +55,7 @@ export async function generateMetadata({ params }: CruiseDetailPageProps): Promi
 
 export default async function CruiseDetailPage({ params }: CruiseDetailPageProps) {
   const { id } = await params
-  const cruise = CRUISES_DATA.find((c) => c.id === id)
+  const cruise = await getCruiseById(id)
 
   if (!cruise) {
     notFound()

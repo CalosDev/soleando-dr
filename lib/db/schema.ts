@@ -1,4 +1,4 @@
-import { boolean, index, numeric, pgTable, text, timestamp } from 'drizzle-orm/pg-core'
+import { boolean, index, integer, jsonb, numeric, pgTable, text, timestamp } from 'drizzle-orm/pg-core'
 
 export const user = pgTable('user', {
   id: text('id').primaryKey(),
@@ -29,6 +29,18 @@ export const verification = pgTable('verification', { id: text('id').primaryKey(
 export const offers = pgTable('offers', { id: text('id').primaryKey(), slug: text('slug').notNull().unique(), title: text('title').notNull(), destination: text('destination').notNull(), category: text('category').notNull(), description: text('description').notNull(), price: numeric('price', { precision: 12, scale: 2 }), currency: text('currency').notNull().default('USD'), dateLabel: text('dateLabel'), includes: text('includes').array().notNull().default([]), imageUrl: text('imageUrl').notNull(), status: text('status').notNull().default('draft'), featured: boolean('featured').notNull().default(false), createdAt: timestamp('createdAt').notNull().defaultNow(), updatedAt: timestamp('updatedAt').notNull().defaultNow() })
 export type Offer = typeof offers.$inferSelect
 export type NewOffer = typeof offers.$inferInsert
+
+export const catalogItems = pgTable('catalog_items', {
+  id: text('id').primaryKey(),
+  kind: text('kind').notNull(),
+  slug: text('slug').notNull(),
+  content: jsonb('content').notNull(),
+  status: text('status').notNull().default('published'),
+  sortOrder: integer('sort_order').notNull().default(0),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+})
+export type CatalogItem = typeof catalogItems.$inferSelect
 
 export const profiles = pgTable('profiles', {
   userId: text('user_id')

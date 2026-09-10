@@ -1,11 +1,13 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { EXPERIENCES_DATA } from '@/data/experiences'
+import { getExperiences } from '@/features/catalog/repository'
 import { Compass, Clock, MapPin, Sparkles } from 'lucide-react'
 import { ArrowUpRightIcon } from '@/components/icons'
 import { RevealContainer } from '@/components/motion/reveal-container'
 
-export function ExperiencesSection() {
+export async function ExperiencesSection() {
+  const experiences = await getExperiences()
+
   return (
     <section className="py-20 lg:py-28 bg-[#fdfbf7]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
@@ -38,7 +40,7 @@ export function ExperiencesSection() {
 
         {/* Experiences Grid */}
         <RevealContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" staggerDelay={70}>
-          {EXPERIENCES_DATA.slice(0, 4).map((exp) => (
+          {experiences.slice(0, 4).map((exp) => (
             <article
               key={exp.id}
               className="group bg-white rounded-3xl overflow-hidden border border-[#ede8e1] shadow-xs hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 flex flex-col justify-between"

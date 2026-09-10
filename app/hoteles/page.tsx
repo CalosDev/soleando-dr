@@ -5,7 +5,7 @@ import { SiteHeader } from '@/components/site/site-header'
 import { SiteFooter } from '@/components/site/site-footer'
 import { HotelSearchForm } from '@/components/home/hotel-search-form'
 import { HotelCard } from '@/components/hotels/hotel-card'
-import { POPULAR_DESTINATIONS } from '@/data/destinations'
+import { getDestinations } from '@/features/catalog/repository'
 import { parseHotelSearchParams } from '@/features/hotels/schemas/hotel-search'
 import { searchHotels } from '@/features/hotels/services/search-hotels'
 import { type HotelSearchResult } from '@/features/hotels/domain/types'
@@ -36,6 +36,7 @@ interface HotelesPageProps {
 
 async function HotelesContent({ searchParams }: HotelesPageProps) {
   const params = await searchParams
+  const destinations = await getDestinations()
   const destinationQuery = (typeof params.destination === 'string' ? params.destination : '')?.trim().toLowerCase()
   const checkIn = typeof params.checkIn === 'string' ? params.checkIn : ''
   const checkOut = typeof params.checkOut === 'string' ? params.checkOut : ''
@@ -72,7 +73,7 @@ async function HotelesContent({ searchParams }: HotelesPageProps) {
     }
   }
 
-  const matchedDestination = POPULAR_DESTINATIONS.find(
+  const matchedDestination = destinations.find(
     (d) => d.slug.toLowerCase() === destinationQuery
   )
 

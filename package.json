@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "test": "node scripts/test-phase15a.mjs"
+    "test": "node scripts/test-phase15a.mjs",
+    "sync:catalog": "tsx scripts/sync-catalog.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",
@@ -37,6 +38,7 @@
     "@types/react-dom": "^19",
     "postcss": "^8.5",
     "tailwindcss": "^4.3.3",
+    "tsx": "4.21.0",
     "typescript": "5.7.3"
   }
 }

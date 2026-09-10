@@ -3,7 +3,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { SiteHeader } from '@/components/site/site-header'
 import { SiteFooter } from '@/components/site/site-footer'
-import { CRUISES_DATA } from '@/data/cruises'
+import { getCruises } from '@/features/catalog/repository'
 import { siteConfig } from '@/config/site'
 import { Ship, Anchor, CheckCircle2 } from 'lucide-react'
 import { WhatsappIcon, ArrowUpRightIcon } from '@/components/icons'
@@ -13,7 +13,9 @@ export const metadata: Metadata = {
   description: 'Zarpa desde República Dominicana sin visa americana o desde Florida. Cotiza las mejores rutas de cruceros con Soleando.',
 }
 
-export default function CrucerosPage() {
+export default async function CrucerosPage() {
+  const cruises = await getCruises()
+
   return (
     <div className="min-h-screen flex flex-col bg-[#fdfbf7]">
       <SiteHeader variant="solid" />
@@ -45,7 +47,7 @@ export default function CrucerosPage() {
         {/* Listado de Cruceros */}
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {CRUISES_DATA.map((cruise) => (
+            {cruises.map((cruise) => (
               <article
                 key={cruise.id}
                 className="bg-white rounded-3xl overflow-hidden border border-[#ede8e1] shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between"

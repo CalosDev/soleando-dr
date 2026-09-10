@@ -6,7 +6,7 @@ import { SiteHeader } from '@/components/site/site-header'
 import { SiteFooter } from '@/components/site/site-footer'
 import { StickyMobileBookingBar } from '@/components/site/sticky-mobile-booking-bar'
 import { InteractiveGalleryModal } from '@/components/site/interactive-gallery-modal'
-import { EXPERIENCES_DATA, type Experience } from '@/data/experiences'
+import { getExperienceBySlug, getExperiences } from '@/features/catalog/repository'
 import { siteConfig } from '@/config/site'
 import { WhatsappIcon, ArrowUpRightIcon } from '@/components/icons'
 import {
@@ -33,12 +33,13 @@ interface ExperienceDetailPageProps {
 }
 
 export async function generateStaticParams() {
-  return EXPERIENCES_DATA.map((exp) => ({ slug: exp.slug }))
+  const experiences = await getExperiences()
+  return experiences.map((exp) => ({ slug: exp.slug }))
 }
 
 export async function generateMetadata({ params }: ExperienceDetailPageProps): Promise<Metadata> {
   const { slug } = await params
-  const exp = EXPERIENCES_DATA.find((item) => item.slug === slug || item.id === slug)
+  const exp = await getExperienceBySlug(slug)
 
   if (!exp) {
     return {
@@ -60,14 +61,15 @@ export async function generateMetadata({ params }: ExperienceDetailPageProps): P
 
 export default async function ExperienceDetailPage({ params }: ExperienceDetailPageProps) {
   const { slug } = await params
-  const exp = EXPERIENCES_DATA.find((item) => item.slug === slug || item.id === slug)
+  const exp = await getExperienceBySlug(slug)
 
   if (!exp) {
     notFound()
   }
 
   // Similar tours in same category or fallback to other top tours
-  const similarTours = EXPERIENCES_DATA.filter((item) => item.id !== exp.id)
+  const experiences = await getExperiences()
+  const similarTours = experiences.filter((item) => item.id !== exp.id)
     .sort((a, b) => (a.category === exp.category ? -1 : 1))
     .slice(0, 3)
 

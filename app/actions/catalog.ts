@@ -55,9 +55,13 @@ function slugify(value: string): string {
     .replace(/(^-|-$)/g, '')
 }
 
-function toCatalogContent(values: CatalogFormValues, id: string): Record<string, unknown> {
+function toCatalogContent(values: CatalogFormValues, id: string, existingContent?: unknown): Record<string, unknown> {
   const slug = values.slug ? slugify(values.slug) : slugify(values.title)
+  const existing = typeof existingContent === 'object' && existingContent !== null
+    ? existingContent as Record<string, unknown>
+    : {}
   const base = {
+    ...existing,
     id,
     slug,
     title: values.title,
@@ -69,6 +73,13 @@ function toCatalogContent(values: CatalogFormValues, id: string): Record<string,
     currency: values.currency.toUpperCase(),
     image: values.image,
     ...(values.badge ? { badge: values.badge } : {}),
+  }
+
+  // The first editor intentionally exposes only the common fields. Keep the
+  // richer, type-specific fields already stored in the catalog intact.
+  if (Object.keys(existing).length > 0) {
+    if (values.kind === 'hotel' || values.kind === 'destination') return { ...base, name: values.title }
+    return base
   }
 
   if (values.kind === 'cruise') {
@@ -187,7 +198,9 @@ export async function updateCatalogItem(id: string, formData: FormData): Promise
   if (!db) throw new Error('El catálogo no está disponible.')
 
   const values = formValues(formData)
-  const content = toCatalogContent(values, id)
+  const [current] = await db.select({ content: catalogItems.content }).from(catalogItems).where(eq(catalogItems.id, id))
+  if (!current) throw new Error('El contenido no existe.')
+  const content = toCatalogContent(values, id, current.content)
 
   await db.update(catalogItems)
     .set({ kind: values.kind, slug: String(content.slug), content, status: values.status, sortOrder: values.sortOrder, updatedAt: new Date() })

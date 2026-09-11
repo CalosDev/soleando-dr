@@ -7,18 +7,17 @@ import { Pool } from 'pg'
 import { sendVerificationEmail } from '@/features/email/services/send-verification-email'
 import { sendPasswordResetEmail } from '@/features/email/services/send-password-reset-email'
 
-const originValues = [process.env.V0_RUNTIME_URL, process.env.V0_DEV_APP_URL, process.env.V0_BUILD_URL, process.env.V0_SANDBOX_URL].filter((v): v is string => Boolean(v))
 const productionOrigins = [process.env.VERCEL_URL, process.env.VERCEL_PROJECT_PRODUCTION_URL].filter((v): v is string => Boolean(v)).map((value) => value.startsWith('http') ? value : `https://${value}`)
 const databaseUrl = process.env.DATABASE_URL
 const googleClientId = process.env.GOOGLE_CLIENT_ID
 const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET
-const appBaseUrl = process.env.BETTER_AUTH_URL || (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : process.env.V0_RUNTIME_URL || 'http://localhost:3000')
+const appBaseUrl = process.env.BETTER_AUTH_URL || (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000')
 
 const trustedOrigins = Array.from(
   new Set([
     'http://localhost:3000',
     appBaseUrl,
-    ...(process.env.NODE_ENV === 'development' ? originValues : productionOrigins),
+    ...(process.env.NODE_ENV === 'production' ? productionOrigins : []),
   ])
 )
 

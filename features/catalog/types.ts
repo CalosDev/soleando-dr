@@ -4,6 +4,8 @@ export interface ExperienceItineraryStep {
   description: string
 }
 
+export type ExperienceScope = 'national' | 'international' | 'package'
+
 export interface Experience {
   id: string
   title: string
@@ -26,6 +28,12 @@ export interface Experience {
   notIncluded: string[]
   itinerary: ExperienceItineraryStep[]
   recommendations: string[]
+  /**
+   * Derived on the server from the catalog item kind. It is deliberately not
+   * authored in the JSON content so the public scope always matches the
+   * admin-selected catalog type.
+   */
+  scope?: ExperienceScope
 }
 
 export interface Cruise {

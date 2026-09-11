@@ -4,7 +4,7 @@ import { and, asc, eq, inArray } from 'drizzle-orm'
 
 import { db } from '@/lib/db'
 import { catalogItems } from '@/lib/db/schema'
-import type { Cruise, Experience } from '@/features/catalog/types'
+import type { Cruise, Experience, ExperienceScope } from '@/features/catalog/types'
 
 export type CatalogKind =
   | 'tour'
@@ -35,7 +35,42 @@ async function getCatalogItems<T extends { id: string }>(
 }
 
 export function getExperiences(): Promise<Experience[]> {
-  return getCatalogItems(['tour', 'excursion_national', 'excursion_international'])
+  return getScopedExperiences()
+}
+
+function getExperienceScope(kind: CatalogKind): ExperienceScope {
+  switch (kind) {
+    case 'excursion_national':
+      return 'national'
+    case 'excursion_international':
+      return 'international'
+    case 'tour':
+      return 'package'
+    default:
+      return 'package'
+  }
+}
+
+async function getScopedExperiences(): Promise<Experience[]> {
+  if (!db) return []
+
+  try {
+    const kinds: CatalogKind[] = ['tour', 'excursion_national', 'excursion_international']
+    const rows = await db
+      .select({ content: catalogItems.content, kind: catalogItems.kind })
+      .from(catalogItems)
+      .where(and(inArray(catalogItems.kind, kinds), eq(catalogItems.status, 'published')))
+      .orderBy(asc(catalogItems.sortOrder), asc(catalogItems.createdAt))
+
+    return rows
+      .filter((row) => isCatalogRecord(row.content))
+      .map((row) => ({
+        ...(row.content as Experience),
+        scope: getExperienceScope(row.kind as CatalogKind),
+      }))
+  } catch {
+    return []
+  }
 }
 
 export function getCruises(): Promise<Cruise[]> {

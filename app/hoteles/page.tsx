@@ -26,7 +26,7 @@ export default async function HotelesPage({
     <div className="min-h-screen flex flex-col bg-[#fdfbf7]">
       <SiteHeader variant="solid" />
       <main className="flex-1">
-        <section className="relative min-h-[620px] overflow-hidden px-4 pb-20 pt-28 text-white sm:px-6 sm:pb-24 sm:pt-36 lg:px-8">
+        <section className="relative z-10 min-h-[620px] overflow-visible px-4 pb-20 pt-28 text-white sm:px-6 sm:pb-24 sm:pt-36 lg:px-8">
           <div className="absolute inset-0 z-0 bg-stone-950">
             <Image src="/sasha-kaunas-xEaAoizNFV8-unsplash.jpg" alt="Hoteles y Resorts" fill className="object-cover object-center brightness-50 contrast-105" priority />
             <div className="absolute inset-0 bg-black/40 pointer-events-none" />
@@ -45,7 +45,7 @@ export default async function HotelesPage({
           </div>
         </section>
 
-        <section className="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-20 lg:px-8" aria-label="Cómo funciona la reserva">
+        <section className="relative z-0 mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-20 lg:px-8" aria-label="Cómo funciona la reserva">
           <div className="grid gap-5 md:grid-cols-3">
             {[
               { icon: SearchCheck, title: 'Busca con datos reales', text: 'El destino, las fechas y la ocupación se consultan directamente al proveedor.' },

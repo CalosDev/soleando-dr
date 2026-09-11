@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import type { Experience } from '@/features/catalog/types'
+import type { Experience, ExperienceScope } from '@/features/catalog/types'
 import { useDragScroll } from '@/lib/hooks/use-drag-scroll'
 import { RevealContainer } from '@/components/motion/reveal-container'
 import {
@@ -26,6 +26,7 @@ interface ExperiencesCatalogProps {
 export function ExperiencesCatalog({ initialExperiences }: ExperiencesCatalogProps) {
   const dragScrollRef = useDragScroll<HTMLDivElement>()
   const [searchQuery, setSearchQuery] = useState('')
+  const [selectedScope, setSelectedScope] = useState<ExperienceScope | 'all'>('all')
   const [selectedCategory, setSelectedCategory] = useState<string>('Todos')
   const [selectedDestination, setSelectedDestination] = useState<string>('all')
   const [selectedDuration, setSelectedDuration] = useState<string>('all')
@@ -44,6 +45,26 @@ export function ExperiencesCatalog({ initialExperiences }: ExperiencesCatalogPro
     return Array.from(new Set(initialExperiences.map((experience) => experience.duration).filter(Boolean)))
   }, [initialExperiences])
 
+  const scopeOptions = [
+    { value: 'all' as const, label: 'Todos' },
+    { value: 'national' as const, label: 'Nacionales' },
+    { value: 'international' as const, label: 'Internacionales' },
+    { value: 'package' as const, label: 'Paquetes' },
+  ]
+
+  const scopeCounts = useMemo(() => {
+    const counts: Record<ExperienceScope | 'all', number> = {
+      all: initialExperiences.length,
+      national: 0,
+      international: 0,
+      package: 0,
+    }
+    for (const experience of initialExperiences) {
+      counts[experience.scope ?? 'package'] += 1
+    }
+    return counts
+  }, [initialExperiences])
+
   // Count of experiences per category
   const categoryCounts = useMemo(() => {
     const counts: Record<string, number> = {
@@ -58,6 +79,10 @@ export function ExperiencesCatalog({ initialExperiences }: ExperiencesCatalogPro
   // Filtered list
   const filteredExperiences = useMemo(() => {
     return initialExperiences.filter((exp) => {
+      if (selectedScope !== 'all' && (exp.scope ?? 'package') !== selectedScope) {
+        return false
+      }
+
       // Category filter
       if (selectedCategory !== 'Todos' && exp.category !== selectedCategory) {
         return false
@@ -89,16 +114,18 @@ export function ExperiencesCatalog({ initialExperiences }: ExperiencesCatalogPro
 
       return true
     })
-  }, [initialExperiences, selectedCategory, selectedDestination, selectedDuration, searchQuery])
+  }, [initialExperiences, selectedScope, selectedCategory, selectedDestination, selectedDuration, searchQuery])
 
   const hasActiveFilters =
     searchQuery.trim() !== '' ||
+    selectedScope !== 'all' ||
     selectedCategory !== 'Todos' ||
     selectedDestination !== 'all' ||
     selectedDuration !== 'all'
 
   const handleResetFilters = () => {
     setSearchQuery('')
+    setSelectedScope('all')
     setSelectedCategory('Todos')
     setSelectedDestination('all')
     setSelectedDuration('all')
@@ -106,7 +133,7 @@ export function ExperiencesCatalog({ initialExperiences }: ExperiencesCatalogPro
 
   return (
     <div className="space-y-8">
-      {/* Controls Container: Search & Filters Bar (Cocoros style) */}
+      {/* Controls Container: Search & Filters */}
       <div className="bg-white rounded-3xl p-5 sm:p-6 border border-[#ede8e1] shadow-xl shadow-stone-900/10 backdrop-blur-xs space-y-4">
         {/* Top search & selectors row */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
@@ -165,46 +192,73 @@ export function ExperiencesCatalog({ initialExperiences }: ExperiencesCatalogPro
           </div>
         </div>
 
-        {/* Category Pills (Horizontal draggable & scrollable) */}
-        <div
-          ref={dragScrollRef}
-          className="flex items-center gap-2 overflow-x-auto pb-1 pt-1 no-scrollbar cursor-grab active:cursor-grabbing select-none"
-        >
-          <span className="text-xs font-bold uppercase tracking-wider text-stone-400 shrink-0 mr-1 flex items-center gap-1">
-            <SlidersHorizontal className="w-3 h-3" />
-            <span>Categoría:</span>
-          </span>
-          {categories.map((cat) => {
-            const isSelected = selectedCategory === cat
-            const count = categoryCounts[cat] ?? 0
+        <div className="flex flex-wrap items-center gap-2 border-t border-[#ede8e1] pt-4" aria-label="Filtrar por tipo de viaje">
+          {scopeOptions.map((scope) => {
+            const isSelected = selectedScope === scope.value
             return (
               <button
-                key={cat}
+                key={scope.value}
                 type="button"
-                onClick={() => setSelectedCategory(cat)}
-                className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold tracking-wide transition-all shrink-0 cursor-pointer ${
+                onClick={() => setSelectedScope(scope.value)}
+                className={`inline-flex min-h-10 items-center gap-1.5 rounded-full px-4 py-2 text-sm font-bold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f64d0b] ${
                   isSelected
                     ? 'bg-stone-900 text-white shadow-xs'
-                    : 'bg-[#fdfbf7] text-stone-600 hover:bg-stone-200 border border-[#ede8e1]'
+                    : 'border border-[#ede8e1] bg-[#fdfbf7] text-stone-700 hover:border-stone-300 hover:bg-stone-100'
                 }`}
               >
-                <span>{cat}</span>
-                <span
-                  className={`px-1.5 py-0.5 rounded-full text-[10px] font-semibold leading-none ${
-                    isSelected
-                      ? 'bg-white/20 text-white'
-                      : 'bg-stone-200/90 text-stone-600'
-                  }`}
-                >
-                  {count}
+                <span>{scope.label}</span>
+                <span className={`rounded-full px-1.5 py-0.5 text-[10px] leading-none ${isSelected ? 'bg-white/20 text-white' : 'bg-stone-200 text-stone-600'}`}>
+                  {scopeCounts[scope.value]}
                 </span>
               </button>
             )
           })}
         </div>
-        <p className="sm:hidden -mt-2 text-[11px] font-medium text-stone-400">
-          Desliza para ver más categorías →
-        </p>
+
+        {categories.length > 1 && (
+          <>
+            {/* Category Pills (Horizontal draggable & scrollable) */}
+            <div
+              ref={dragScrollRef}
+              className="flex items-center gap-2 overflow-x-auto pb-1 pt-1 no-scrollbar cursor-grab active:cursor-grabbing select-none"
+            >
+              <span className="text-xs font-bold uppercase tracking-wider text-stone-400 shrink-0 mr-1 flex items-center gap-1">
+                <SlidersHorizontal className="w-3 h-3" />
+                <span>Tipo:</span>
+              </span>
+              {categories.map((cat) => {
+                const isSelected = selectedCategory === cat
+                const count = categoryCounts[cat] ?? 0
+                return (
+                  <button
+                    key={cat}
+                    type="button"
+                    onClick={() => setSelectedCategory(cat)}
+                    className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold tracking-wide transition-all shrink-0 cursor-pointer ${
+                      isSelected
+                        ? 'bg-stone-900 text-white shadow-xs'
+                        : 'bg-[#fdfbf7] text-stone-600 hover:bg-stone-200 border border-[#ede8e1]'
+                    }`}
+                  >
+                    <span>{cat}</span>
+                    <span
+                      className={`px-1.5 py-0.5 rounded-full text-[10px] font-semibold leading-none ${
+                        isSelected
+                          ? 'bg-white/20 text-white'
+                          : 'bg-stone-200/90 text-stone-600'
+                      }`}
+                    >
+                      {count}
+                    </span>
+                  </button>
+                )
+              })}
+            </div>
+            <p className="sm:hidden -mt-2 text-[11px] font-medium text-stone-400">
+              Desliza para ver más categorías →
+            </p>
+          </>
+        )}
       </div>
 
       {/* Results Counter & Active Filters Summary */}
@@ -255,6 +309,9 @@ export function ExperiencesCatalog({ initialExperiences }: ExperiencesCatalogPro
 
                   {/* Glassmorphism Badges */}
                   <div className="absolute top-3.5 left-3.5 flex flex-wrap items-center gap-1.5">
+                    <div className="rounded-full border border-white/25 bg-stone-950/75 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-white shadow-md backdrop-blur-md">
+                      {exp.scope === 'national' ? 'Nacional' : exp.scope === 'international' ? 'Internacional' : 'Paquete'}
+                    </div>
                     {exp.badge && (
                       <div className="flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-gradient-to-r from-amber-500/95 to-orange-600/95 backdrop-blur-md text-white border border-white/25 shadow-md">
                         <Sparkles className="w-3 h-3 text-white" />
@@ -360,20 +417,32 @@ export function ExperiencesCatalog({ initialExperiences }: ExperiencesCatalogPro
             <Search className="w-6 h-6" />
           </div>
           <h3 className="font-serif text-2xl text-stone-900 font-normal">
-            No se encontraron excursiones
+            {initialExperiences.length === 0 ? 'Estamos preparando nuevas experiencias' : 'No se encontraron excursiones'}
           </h3>
           <p className="text-xs sm:text-sm text-stone-500 leading-relaxed">
-            No encontramos ninguna actividad que coincida con tus criterios de búsqueda. Prueba con otros términos o limpia los filtros.
+            {initialExperiences.length === 0
+              ? 'Publicaremos aquí excursiones nacionales, internacionales y paquetes con información confirmada. Mientras tanto, cuéntanos qué experiencia buscas.'
+              : 'No encontramos ninguna actividad que coincida con tus criterios de búsqueda. Prueba con otros términos o limpia los filtros.'}
           </p>
           <div className="pt-2">
-            <button
-              type="button"
-              onClick={handleResetFilters}
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-xs font-bold bg-stone-900 text-white hover:bg-stone-800 transition-colors cursor-pointer"
-            >
-              <span>Restablecer filtros</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </button>
+            {initialExperiences.length === 0 ? (
+              <Link
+                href="/contacto"
+                className="inline-flex min-h-11 items-center gap-2 rounded-full bg-[#f64d0b] px-6 py-3 text-xs font-bold text-white transition-colors hover:bg-[#e04408]"
+              >
+                <span>Consultar con Soleando</span>
+                <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            ) : (
+              <button
+                type="button"
+                onClick={handleResetFilters}
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-xs font-bold bg-stone-900 text-white hover:bg-stone-800 transition-colors cursor-pointer"
+              >
+                <span>Restablecer filtros</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            )}
           </div>
         </div>
       )}

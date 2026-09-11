@@ -9,8 +9,9 @@ import {
   RotateCcw,
   FastForward,
   ArrowUpRight,
+  Compass,
+  Hotel,
 } from 'lucide-react'
-import { HotelSearchForm } from './hotel-search-form'
 
 const linea = (texto: string, x: number, y: number, tamano: number) => ({
   texto,
@@ -209,7 +210,7 @@ export function HeroCinematic() {
       }
 
       // ==========================================
-      // ACTO 4: Clímax — "Sal de la rutina. Entra al paraíso." + Buscador de Hoteles & Asesor
+      // ACTO 4: Clímax — "Sal de la rutina. Entra al paraíso." + acciones principales
       // ==========================================
       if (phrase2Ref.current) {
         const chars2 = phrase2Ref.current.querySelectorAll('[data-char]')
@@ -409,7 +410,7 @@ export function HeroCinematic() {
         </div>
       </div>
 
-      {/* Acto 4: Contenedor Principal del Clímax — Frase 2, Buscador, Sellos y Asesoría */}
+      {/* Acto 4: Contenedor Principal del Clímax — Frase 2 y accesos principales */}
       <div className="relative z-10 w-full max-w-5xl mx-auto flex flex-col items-center text-center my-auto">
         {/* Frase 2 y Subtítulo */}
         <div ref={phrase2Ref} className="flex flex-col items-center justify-center text-center opacity-0 mb-5 sm:mb-7">
@@ -455,10 +456,23 @@ export function HeroCinematic() {
           </p>
         </div>
 
-        {/* Bloque interactivo: Buscador de Hoteles */}
+        {/* Bloque interactivo: las búsquedas viven en /hoteles para evitar cortar sus paneles. */}
         <div ref={climaxContentRef} className="relative z-30 w-full opacity-100 pointer-events-auto">
-          <div className="w-full">
-            <HotelSearchForm />
+          <div className="mx-auto flex w-full max-w-xl flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
+            <Link
+              href="/hoteles"
+              className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[#fadc40] px-6 py-3 text-sm font-bold text-stone-950 shadow-[0_10px_30px_rgba(250,220,64,0.28)] transition-colors hover:bg-[#ffe566] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#fadc40] sm:w-auto sm:min-w-48"
+            >
+              <Hotel className="h-4 w-4" aria-hidden="true" />
+              Reserva ahora
+            </Link>
+            <Link
+              href="/experiencias"
+              className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full border border-white/80 bg-black/15 px-6 py-3 text-sm font-bold text-white backdrop-blur-sm transition-colors hover:border-[#fadc40] hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white sm:w-auto sm:min-w-48"
+            >
+              <Compass className="h-4 w-4" aria-hidden="true" />
+              Ver excursiones
+            </Link>
           </div>
         </div>
       </div>

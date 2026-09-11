@@ -9,7 +9,7 @@ import type { PoolConfig } from 'pg'
 export function getDatabaseConnectionConfig(databaseUrl: string): PoolConfig {
   const url = new URL(databaseUrl)
 
-  if (url.searchParams.get('sslmode') === 'require') {
+  if (url.hostname.endsWith('.neon.tech') && url.searchParams.get('sslmode') === 'require') {
     url.searchParams.set('sslmode', 'verify-full')
   }
 

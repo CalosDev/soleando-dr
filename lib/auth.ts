@@ -3,6 +3,7 @@ import 'server-only'
 import { betterAuth } from 'better-auth'
 import { admin } from 'better-auth/plugins'
 import { Pool } from 'pg'
+import { getDatabaseConnectionConfig } from './db/connection'
 
 import { sendVerificationEmail } from '@/features/email/services/send-verification-email'
 import { sendPasswordResetEmail } from '@/features/email/services/send-password-reset-email'
@@ -23,7 +24,7 @@ const trustedOrigins = Array.from(
 
 export const auth = databaseUrl
   ? betterAuth({
-      database: new Pool({ connectionString: databaseUrl }),
+      database: new Pool(getDatabaseConnectionConfig(databaseUrl)),
       secret: process.env.BETTER_AUTH_SECRET,
       baseURL: appBaseUrl,
       trustedOrigins,

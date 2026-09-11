@@ -5,10 +5,8 @@ import Image from 'next/image'
 import gsap from 'gsap'
 import Link from 'next/link'
 import {
-  Sparkles,
   RotateCcw,
   FastForward,
-  ArrowUpRight,
   Compass,
   Hotel,
 } from 'lucide-react'
@@ -60,7 +58,6 @@ export function HeroCinematic() {
   const paradiseMediaRef = useRef<HTMLDivElement>(null)
   const phrase1Ref = useRef<HTMLDivElement>(null)
   const phrase2Ref = useRef<HTMLDivElement>(null)
-  const badgeRef = useRef<HTMLDivElement>(null)
   const subtitleRef = useRef<HTMLParagraphElement>(null)
   const climaxContentRef = useRef<HTMLDivElement>(null)
   const controlsRef = useRef<HTMLDivElement>(null)
@@ -85,7 +82,6 @@ export function HeroCinematic() {
           const chars2 = phrase2Ref.current.querySelectorAll('[data-char]')
           gsap.set(chars2, { opacity: 1, filter: 'blur(0px)', y: 0 })
         }
-        gsap.set(badgeRef.current, { opacity: 1, y: 0 })
         gsap.set(subtitleRef.current, { opacity: 1, y: 0 })
         gsap.set(climaxContentRef.current, { opacity: 1, y: 0, pointerEvents: 'auto' })
         setIsFinished(true)
@@ -111,7 +107,6 @@ export function HeroCinematic() {
       gsap.set(dateFillRef.current, { opacity: 0 })
       gsap.set(mediaRef.current, { scale: 1.18, opacity: 1 })
       gsap.set(paradiseMediaRef.current, { opacity: 0, scale: 1.08 })
-      gsap.set(badgeRef.current, { opacity: 0, y: -14 })
       gsap.set(subtitleRef.current, { opacity: 0, y: 14 })
       // The hotel search is the primary conversion action. Keep it available
       // from the first render; the cinematic sequence is only an enhancement.
@@ -226,15 +221,6 @@ export function HeroCinematic() {
             ease: 'power2.out',
           },
           6.4
-        )
-      }
-
-      // Badge flotante: Nuevas salidas 2027 disponibles
-      if (badgeRef.current) {
-        tl.to(
-          badgeRef.current,
-          { opacity: 1, y: 0, duration: 0.65, ease: 'back.out(1.4)' },
-          6.95
         )
       }
 
@@ -414,21 +400,6 @@ export function HeroCinematic() {
       <div className="relative z-10 w-full max-w-5xl mx-auto flex flex-col items-center text-center my-auto">
         {/* Frase 2 y Subtítulo */}
         <div ref={phrase2Ref} className="flex flex-col items-center justify-center text-center opacity-0 mb-5 sm:mb-7">
-          {/* Badge / Cápsula flotante: Salidas 2027 */}
-          <div ref={badgeRef} className="mb-3.5 sm:mb-4 opacity-0 pointer-events-auto">
-            <Link
-              href="/ofertas"
-              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-[11px] sm:text-xs font-bold tracking-wide uppercase text-[#fadc40] bg-black/60 hover:bg-black/80 border border-[#fadc40]/35 hover:border-[#fadc40]/70 backdrop-blur-md shadow-lg shadow-black/40 transition-all transform hover:scale-105 group cursor-pointer"
-            >
-              <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#fadc40] animate-pulse" />
-              <span>Nuevas salidas 2027 disponibles</span>
-              <span className="inline-flex items-center gap-0.5 text-white group-hover:text-[#fadc40] transition-colors">
-                Ver ofertas
-                <ArrowUpRight className="w-3.5 h-3.5 text-[#fadc40]" />
-              </span>
-            </Link>
-          </div>
-
           <h2
             className="text-[clamp(1.75rem,5.5vw,3.8rem)] font-normal uppercase leading-[0.96] sm:leading-[0.92] tracking-wide max-w-[95vw] sm:max-w-none"
             style={{ fontFamily: 'var(--font-anton), Anton, Impact, sans-serif' }}

@@ -168,7 +168,7 @@ export function InteractiveGalleryModal({
                   className="relative flex-1 rounded-2xl md:rounded-3xl overflow-hidden shadow-2xs bg-stone-100 min-h-[212px] cursor-pointer group"
                 >
                   <Image
-                    src="/soleando-beach.png"
+                    src={primaryImage.url}
                     alt={title}
                     fill
                     sizes="33vw"

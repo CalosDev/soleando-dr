@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import type { Experience } from '@/data/experiences'
+import type { Experience } from '@/features/catalog/types'
 import { useDragScroll } from '@/lib/hooks/use-drag-scroll'
 import { RevealContainer } from '@/components/motion/reveal-container'
 import {
@@ -23,14 +23,6 @@ interface ExperiencesCatalogProps {
   initialExperiences: Experience[]
 }
 
-const CATEGORIES = [
-  'Todos',
-  'Playas & Islas',
-  'Aventura & 4x4',
-  'Naturaleza & Cascadas',
-  'Cultura & Ciudad',
-] as const
-
 export function ExperiencesCatalog({ initialExperiences }: ExperiencesCatalogProps) {
   const dragScrollRef = useDragScroll<HTMLDivElement>()
   const [searchQuery, setSearchQuery] = useState('')
@@ -42,6 +34,14 @@ export function ExperiencesCatalog({ initialExperiences }: ExperiencesCatalogPro
   const destinations = useMemo(() => {
     const set = new Set(initialExperiences.map((e) => e.destination.split('/')[0].trim()))
     return Array.from(set)
+  }, [initialExperiences])
+
+  const categories = useMemo(() => {
+    return ['Todos', ...Array.from(new Set(initialExperiences.map((experience) => experience.category).filter(Boolean)))]
+  }, [initialExperiences])
+
+  const durations = useMemo(() => {
+    return Array.from(new Set(initialExperiences.map((experience) => experience.duration).filter(Boolean)))
   }, [initialExperiences])
 
   // Count of experiences per category
@@ -117,7 +117,7 @@ export function ExperiencesCatalog({ initialExperiences }: ExperiencesCatalogPro
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Buscar por destino, actividad o nombre (ej. Saona, Buggy, Cascada)..."
+              placeholder="Buscar por destino, actividad o nombre"
               className="w-full pl-11 pr-10 py-3 rounded-2xl bg-[#fdfbf7] border border-[#ede8e1] text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-[#f64d0b] focus:border-transparent transition-all"
             />
             {searchQuery && (
@@ -158,8 +158,9 @@ export function ExperiencesCatalog({ initialExperiences }: ExperiencesCatalogPro
               className="w-full pl-11 pr-8 py-3 rounded-2xl bg-[#fdfbf7] border border-[#ede8e1] text-sm text-stone-700 font-medium focus:outline-none focus:ring-2 focus:ring-[#f64d0b] appearance-none cursor-pointer"
             >
               <option value="all">Cualquier duración</option>
-              <option value="Medio día">Medio día</option>
-              <option value="Día completo">Día completo</option>
+              {durations.map((duration) => (
+                <option key={duration} value={duration}>{duration}</option>
+              ))}
             </select>
           </div>
         </div>
@@ -173,7 +174,7 @@ export function ExperiencesCatalog({ initialExperiences }: ExperiencesCatalogPro
             <SlidersHorizontal className="w-3 h-3" />
             <span>Categoría:</span>
           </span>
-          {CATEGORIES.map((cat) => {
+          {categories.map((cat) => {
             const isSelected = selectedCategory === cat
             const count = categoryCounts[cat] ?? 0
             return (
@@ -262,11 +263,12 @@ export function ExperiencesCatalog({ initialExperiences }: ExperiencesCatalogPro
                     )}
                   </div>
 
-                  {/* Top right rating glass chip */}
-                  <div className="absolute top-3.5 right-3.5 flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-white/90 backdrop-blur-md text-stone-900 border border-white/40 shadow-xs">
-                    <Star className="w-3.5 h-3.5 fill-[#fadc40] text-[#fadc40]" />
-                    <span>{exp.rating.toFixed(1)}</span>
-                  </div>
+                  {exp.rating > 0 && (
+                    <div className="absolute top-3.5 right-3.5 flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-white/90 backdrop-blur-md text-stone-900 border border-white/40 shadow-xs">
+                      <Star className="w-3.5 h-3.5 fill-[#fadc40] text-[#fadc40]" />
+                      <span>{exp.rating.toFixed(1)}</span>
+                    </div>
+                  )}
 
                   <div className="absolute bottom-3.5 left-3.5 right-3.5 flex items-center justify-between text-white text-xs">
                     <span className="inline-flex items-center gap-1.5 bg-stone-900/65 backdrop-blur-md border border-white/20 px-2.5 py-1 rounded-full text-[11px] font-medium shadow-xs">
@@ -289,15 +291,17 @@ export function ExperiencesCatalog({ initialExperiences }: ExperiencesCatalogPro
                       <span>{exp.category}</span>
                     </span>
 
-                    <div className="flex items-center gap-1 text-[#fadc40]">
-                      <Star className="w-3.5 h-3.5 fill-current" />
-                      <strong className="text-stone-900 font-bold">
-                        {exp.rating.toFixed(1)}
-                      </strong>
-                      <span className="text-stone-400 text-[11px]">
-                        ({exp.reviewCount})
-                      </span>
-                    </div>
+                    {exp.rating > 0 && (
+                      <div className="flex items-center gap-1 text-[#fadc40]">
+                        <Star className="w-3.5 h-3.5 fill-current" />
+                        <strong className="text-stone-900 font-bold">
+                          {exp.rating.toFixed(1)}
+                        </strong>
+                        {exp.reviewCount > 0 && (
+                          <span className="text-stone-400 text-[11px]">({exp.reviewCount})</span>
+                        )}
+                      </div>
+                    )}
                   </div>
 
                   {/* Title */}
@@ -331,9 +335,11 @@ export function ExperiencesCatalog({ initialExperiences }: ExperiencesCatalogPro
                       </span>
                     </strong>
                   </div>
-                  <span className="text-[11px] text-stone-500 font-medium block">
-                    ~ RD$ {exp.priceRD.toLocaleString('es-DO')} / pers.
-                  </span>
+                  {exp.priceRD > 0 && (
+                    <span className="text-[11px] text-stone-500 font-medium block">
+                      ~ RD$ {exp.priceRD.toLocaleString('es-DO')} / pers.
+                    </span>
+                  )}
                 </div>
 
                 <Link

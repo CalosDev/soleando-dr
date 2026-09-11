@@ -14,33 +14,27 @@ interface FaqItem {
 const FAQS: FaqItem[] = [
   {
     id: '1',
-    question: '¿Cómo funciona la reserva y qué métodos de pago aceptan?',
+    question: '¿Cómo funciona la búsqueda y reserva de hoteles?',
     answer:
-      'Reservar con Soleando es directo y transparente. Aceptamos transferencias bancarias en pesos dominicanos (DOP) o dólares (USD) a través de Banco Popular, BHD y Banreservas, así como pagos con tarjetas de crédito y débito nacionales e internacionales. Para bloquear tu habitación o cupo de excursión se solicita un abono inicial y el saldo restante se liquida antes del inicio del servicio.',
+      'Indica el destino, las fechas y los viajeros en nuestro buscador. Soleando consulta la disponibilidad del proveedor hotelero y te dirige a su entorno para completar la reserva con las condiciones vigentes.',
   },
   {
     id: '2',
-    question: '¿Las excursiones incluyen transporte y recogida en el hotel?',
+    question: '¿Dónde se completa el pago del hotel?',
     answer:
-      'Sí, la mayoría de nuestras experiencias incluyen transporte ida y vuelta en vehículos climatizados y autorizados por el Ministerio de Turismo (MITUR). Realizamos recogidas en los lobbies de los principales hoteles de Punta Cana, Bávaro, Cap Cana, Uvero Alto, Bayahíbe, La Romana y Santo Domingo. La hora exacta de recogida te la confirmamos vía WhatsApp un día antes del tour.',
+      'La selección final y el pago se completan en el entorno seguro del proveedor. Allí verás el precio, las condiciones de la tarifa y la política de cancelación antes de confirmar.',
   },
   {
     id: '3',
-    question: '¿Qué ocurre si hay mal tiempo o lluvia el día de mi excursión marítima?',
+    question: '¿Cómo consulto tours, excursiones o cruceros?',
     answer:
-      'La seguridad de nuestros viajeros es la prioridad absoluta. Las salidas marítimas (como Isla Saona o Cayo Levantado) están sujetas a las disposiciones de la Armada Dominicana y el COE. Si se declara bandera roja o alerta marítima, reprogramamos tu tour sin penalidad para otro día de tus vacaciones, o aplicamos reembolso según las políticas de cancelación.',
+      'El catálogo público muestra únicamente las opciones publicadas por Soleando. Puedes abrir cada detalle y enviar una consulta por WhatsApp para confirmar fechas, disponibilidad y condiciones.',
   },
   {
     id: '4',
-    question: '¿Los precios publicados tienen cargos ocultos o impuestos adicionales?',
+    question: '¿Puedo pedir ayuda antes de reservar?',
     answer:
-      'No. En Soleando creemos en la transparencia total. Las tarifas de hoteles todo incluido contemplan impuestos hoteleros y cargos por servicio aplicables. En las excursiones especificamos con absoluta claridad lo que está incluido (guía oficial, chalecos, almuerzo típico, bebidas, entradas a parques nacionales) y cualquier gasto opcional (como fotos profesionales o propinas).',
-  },
-  {
-    id: '5',
-    question: '¿Puedo armar un paquete personalizado que combine hotel, traslados y excursiones?',
-    answer:
-      '¡Totalmente! Es una de nuestras especialidades. Cuéntale a nuestros asesores por WhatsApp tus fechas, número de personas (adultos y niños) y el estilo de viaje que deseas. Te diseñamos un paquete a medida con tarifas combinadas preferenciales y asistencia personalizada durante toda tu estadía.',
+      'Sí. Escríbenos por WhatsApp con tus fechas, número de viajeros y preferencias. El equipo podrá orientarte antes de que completes una reserva.',
   },
 ]
 
@@ -64,7 +58,7 @@ export function FaqSection() {
             Preguntas Frecuentes
           </h2>
           <p className="text-stone-600 text-sm sm:text-base max-w-xl mx-auto">
-            Resolvemos tus dudas más habituales sobre reservas, traslados, métodos de pago y políticas de viaje.
+            Información clara sobre el buscador de hoteles y el catálogo administrado por Soleando.
           </p>
         </div>
 
@@ -112,7 +106,7 @@ export function FaqSection() {
               ¿Tienes una duda específica sobre tu viaje?
             </h3>
             <p className="text-stone-300 text-xs sm:text-sm">
-              Nuestros asesores locales en República Dominicana te responden en minutos.
+              Escríbenos por WhatsApp y el equipo dará seguimiento a tu consulta.
             </p>
           </div>
 

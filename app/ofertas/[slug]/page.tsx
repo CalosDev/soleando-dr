@@ -6,7 +6,6 @@ import { notFound } from 'next/navigation'
 import { db } from '@/lib/db'
 import { offers, type Offer } from '@/lib/db/schema'
 import { and, eq } from 'drizzle-orm'
-import { SEED_OFFERS } from '@/lib/seed-data'
 import { getPublishedOffers } from '@/app/actions/offers'
 import { getOfferImageSrc } from '@/lib/offer-image'
 import { getOfferDisplayTitle, parseOfferContent } from '@/lib/offer-utils'
@@ -19,7 +18,6 @@ import {
   CalendarOutlineIcon,
   SparklesOutlineIcon,
   ChevronLeftIcon,
-  ShieldCheckIcon,
 } from '@/components/icons'
 
 export const dynamic = 'force-dynamic'
@@ -40,9 +38,6 @@ async function getOfferBySlug(slug: string): Promise<Offer | null> {
     const found = published.find((item) => item.slug === slug)
     if (found) return found
   } catch {}
-
-  const seed = SEED_OFFERS.find((item) => item.slug === slug)
-  if (seed) return seed as unknown as Offer
 
   return null
 }
@@ -402,8 +397,7 @@ export default async function OfferDetailPage({
                   className="inline-flex items-center gap-1.5 text-xs px-3 py-1 rounded-full font-medium self-start sm:self-auto"
                   style={{ backgroundColor: '#ecfdf5', color: '#047857' }}
                 >
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                  Cupos disponibles
+                  Consulta antes de reservar
                 </span>
               </div>
 
@@ -427,22 +421,22 @@ export default async function OfferDetailPage({
                 </a>
               </div>
 
-              {/* Garantías y tranquilidad */}
+              {/* Información de consulta */}
               <div
                 className="pt-2 grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px] text-stone-500"
                 style={{ borderTop: '1px solid #f2eee8' }}
               >
                 <div className="flex items-center gap-1.5">
-                  <ShieldCheckIcon className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                  <span>Reserva directa y segura</span>
+                  <CheckIcon className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                  <span>Consulta antes de reservar</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <CheckIcon className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                  <span>Atención 1 a 1 por WhatsApp</span>
+                  <span>Comunicación por WhatsApp</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <CheckIcon className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                  <span>Sin cargos ocultos</span>
+                  <span>Condiciones por confirmar</span>
                 </div>
               </div>
             </div>

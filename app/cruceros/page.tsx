@@ -4,13 +4,12 @@ import Image from 'next/image'
 import { SiteHeader } from '@/components/site/site-header'
 import { SiteFooter } from '@/components/site/site-footer'
 import { getCruises } from '@/features/catalog/repository'
-import { siteConfig } from '@/config/site'
 import { Ship, Anchor, CheckCircle2 } from 'lucide-react'
-import { WhatsappIcon, ArrowUpRightIcon } from '@/components/icons'
+import { ArrowUpRightIcon } from '@/components/icons'
 
 export const metadata: Metadata = {
   title: 'Cruceros por el Caribe | Soleando DR',
-  description: 'Zarpa desde República Dominicana sin visa americana o desde Florida. Cotiza las mejores rutas de cruceros con Soleando.',
+  description: 'Explora los cruceros publicados por Soleando y consulta sus condiciones antes de reservar.',
 }
 
 export default async function CrucerosPage() {
@@ -46,6 +45,20 @@ export default async function CrucerosPage() {
 
         {/* Listado de Cruceros */}
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-8">
+          {cruises.length === 0 ? (
+            <div className="mx-auto max-w-2xl rounded-3xl border border-[#ede8e1] bg-white px-6 py-12 text-center shadow-xs sm:px-10">
+              <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-orange-50 text-[#f64d0b]">
+                <Ship className="h-6 w-6" />
+              </div>
+              <h2 className="font-serif text-2xl text-stone-900 sm:text-3xl">Nuevos itinerarios próximamente</h2>
+              <p className="mx-auto mt-3 max-w-lg text-sm leading-relaxed text-stone-600">
+                Mostraremos únicamente cruceros con información publicada y disponible para consulta.
+              </p>
+              <Link href="/contacto" className="mt-6 inline-flex min-h-11 items-center justify-center rounded-full bg-[#f64d0b] px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-[#d43d06]">
+                Consultar con Soleando
+              </Link>
+            </div>
+          ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {cruises.map((cruise) => (
               <article
@@ -110,6 +123,7 @@ export default async function CrucerosPage() {
               </article>
             ))}
           </div>
+          )}
         </section>
       </main>
 

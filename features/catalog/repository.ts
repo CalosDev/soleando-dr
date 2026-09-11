@@ -2,10 +2,9 @@ import 'server-only'
 
 import { and, asc, eq, inArray } from 'drizzle-orm'
 
-import { CRUISES_DATA, type Cruise } from '@/data/cruises'
-import { EXPERIENCES_DATA, type Experience } from '@/data/experiences'
 import { db } from '@/lib/db'
 import { catalogItems } from '@/lib/db/schema'
+import type { Cruise, Experience } from '@/features/catalog/types'
 
 export type CatalogKind =
   | 'tour'
@@ -19,9 +18,8 @@ function isCatalogRecord(value: unknown): value is { id: string; slug?: string }
 
 async function getCatalogItems<T extends { id: string }>(
   kinds: readonly CatalogKind[],
-  fallback: readonly T[],
 ): Promise<T[]> {
-  if (!db) return [...fallback]
+  if (!db) return []
 
   try {
     const rows = await db
@@ -30,20 +28,18 @@ async function getCatalogItems<T extends { id: string }>(
       .where(and(inArray(catalogItems.kind, [...kinds]), eq(catalogItems.status, 'published')))
       .orderBy(asc(catalogItems.sortOrder), asc(catalogItems.createdAt))
 
-    const items = rows.map((row) => row.content).filter(isCatalogRecord) as T[]
-    return items.length > 0 ? items : [...fallback]
+    return rows.map((row) => row.content).filter(isCatalogRecord) as T[]
   } catch {
-    // The public catalog remains available if the database is temporarily unavailable.
-    return [...fallback]
+    return []
   }
 }
 
 export function getExperiences(): Promise<Experience[]> {
-  return getCatalogItems(['tour', 'excursion_national', 'excursion_international'], EXPERIENCES_DATA)
+  return getCatalogItems(['tour', 'excursion_national', 'excursion_international'])
 }
 
 export function getCruises(): Promise<Cruise[]> {
-  return getCatalogItems(['cruise'], CRUISES_DATA)
+  return getCatalogItems(['cruise'])
 }
 
 export async function getExperienceBySlug(slug: string): Promise<Experience | null> {

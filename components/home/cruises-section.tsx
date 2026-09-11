@@ -7,6 +7,8 @@ import { siteConfig } from '@/config/site'
 export async function CruisesSection() {
   const cruises = await getCruises()
 
+  if (cruises.length === 0) return null
+
   return (
     <section className="py-20 lg:py-28 bg-[#1c1917] text-white overflow-hidden relative content-auto">
       {/* Decorative subtle texture/waves background */}
@@ -28,7 +30,7 @@ export async function CruisesSection() {
 
           <div className="space-y-2 max-w-md">
             <p className="text-sm sm:text-base text-stone-300">
-              Salidas desde puertos locales (La Romana / Santo Domingo sin visado americano) y los grandes puertos de Florida.
+              Consulta itinerarios publicados, fechas y condiciones directamente con Soleando.
             </p>
             <Link
               href="/cruceros"

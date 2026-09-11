@@ -3,9 +3,6 @@ import { SiteFooter } from '@/components/site/site-footer'
 import { HeroCinematic } from '@/components/home/hero-cinematic'
 import { ExperiencesSection } from '@/components/home/experiences-section'
 import { CruisesSection } from '@/components/home/cruises-section'
-import { ValueBentoGrid } from '@/components/home/value-bento-grid'
-import { ComparisonMatrix } from '@/components/home/comparison-matrix'
-import { CustomerReviews } from '@/components/home/customer-reviews'
 import { FaqSection } from '@/components/home/faq-section'
 import { FinalCta } from '@/components/home/final-cta'
 
@@ -18,8 +15,6 @@ export default function HomePage() {
         <HeroCinematic />
         <ExperiencesSection />
         <CruisesSection />
-        <ValueBentoGrid />
-        <CustomerReviews />
         <FaqSection />
         <FinalCta />
       </main>

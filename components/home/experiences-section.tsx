@@ -8,6 +8,8 @@ import { RevealContainer } from '@/components/motion/reveal-container'
 export async function ExperiencesSection() {
   const experiences = await getExperiences()
 
+  if (experiences.length === 0) return null
+
   return (
     <section className="py-20 lg:py-28 bg-[#fdfbf7]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">

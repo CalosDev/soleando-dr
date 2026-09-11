@@ -42,15 +42,15 @@ const SERVICES: ServiceOption[] = [
   {
     id: 'tour',
     title: 'Experiencias & Excursiones',
-    subtitle: 'Isla Saona en catamarán, buggies en Macao, cascadas en Samaná, snorkel y safaris.',
-    badge: 'Tours de 1 Día',
+    subtitle: 'Indica el tipo de experiencia que te interesa y la zona donde te hospedarás.',
+    badge: 'A tu medida',
     icon: Palmtree,
   },
   {
     id: 'cruise',
     title: 'Cruceros por el Caribe',
-    subtitle: 'Itinerarios hacia Antillas del Sur (sin visa americana requerida), Bahamas y Caribe Occidental.',
-    badge: 'Salidas Caribe',
+    subtitle: 'Cuéntanos qué región y tipo de camarote prefieres para buscar opciones disponibles.',
+    badge: 'Por consultar',
     icon: Ship,
   },
 ]
@@ -65,15 +65,12 @@ const DESTINATIONS = [
   { id: 'puerto-plata', label: 'Puerto Plata' },
 ]
 
-// Excursiones reales del catálogo Soleando DR
-const REAL_EXPERIENCES = [
-  'Isla Saona en Catamarán VIP & Piscina Natural',
-  'Safari en Buggies Macao & Cenote Taíno',
-  'Montaña Redonda & Playa Esmeralda en Camión 4x4',
-  'Cascada El Limón & Cayo Levantado en Samaná',
-  'Snorkel en Isla Catalina & Muro de Coral',
-  'Santo Domingo Colonial & Los Tres Ojos',
-  'Avistamiento de Ballenas Jorobadas en Samaná',
+const EXPERIENCE_PREFERENCES = [
+  'Playa e islas',
+  'Aventura',
+  'Naturaleza',
+  'Cultura y ciudad',
+  'Actividad acuática',
 ]
 
 // Estilos de resort disponibles
@@ -83,22 +80,21 @@ const HOTEL_STYLES = [
   { id: 'lujo', label: 'Resort de Lujo & Playa Exclusiva' },
 ]
 
-// Cruceros reales del catálogo Soleando DR
-const REAL_CRUISES = [
+const CRUISE_PREFERENCES = [
   {
-    id: 'antillas-sur',
-    label: 'Antillas del Sur & Islas ABC (Aruba, Bonaire & Curaçao)',
-    note: 'Salida directa desde RD · Sin visa americana',
+    id: 'caribe',
+    label: 'Caribe',
+    note: 'Ruta y puerto de salida por confirmar',
   },
   {
-    id: 'caribe-este',
-    label: 'Caribe Oriental (Bahamas, St. Thomas & St. Maarten)',
-    note: 'Royal Caribbean · 7 noches',
+    id: 'mediterraneo',
+    label: 'Mediterráneo',
+    note: 'Ruta y puerto de salida por confirmar',
   },
   {
-    id: 'caribe-occidental',
-    label: 'Caribe Occidental (Cozumel, Roatán & Costa Maya)',
-    note: 'MSC Cruises · 7 noches',
+    id: 'otra-region',
+    label: 'Otra región',
+    note: 'Indícala en los comentarios',
   },
 ]
 
@@ -118,10 +114,8 @@ export function InteractiveQuotePlanner() {
   const [selectedDestination, setSelectedDestination] = useState<string>('Punta Cana / Bávaro')
   const [hotelStyle, setHotelStyle] = useState<string>('Familiar con parque acuático y animación')
   const [preferredHotel, setPreferredHotel] = useState<string>('')
-  const [selectedTours, setSelectedTours] = useState<string[]>(['Isla Saona en Catamarán VIP & Piscina Natural'])
-  const [selectedCruise, setSelectedCruise] = useState<string>(
-    'Antillas del Sur & Islas ABC (Aruba, Bonaire & Curaçao)'
-  )
+  const [selectedTours, setSelectedTours] = useState<string[]>(['Playa e islas'])
+  const [selectedCruise, setSelectedCruise] = useState<string>('Caribe')
   const [selectedCabin, setSelectedCabin] = useState<string>('Balcón Privado frente al mar')
   const [dates, setDates] = useState<string>('')
   const [nights, setNights] = useState<number>(3)
@@ -156,12 +150,12 @@ export function InteractiveQuotePlanner() {
         preferredHotel ? `\n*Hotel de preferencia:* ${preferredHotel}` : ''
       }`
     } else if (selectedService === 'tour') {
-      details = `*Excursiones seleccionadas:*\n${selectedTours.map((t) => ` - ${t}`).join('\n')}\n*Zona donde te hospedas:* ${selectedDestination}`
+      details = `*Tipos de experiencia preferidos:*\n${selectedTours.map((t) => ` - ${t}`).join('\n')}\n*Zona donde te hospedas:* ${selectedDestination}`
     } else if (selectedService === 'cruise') {
-      details = `*Itinerario de Crucero:* ${selectedCruise}\n*Tipo de Camarote:* ${selectedCabin}`
+      details = `*Región preferida:* ${selectedCruise}\n*Tipo de Camarote:* ${selectedCabin}`
     }
 
-    return `*🌴 COTIZACIÓN DE VIAJE — SOLEANDO DR*
+    return `*🌴 COTIZACIÓN DE VIAJE: SOLEANDO DR*
 ----------------------------------------
 *Servicio Solicitado:* ${serviceTitles[selectedService]}
 ${details}
@@ -200,7 +194,7 @@ _Enviado desde el portal oficial de Soleando DR_`
             ¡Hemos preparado tu solicitud!
           </h2>
           <p className="text-sm text-stone-600 leading-relaxed">
-            Se ha abierto WhatsApp con los detalles de tu consulta. Uno de nuestros asesores te responderá enseguida con tarifas y disponibilidad confirmada.
+            Se ha abierto WhatsApp con los detalles de tu consulta. El equipo podrá responderte con las opciones y condiciones disponibles.
           </p>
         </div>
 
@@ -239,7 +233,7 @@ _Enviado desde el portal oficial de Soleando DR_`
              Solicitar cotización personalizada vía WhatsApp.
             </h2>
             <p className="text-xs sm:text-sm text-stone-300 mt-1">
-              Selecciona el servicio que buscas y recibe atención directa sin intermediarios.
+              Selecciona el servicio que buscas y envía los detalles directamente al equipo.
             </p>
           </div>
 
@@ -455,7 +449,7 @@ _Enviado desde el portal oficial de Soleando DR_`
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {REAL_EXPERIENCES.map((tour) => {
+                  {EXPERIENCE_PREFERENCES.map((tour) => {
                     const isChecked = selectedTours.includes(tour)
                     return (
                       <button
@@ -524,7 +518,7 @@ _Enviado desde el portal oficial de Soleando DR_`
                 </div>
 
                 <div className="space-y-3">
-                  {REAL_CRUISES.map((route) => {
+                  {CRUISE_PREFERENCES.map((route) => {
                     const isSelected = selectedCruise === route.label
                     return (
                       <button
@@ -607,7 +601,7 @@ _Enviado desde el portal oficial de Soleando DR_`
                 ¿En qué fechas planeas viajar y cuántas personas van?
               </h3>
               <p className="text-xs sm:text-sm text-stone-600">
-                Nos permite consultar tarifas exactas de temporada y promociones vigentes:
+                Nos permite consultar disponibilidad y condiciones para el período indicado:
               </p>
             </div>
 
@@ -802,7 +796,7 @@ _Enviado desde el portal oficial de Soleando DR_`
 
                 <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200/80 flex items-center gap-3 text-emerald-900 text-xs">
                   <ShieldCheck className="w-5 h-5 text-emerald-600 shrink-0" />
-                  <span>Sin tarifas ocultas. Atención directa por asesores de Soleando en WhatsApp.</span>
+                  <span>Las condiciones y el precio final se confirman antes de reservar.</span>
                 </div>
               </div>
 
@@ -850,8 +844,8 @@ _Enviado desde el portal oficial de Soleando DR_`
                     {selectedService === 'tour' && (
                       <>
                         <div>
-                          <span className="text-stone-400 block text-[11px]">Tours seleccionados</span>
-                          <span className="text-stone-200">{selectedTours.length} excursión(es)</span>
+                          <span className="text-stone-400 block text-[11px]">Preferencias</span>
+                          <span className="text-stone-200">{selectedTours.length} seleccionada(s)</span>
                         </div>
                         <div>
                           <span className="text-stone-400 block text-[11px]">Zona de recogida</span>
@@ -863,7 +857,7 @@ _Enviado desde el portal oficial de Soleando DR_`
                     {selectedService === 'cruise' && (
                       <>
                         <div>
-                          <span className="text-stone-400 block text-[11px]">Ruta</span>
+                          <span className="text-stone-400 block text-[11px]">Región preferida</span>
                           <span className="text-stone-200">{selectedCruise}</span>
                         </div>
                         <div>

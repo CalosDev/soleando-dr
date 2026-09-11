@@ -8,9 +8,6 @@ import {
   Menu,
   User,
   ChevronDown,
-  MapPin,
-  Compass,
-  Sparkles,
   Hotel,
   ArrowRight,
 } from 'lucide-react'
@@ -22,31 +19,6 @@ import { MobileNavigation } from './mobile-navigation'
 interface SiteHeaderProps {
   variant?: 'solid' | 'transparent'
 }
-
-// Quick experiences preview for Experiencias dropdown
-const FEATURED_EXPERIENCES = [
-  {
-    title: 'Isla Saona en Catamarán VIP',
-    slug: 'isla-saona-catamaran-vip',
-    duration: 'Día completo',
-    price: '$89 USD',
-    badge: 'Top ventas',
-  },
-  {
-    title: 'Montaña Redonda & Buggies 4x4',
-    slug: 'montana-redonda-buggies-4x4',
-    duration: 'Medio día',
-    price: '$75 USD',
-    badge: 'Aventura',
-  },
-  {
-    title: 'Cascada El Limón & Cayo Levantado',
-    slug: 'cascada-el-limon-cayo-levantado',
-    duration: 'Día completo',
-    price: '$99 USD',
-    badge: 'Naturaleza',
-  },
-]
 
 export function SiteHeader({ variant = 'solid' }: SiteHeaderProps) {
   const pathname = usePathname()
@@ -200,69 +172,15 @@ export function SiteHeader({ variant = 'solid' }: SiteHeaderProps) {
                 </div>
               </div>
 
-              {/* Experiencias (with interactive dropdown preview) */}
-              <div className="relative group/exp">
-                <Link
-                  href="/experiencias"
-                  className={`h-8 px-3.5 rounded-full text-xs font-semibold transition-all duration-200 flex items-center gap-1 ${getLinkClasses('/experiencias')}`}
-                >
-                  {isRouteActive('/experiencias') && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#f64d0b] shrink-0" />
-                  )}
-                  <span>Excursiones</span>
-                  <ChevronDown className={`w-3 h-3 transition-transform duration-200 group-hover/exp:rotate-180 ${chevronClasses}`} />
-                </Link>
-
-                {/* Animated Dropdown Menu for Experiencias */}
-                <div className="absolute top-full left-1/2 -translate-x-1/2 pt-2.5 w-[440px] opacity-0 translate-y-2 pointer-events-none group-hover/exp:opacity-100 group-hover/exp:translate-y-0 group-hover/exp:pointer-events-auto transition-all duration-200 ease-out z-50">
-                  <div className="bg-white rounded-3xl p-5 border border-[#ede8e1] shadow-2xl space-y-3 text-stone-900">
-                    <div className="flex items-center justify-between pb-2 border-b border-stone-100">
-                      <div className="flex items-center gap-1.5 text-xs font-bold text-stone-900">
-                        <Compass className="w-3.5 h-3.5 text-[#f64d0b]" />
-                        <span>Excursiones Populares</span>
-                      </div>
-                      <span className="inline-flex items-center gap-1 text-[10px] text-amber-800 font-bold bg-amber-50 px-2 py-0.5 rounded-full">
-                        <Sparkles className="w-2.5 h-2.5 text-amber-500" />
-                        <span>Guiadas</span>
-                      </span>
-                    </div>
-
-                    {/* Experiences preview list */}
-                    <div className="space-y-1.5">
-                      {FEATURED_EXPERIENCES.map((exp) => (
-                        <Link
-                          key={exp.slug}
-                          href={`/experiencias/${exp.slug}`}
-                          className="p-2 rounded-2xl hover:bg-[#fdfbf7] border border-transparent hover:border-[#ede8e1] transition-all flex items-center justify-between gap-3 group/item"
-                        >
-                          <div className="space-y-0.5">
-                            <strong className="text-xs font-bold text-stone-900 group-hover/item:text-[#f64d0b] transition-colors block">
-                              {exp.title}
-                            </strong>
-                            <span className="text-[10px] text-stone-500 font-medium">
-                              {exp.duration} · Desde <strong className="text-stone-800">{exp.price}</strong>
-                            </span>
-                          </div>
-                          <span className="text-[10px] px-2 py-0.5 rounded-full bg-orange-50 text-[#f64d0b] font-bold shrink-0">
-                            {exp.badge}
-                          </span>
-                        </Link>
-                      ))}
-                    </div>
-
-                    {/* Footer link */}
-                    <div className="pt-2 border-t border-stone-100 flex items-center justify-between">
-                      <Link
-                        href="/experiencias"
-                        className="text-xs font-bold text-[#f64d0b] hover:text-[#d43d06] inline-flex items-center gap-1 transition-colors"
-                      >
-                        <span>Ver todas las excursiones</span>
-                        <ArrowRight className="w-3 h-3" />
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <Link
+                href="/experiencias"
+                className={`h-8 px-3.5 rounded-full text-xs font-semibold transition-all duration-200 flex items-center gap-1.5 ${getLinkClasses('/experiencias')}`}
+              >
+                {isRouteActive('/experiencias') && (
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#f64d0b] shrink-0" />
+                )}
+                <span>Excursiones</span>
+              </Link>
 
               {/* Cruceros */}
               <Link

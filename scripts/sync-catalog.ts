@@ -4,11 +4,9 @@ import { resolve } from 'node:path'
 import { Pool } from 'pg'
 
 import { CRUISES_DATA } from '../data/cruises'
-import { POPULAR_DESTINATIONS } from '../data/destinations'
 import { EXPERIENCES_DATA } from '../data/experiences'
-import { MOCK_HOTELS } from '../data/mock-hotels'
 
-type CatalogKind = 'destination' | 'hotel' | 'tour' | 'excursion_national' | 'excursion_international' | 'cruise'
+type CatalogKind = 'tour' | 'excursion_national' | 'excursion_international' | 'cruise'
 
 function loadLocalEnvironment(): void {
   const envPath = resolve(process.cwd(), '.env.local')
@@ -35,10 +33,8 @@ if (!databaseUrl) {
 type CatalogPayload = { id: string; slug?: string }
 
 const entries: Array<{ kind: CatalogKind; item: CatalogPayload; sortOrder: number }> = [
-  ...POPULAR_DESTINATIONS.map((item, sortOrder) => ({ kind: 'destination' as const, item, sortOrder })),
   ...EXPERIENCES_DATA.map((item, sortOrder) => ({ kind: 'excursion_national' as const, item, sortOrder })),
   ...CRUISES_DATA.map((item, sortOrder) => ({ kind: 'cruise' as const, item, sortOrder })),
-  ...MOCK_HOTELS.map((item, sortOrder) => ({ kind: 'hotel' as const, item, sortOrder })),
 ]
 
 async function main(): Promise<void> {

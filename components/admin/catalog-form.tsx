@@ -1,8 +1,6 @@
 import type { CatalogItem } from '@/lib/db/schema'
 
 const catalogKinds = [
-  { value: 'destination', label: 'Destino' },
-  { value: 'hotel', label: 'Hotel' },
   { value: 'tour', label: 'Tour' },
   { value: 'excursion_national', label: 'Excursión nacional' },
   { value: 'excursion_international', label: 'Excursión internacional' },
@@ -19,7 +17,7 @@ function text(content: unknown, key: string): string {
 
 export function CatalogForm({ item, action }: { item?: CatalogItem; action: FormAction }) {
   const content = item?.content
-  const title = text(content, item?.kind === 'hotel' || item?.kind === 'destination' ? 'name' : 'title') || text(content, 'title')
+  const title = text(content, 'title')
 
   return (
     <form action={action} className="admin-form">

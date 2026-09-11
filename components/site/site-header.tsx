@@ -15,40 +15,13 @@ import {
   ArrowRight,
 } from 'lucide-react'
 import { siteConfig } from '@/config/site'
+import { HOTEL_SEARCH_DESTINATIONS } from '@/features/hotels/config/search-destinations'
 import { authClient } from '@/lib/auth-client'
 import { MobileNavigation } from './mobile-navigation'
 
 interface SiteHeaderProps {
   variant?: 'solid' | 'transparent'
 }
-
-// Quick destinations preview for Hoteles dropdown
-const FEATURED_DESTINATIONS = [
-  {
-    name: 'Punta Cana',
-    slug: 'punta-cana',
-    description: 'Resorts Todo Incluido & Playas Blancas',
-    tag: 'Más popular',
-  },
-  {
-    name: 'Bayahíbe',
-    slug: 'bayahibe',
-    description: 'Mar Caribe, Buceo & Catamarán Saona',
-    tag: 'Familiar',
-  },
-  {
-    name: 'Samaná',
-    slug: 'samana',
-    description: 'Cascadas, Selvas & Naturaleza Virgen',
-    tag: 'Ecoturismo',
-  },
-  {
-    name: 'Puerto Plata',
-    slug: 'puerto-plata',
-    description: 'Costa Dorada, Cultura & Teleférico',
-    tag: 'Tradición',
-  },
-]
 
 // Quick experiences preview for Experiencias dropdown
 const FEATURED_EXPERIENCES = [
@@ -195,22 +168,19 @@ export function SiteHeader({ variant = 'solid' }: SiteHeaderProps) {
 
                     {/* Destination items */}
                     <div className="grid grid-cols-2 gap-2">
-                      {FEATURED_DESTINATIONS.map((dest) => (
+                      {HOTEL_SEARCH_DESTINATIONS.slice(0, 4).map((dest) => (
                         <Link
                           key={dest.slug}
                           href={`/hoteles?destination=${dest.slug}`}
                           className="p-2.5 rounded-2xl hover:bg-[#fdfbf7] border border-transparent hover:border-[#ede8e1] transition-all group/item"
                         >
-                          <div className="flex items-center justify-between mb-0.5">
+                          <div className="flex items-center justify-between gap-2 mb-0.5">
                             <strong className="text-xs font-bold text-stone-900 group-hover/item:text-[#f64d0b] transition-colors">
                               {dest.name}
                             </strong>
-                            <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-stone-100 text-stone-600 font-semibold">
-                              {dest.tag}
-                            </span>
                           </div>
                           <p className="text-[10px] text-stone-500 leading-tight line-clamp-2">
-                            {dest.description}
+                            {dest.region}
                           </p>
                         </Link>
                       ))}

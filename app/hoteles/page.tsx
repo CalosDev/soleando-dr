@@ -1,11 +1,11 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
+import { BadgeCheck, CreditCard, SearchCheck } from 'lucide-react'
 
-import { HotelBookingEngine } from '@/components/hotels/hotel-booking-engine'
-import { HotelCard } from '@/components/hotels/hotel-card'
+import { HotelSearchForm } from '@/components/home/hotel-search-form'
 import { SiteFooter } from '@/components/site/site-footer'
 import { SiteHeader } from '@/components/site/site-header'
-import { getFeaturedHotels } from '@/features/catalog/repository'
+import { getHotelSearchDestination } from '@/features/hotels/config/search-destinations'
 
 export const metadata: Metadata = {
   title: 'Hoteles & Resorts en República Dominicana | Soleando',
@@ -14,34 +14,52 @@ export const metadata: Metadata = {
 
 export const dynamic = 'force-dynamic'
 
-export default async function HotelesPage() {
-  const hotels = await getFeaturedHotels()
+export default async function HotelesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ destination?: string }>
+}) {
+  const requestedDestination = (await searchParams).destination ?? ''
+  const initialDestination = getHotelSearchDestination(requestedDestination)?.slug ?? ''
 
   return (
     <div className="min-h-screen flex flex-col bg-[#fdfbf7]">
       <SiteHeader variant="solid" />
       <main className="flex-1">
-        <section className="relative text-white py-16 sm:py-24 px-4 sm:px-6 lg:px-8 overflow-hidden">
+        <section className="relative min-h-[620px] overflow-hidden px-4 pb-20 pt-28 text-white sm:px-6 sm:pb-24 sm:pt-36 lg:px-8">
           <div className="absolute inset-0 z-0 bg-stone-950">
             <Image src="/sasha-kaunas-xEaAoizNFV8-unsplash.jpg" alt="Hoteles y Resorts" fill className="object-cover object-center brightness-50 contrast-105" priority />
             <div className="absolute inset-0 bg-black/40 pointer-events-none" />
           </div>
-          <div className="relative z-10 max-w-4xl mx-auto text-center space-y-3">
-            <h1 className="font-serif text-3xl sm:text-5xl lg:text-6xl font-normal text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)]">Encuentra tu hotel por el mundo</h1>
-            <p className="text-xs sm:text-sm text-stone-200 font-medium max-w-2xl mx-auto">Consulta disponibilidad y precios en vivo con nuestro proveedor hotelero.</p>
+          <div className="relative z-10 mx-auto flex max-w-5xl flex-col items-center text-center">
+            <p className="mb-4 text-xs font-bold uppercase tracking-[0.2em] text-[#fadc40]">Disponibilidad y tarifas reales</p>
+            <h1 className="max-w-4xl font-serif text-4xl font-normal leading-tight text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)] sm:text-6xl">
+              Encuentra y reserva tu próximo hotel
+            </h1>
+            <p className="mx-auto mt-5 max-w-2xl text-sm font-medium leading-relaxed text-stone-200 sm:text-lg">
+              Busca con la experiencia de Soleando y completa tu reserva en el entorno seguro de nuestro proveedor hotelero.
+            </p>
+            <div className="mt-10 w-full">
+              <HotelSearchForm initialDestination={initialDestination} />
+            </div>
           </div>
         </section>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-10 sm:-mt-14 relative z-10">
-          <HotelBookingEngine />
-        </div>
-
-        {hotels.length > 0 && (
-          <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-20">
-            <div className="mb-8 space-y-2"><p className="text-xs font-bold tracking-[0.18em] uppercase text-[#f64d0b]">Selección Soleando</p><h2 className="font-serif text-3xl sm:text-4xl text-stone-900">Resorts para inspirarte</h2><p className="text-sm text-stone-600">Una selección editorial. La disponibilidad y los precios finales se confirman en el buscador.</p></div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">{hotels.map((hotel) => <HotelCard key={hotel.id} hotel={hotel} />)}</div>
-          </section>
-        )}
+        <section className="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-20 lg:px-8" aria-label="Cómo funciona la reserva">
+          <div className="grid gap-5 md:grid-cols-3">
+            {[
+              { icon: SearchCheck, title: 'Busca con datos reales', text: 'El destino, las fechas y la ocupación se consultan directamente al proveedor.' },
+              { icon: BadgeCheck, title: 'Compara disponibilidad', text: 'Verás únicamente hoteles, habitaciones y tarifas disponibles para tu búsqueda.' },
+              { icon: CreditCard, title: 'Reserva de forma segura', text: 'La confirmación y el pago se completan en el portal seguro del proveedor.' },
+            ].map(({ icon: Icon, title, text }) => (
+              <article key={title} className="rounded-3xl border border-[#ede8e1] bg-white p-6 shadow-xs">
+                <Icon className="mb-4 h-6 w-6 text-[#f64d0b]" aria-hidden="true" />
+                <h2 className="font-serif text-2xl text-stone-900">{title}</h2>
+                <p className="mt-2 text-sm leading-relaxed text-stone-600">{text}</p>
+              </article>
+            ))}
+          </div>
+        </section>
       </main>
       <SiteFooter />
     </div>

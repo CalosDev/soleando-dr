@@ -1,8 +1,6 @@
 import { SiteHeader } from '@/components/site/site-header'
 import { SiteFooter } from '@/components/site/site-footer'
 import { HeroCinematic } from '@/components/home/hero-cinematic'
-import { PopularDestinations } from '@/components/home/popular-destinations'
-import { FeaturedHotels } from '@/components/home/featured-hotels'
 import { ExperiencesSection } from '@/components/home/experiences-section'
 import { CruisesSection } from '@/components/home/cruises-section'
 import { ValueBentoGrid } from '@/components/home/value-bento-grid'
@@ -18,8 +16,6 @@ export default function HomePage() {
 
       <main className="flex-1">
         <HeroCinematic />
-        <PopularDestinations />
-        <FeaturedHotels />
         <ExperiencesSection />
         <CruisesSection />
         <ValueBentoGrid />

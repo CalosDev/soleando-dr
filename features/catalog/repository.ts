@@ -3,15 +3,11 @@ import 'server-only'
 import { and, asc, eq, inArray } from 'drizzle-orm'
 
 import { CRUISES_DATA, type Cruise } from '@/data/cruises'
-import { POPULAR_DESTINATIONS, type Destination } from '@/data/destinations'
 import { EXPERIENCES_DATA, type Experience } from '@/data/experiences'
-import { MOCK_HOTELS, type MockHotel } from '@/data/mock-hotels'
 import { db } from '@/lib/db'
 import { catalogItems } from '@/lib/db/schema'
 
 export type CatalogKind =
-  | 'destination'
-  | 'hotel'
   | 'tour'
   | 'excursion_national'
   | 'excursion_international'
@@ -42,20 +38,12 @@ async function getCatalogItems<T extends { id: string }>(
   }
 }
 
-export function getDestinations(): Promise<Destination[]> {
-  return getCatalogItems(['destination'], POPULAR_DESTINATIONS)
-}
-
 export function getExperiences(): Promise<Experience[]> {
   return getCatalogItems(['tour', 'excursion_national', 'excursion_international'], EXPERIENCES_DATA)
 }
 
 export function getCruises(): Promise<Cruise[]> {
   return getCatalogItems(['cruise'], CRUISES_DATA)
-}
-
-export function getFeaturedHotels(): Promise<MockHotel[]> {
-  return getCatalogItems(['hotel'], MOCK_HOTELS)
 }
 
 export async function getExperienceBySlug(slug: string): Promise<Experience | null> {

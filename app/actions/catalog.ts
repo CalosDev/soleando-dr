@@ -11,8 +11,6 @@ import { db } from '@/lib/db'
 import { catalogItems, type CatalogItem } from '@/lib/db/schema'
 
 const catalogKindSchema = z.enum([
-  'destination',
-  'hotel',
   'tour',
   'excursion_national',
   'excursion_international',
@@ -78,7 +76,6 @@ function toCatalogContent(values: CatalogFormValues, id: string, existingContent
   // The first editor intentionally exposes only the common fields. Keep the
   // richer, type-specific fields already stored in the catalog intact.
   if (Object.keys(existing).length > 0) {
-    if (values.kind === 'hotel' || values.kind === 'destination') return { ...base, name: values.title }
     return base
   }
 
@@ -88,30 +85,6 @@ function toCatalogContent(values: CatalogFormValues, id: string, existingContent
       line: values.category || 'Naviera por confirmar',
       itinerary: values.destination || 'Itinerario por confirmar',
       departurePort: 'Por confirmar',
-    }
-  }
-
-  if (values.kind === 'hotel') {
-    return {
-      ...base,
-      name: values.title,
-      destinationSlug: slugify(values.destination || 'por-confirmar'),
-      stars: 0,
-      rating: 0,
-      reviewCount: 0,
-      mealPlan: values.category || 'Por confirmar',
-      amenities: [],
-      isMock: false,
-    }
-  }
-
-  if (values.kind === 'destination') {
-    return {
-      ...base,
-      name: values.title,
-      region: values.destination || 'Por confirmar',
-      hotelCount: 0,
-      isMock: false,
     }
   }
 

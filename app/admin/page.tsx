@@ -7,7 +7,7 @@ import { requireAdmin } from '@/lib/auth-session'
 export const dynamic = 'force-dynamic'
 
 const kindLabels: Record<string, string> = {
-  destination: 'Destino', hotel: 'Hotel', tour: 'Tour', excursion_national: 'Excursión nacional',
+  tour: 'Tour', excursion_national: 'Excursión nacional',
   excursion_international: 'Excursión internacional', cruise: 'Crucero',
 }
 
@@ -34,7 +34,7 @@ export default async function AdminPage() {
           <div>
             <p className="eyebrow">Administración</p>
             <h1>Catálogo editorial</h1>
-            <p className="muted">Gestiona destinos, hoteles, tours, excursiones nacionales e internacionales y cruceros.</p>
+            <p className="muted">Gestiona tours, excursiones nacionales e internacionales y cruceros.</p>
           </div>
           <Link className="button button-sun" href="/admin/catalogo/nuevo">Nuevo contenido ↗</Link>
         </div>

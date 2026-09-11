@@ -5,9 +5,15 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { authClient } from '@/lib/auth-client'
 import { getSafeRedirectPath } from '@/lib/validation/auth'
+import { GoogleSignInButton } from '@/components/auth/google-sign-in-button'
 import { Mail, Lock, User, Eye, EyeOff, Loader2, AlertCircle, ArrowRight, CheckCircle2 } from 'lucide-react'
 
-function RegisterFormContent() {
+interface RegisterFormContentProps {
+  emailRegistrationEnabled: boolean
+  googleSignInEnabled: boolean
+}
+
+function RegisterFormContent({ emailRegistrationEnabled, googleSignInEnabled }: RegisterFormContentProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [isPending, startTransition] = useTransition()
@@ -23,6 +29,28 @@ function RegisterFormContent() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+
+  if (!emailRegistrationEnabled) {
+    return (
+      <div className="space-y-5">
+        <div role="status" className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm leading-relaxed text-amber-900">
+          El registro con correo estará disponible cuando terminemos de configurar el envío seguro de verificación. Inténtalo más tarde.
+        </div>
+        {errorMessage && (
+          <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm leading-relaxed text-red-800">
+            {errorMessage}
+          </div>
+        )}
+        {googleSignInEnabled && <GoogleSignInButton callbackURL={safeNext} onError={setErrorMessage} />}
+        <div className="text-center text-sm text-stone-600">
+          ¿Ya tienes una cuenta?{' '}
+          <Link href={rawNext ? `/login?next=${encodeURIComponent(safeNext)}` : '/login'} className="font-bold text-[#f64d0b] hover:text-[#d43d06] transition-colors">
+            Inicia sesión
+          </Link>
+        </div>
+      </div>
+    )
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -222,6 +250,20 @@ function RegisterFormContent() {
         </button>
       </form>
 
+      {googleSignInEnabled && (
+        <>
+          <div className="relative my-5">
+            <div className="absolute inset-0 flex items-center" aria-hidden="true">
+              <div className="w-full border-t border-stone-200" />
+            </div>
+            <div className="relative flex justify-center text-xs">
+              <span className="bg-white px-3 text-stone-500">o continúa con</span>
+            </div>
+          </div>
+          <GoogleSignInButton callbackURL={safeNext} onError={setErrorMessage} />
+        </>
+      )}
+
       {/* Footer Switch */}
       <div className="mt-6 pt-4 border-t border-stone-100 text-center text-sm text-stone-600">
         ¿Ya tienes una cuenta?{' '}
@@ -236,7 +278,13 @@ function RegisterFormContent() {
   )
 }
 
-export function RegisterForm() {
+export function RegisterForm({
+  emailRegistrationEnabled = true,
+  googleSignInEnabled = false,
+}: {
+  emailRegistrationEnabled?: boolean
+  googleSignInEnabled?: boolean
+}) {
   return (
     <Suspense
       fallback={
@@ -245,7 +293,10 @@ export function RegisterForm() {
         </div>
       }
     >
-      <RegisterFormContent />
+      <RegisterFormContent
+        emailRegistrationEnabled={emailRegistrationEnabled}
+        googleSignInEnabled={googleSignInEnabled}
+      />
     </Suspense>
   )
 }

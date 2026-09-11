@@ -4,6 +4,7 @@ import Image from 'next/image'
 import { redirect } from 'next/navigation'
 import { getCurrentUser } from '@/lib/auth-session'
 import { LoginForm } from '@/components/auth/login-form'
+import { getAuthFeatures } from '@/lib/auth-features'
 import { ArrowLeft, Sparkles, ShieldCheck, Compass, Palmtree } from 'lucide-react'
 
 export const metadata: Metadata = {
@@ -16,6 +17,7 @@ export const metadata: Metadata = {
 }
 
 export default async function LoginPage() {
+  const { googleSignInEnabled } = getAuthFeatures()
   const user = await getCurrentUser()
   if (user) {
     redirect('/cuenta')
@@ -53,7 +55,7 @@ export default async function LoginPage() {
           </div>
 
           {/* Login Form Component */}
-          <LoginForm />
+          <LoginForm googleSignInEnabled={googleSignInEnabled} />
 
           {/* Trust Highlights Inside Card */}
           <div className="mt-6 pt-5 border-t border-stone-100 grid grid-cols-3 gap-2 text-center text-[10px] text-stone-500 font-medium">

@@ -5,9 +5,10 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { authClient } from '@/lib/auth-client'
 import { getSafeRedirectPath } from '@/lib/validation/auth'
+import { GoogleSignInButton } from '@/components/auth/google-sign-in-button'
 import { Mail, Lock, Eye, EyeOff, Loader2, AlertCircle, ArrowRight } from 'lucide-react'
 
-function LoginFormContent() {
+function LoginFormContent({ googleSignInEnabled }: { googleSignInEnabled: boolean }) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [isPending, startTransition] = useTransition()
@@ -180,6 +181,20 @@ function LoginFormContent() {
         </button>
       </form>
 
+      {googleSignInEnabled && (
+        <>
+          <div className="relative my-5">
+            <div className="absolute inset-0 flex items-center" aria-hidden="true">
+              <div className="w-full border-t border-stone-200" />
+            </div>
+            <div className="relative flex justify-center text-xs">
+              <span className="bg-white px-3 text-stone-500">o continúa con</span>
+            </div>
+          </div>
+          <GoogleSignInButton callbackURL={safeNext} onError={setErrorMessage} />
+        </>
+      )}
+
       {/* Footer Switch */}
       <div className="mt-6 pt-4 border-t border-stone-100 text-center text-sm text-stone-600">
         ¿Aún no tienes cuenta?{' '}
@@ -194,7 +209,7 @@ function LoginFormContent() {
   )
 }
 
-export function LoginForm() {
+export function LoginForm({ googleSignInEnabled = false }: { googleSignInEnabled?: boolean }) {
   return (
     <Suspense
       fallback={
@@ -203,7 +218,7 @@ export function LoginForm() {
         </div>
       }
     >
-      <LoginFormContent />
+      <LoginFormContent googleSignInEnabled={googleSignInEnabled} />
     </Suspense>
   )
 }

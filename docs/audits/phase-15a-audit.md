@@ -87,7 +87,7 @@ Durante la auditoría se evaluaron **50 dimensiones** agrupadas en 7 dominios cl
 ### 5. Calidad de Código y TypeScript
 - [x] **5.1 Cero errores de compilación:** `tsc --noEmit` ejecuta limpiamente con 0 errores de tipado.
 - [x] **5.2 Tipado estricto:** Tipos fuertes en modelos de dominio, entidades de viajes, usuarios y proveedores; erradicación de `any` en capas de negocio.
-- [x] **5.3 Schemas Zod sincronizados:** Esquemas de validación Zod sincronizados con los esquemas de base de datos Drizzle (`profiles`, `travelers`, `offers`).
+- [x] **5.3 Schemas Zod sincronizados:** Esquemas de validación Zod sincronizados con los esquemas de base de datos Drizzle vigentes (`profiles`, `travelers`, `catalog_items`).
 - [x] **5.4 Manejo consistente de errores:** Server Actions retornan objetos estructurados `{ success: boolean, error?: string, data?: any }`.
 - [x] **5.5 No console.log residuales en producción:** Logs de depuración en código cliente removidos; logs estructurados en servidor.
 - [x] **5.6 Nombres consistentes de archivos:** Convenciones kebab-case para archivos y carpetas, PascalCase para componentes React.

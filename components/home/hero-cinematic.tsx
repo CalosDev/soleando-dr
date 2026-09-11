@@ -103,14 +103,14 @@ export function HeroCinematic() {
 
       // 0. Set inicial
       gsap.set(coverRef.current, { opacity: 1, display: 'block' })
-      gsap.set([dateHoleRef.current, dateFillRef.current], { scale: 4.8, svgOrigin: SOLEANDO_ORIGIN })
+      gsap.set([dateHoleRef.current, dateFillRef.current], { scale: 2.8, svgOrigin: SOLEANDO_ORIGIN })
       gsap.set(dateFillRef.current, { opacity: 0 })
       gsap.set(mediaRef.current, { scale: 1.18, opacity: 1 })
       gsap.set(paradiseMediaRef.current, { opacity: 0, scale: 1.08 })
       gsap.set(subtitleRef.current, { opacity: 0, y: 14 })
-      // The hotel search is the primary conversion action. Keep it available
-      // from the first render; the cinematic sequence is only an enhancement.
-      gsap.set(climaxContentRef.current, { opacity: 1, y: 0, pointerEvents: 'auto' })
+      // Las acciones aparecen solo en el clímax para no competir con el portal
+      // de marca ni con la primera frase de la secuencia.
+      gsap.set(climaxContentRef.current, { opacity: 0, y: 14, pointerEvents: 'none' })
       gsap.set(controlsRef.current, { opacity: 0 })
 
       // Frases caracteres iniciales
@@ -235,6 +235,14 @@ export function HeroCinematic() {
             ease: 'power2.out',
           },
           7.1
+        )
+      }
+
+      if (climaxContentRef.current) {
+        tl.to(
+          climaxContentRef.current,
+          { opacity: 1, y: 0, pointerEvents: 'auto', duration: 0.55, ease: 'power2.out' },
+          7.3
         )
       }
 
@@ -428,7 +436,7 @@ export function HeroCinematic() {
         </div>
 
         {/* Bloque interactivo: las búsquedas viven en /hoteles para evitar cortar sus paneles. */}
-        <div ref={climaxContentRef} className="relative z-30 w-full opacity-100 pointer-events-auto">
+        <div ref={climaxContentRef} className="relative z-30 w-full translate-y-3 opacity-0 pointer-events-none">
           <div className="mx-auto flex w-full max-w-xl flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
             <Link
               href="/hoteles"

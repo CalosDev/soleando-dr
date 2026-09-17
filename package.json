@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "test": "node --no-warnings --experimental-strip-types --test tests/validation.test.mjs"
+    "test": "npm run test:validation && npm run test:routes",
+    "test:validation": "node --no-warnings --experimental-strip-types --test tests/validation.test.mjs",
+    "test:routes": "npm run build && node --test tests/http-routes.test.mjs"
   },
   "dependencies": {
     "@vercel/analytics": "1.6.1",

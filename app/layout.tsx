@@ -1,7 +1,7 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
 import { DM_Sans, DM_Serif_Display, Anton } from 'next/font/google'
-import { PublicSiteEnhancements } from '@/components/public-site-enhancements'
+import { PublicSiteOverlays } from '@/components/public-site-overlays'
 import './globals.css'
 import { Toaster } from 'sileo'
 import { siteConfig } from '@/config/site'
@@ -30,26 +30,8 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
   title: 'Soleando DR | Hoteles, viajes y experiencias',
   description: 'Encuentra hoteles, destinos y experiencias para tu próximo viaje en República Dominicana y el Caribe con Soleando.',
-  manifest: '/manifest.webmanifest',
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: 'default',
-    title: 'Soleando',
-  },
   formatDetection: {
     telephone: false,
-  },
-  icons: {
-    icon: [
-      { url: '/Soleando.ico', type: 'image/x-icon' },
-      { url: '/favicon.ico', type: 'image/x-icon' },
-      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
-      { url: '/icon-512.png', sizes: '512x512', type: 'image/png' },
-    ],
-    shortcut: '/Soleando.ico',
-    apple: [
-      { url: '/apple-icon.png', sizes: '180x180', type: 'image/png' },
-    ],
   },
 }
 
@@ -67,7 +49,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="es" className="bg-background" data-scroll-behavior="smooth" suppressHydrationWarning>
       <body className={`${dmSans.variable} ${dmSerif.variable} ${anton.variable} antialiased`} suppressHydrationWarning>
         {children}
-        <PublicSiteEnhancements />
+        <PublicSiteOverlays />
         {process.env.NODE_ENV === 'production' && <Analytics />}
         <Toaster />
       </body>

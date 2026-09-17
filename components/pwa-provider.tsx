@@ -13,21 +13,27 @@ export function PwaProvider() {
   const [showInstallBanner, setShowInstallBanner] = useState(false)
 
   useEffect(() => {
-    // 1. Registro del Service Worker
-    if (typeof window !== 'undefined' && 'serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker
-          .register('/sw.js')
-          .then((reg) => {
-            console.log('Soleando PWA Service Worker registrado con éxito:', reg.scope)
+    let installBannerTimer: number | undefined
+
+    const registerServiceWorker = () => {
+      if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
+        void navigator.serviceWorker
+          .register('/sw.js', { updateViaCache: 'none' })
+          .then((registration) => registration.update())
+          .catch(() => {
+            // Installation is optional; browsing must remain unaffected if it fails.
           })
-          .catch((err) => {
-            console.error('Error al registrar Service Worker:', err)
-          })
-      })
+      }
     }
 
-    // 2. Manejo del evento de instalación PWA (Chrome / Android / Edge)
+    if (typeof window !== 'undefined') {
+      if (document.readyState === 'complete') {
+        registerServiceWorker()
+      } else {
+        window.addEventListener('load', registerServiceWorker, { once: true })
+      }
+    }
+
     const handleBeforeInstall = (e: Event) => {
       e.preventDefault()
       setDeferredPrompt(e as BeforeInstallPromptEvent)
@@ -35,18 +41,20 @@ export function PwaProvider() {
       // Mostrar el banner solo si el usuario no lo descartó en esta sesión
       const isDismissed = sessionStorage.getItem('soleando_pwa_dismissed')
       if (!isDismissed) {
-        // Mostrar con un breve retraso para no interrumpir la experiencia inicial
-        const timer = setTimeout(() => {
+        installBannerTimer = window.setTimeout(() => {
           setShowInstallBanner(true)
         }, 3500)
-        return () => clearTimeout(timer)
       }
     }
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstall)
 
     return () => {
+      window.removeEventListener('load', registerServiceWorker)
       window.removeEventListener('beforeinstallprompt', handleBeforeInstall)
+      if (installBannerTimer !== undefined) {
+        window.clearTimeout(installBannerTimer)
+      }
     }
   }, [])
 

@@ -1,8 +1,7 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
 import { DM_Sans, DM_Serif_Display, Anton } from 'next/font/google'
-import { PwaProvider } from '@/components/pwa-provider'
-import { FloatingWhatsApp } from '@/components/site/floating-whatsapp'
+import { PublicSiteEnhancements } from '@/components/public-site-enhancements'
 import './globals.css'
 import { Toaster } from 'sileo'
 import { siteConfig } from '@/config/site'
@@ -68,8 +67,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="es" className="bg-background" data-scroll-behavior="smooth" suppressHydrationWarning>
       <body className={`${dmSans.variable} ${dmSerif.variable} ${anton.variable} antialiased`} suppressHydrationWarning>
         {children}
-        <FloatingWhatsApp />
-        <PwaProvider />
+        <PublicSiteEnhancements />
         {process.env.NODE_ENV === 'production' && <Analytics />}
         <Toaster />
       </body>

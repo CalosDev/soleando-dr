@@ -1,4 +1,4 @@
-import { boolean, index, integer, jsonb, pgTable, text, timestamp } from 'drizzle-orm/pg-core'
+import { boolean, date, index, integer, jsonb, numeric, pgTable, text, timestamp } from 'drizzle-orm/pg-core'
 
 export const user = pgTable('user', {
   id: text('id').primaryKey(),
@@ -68,4 +68,28 @@ export const travelers = pgTable('travelers', {
 ])
 export type Traveler = typeof travelers.$inferSelect
 export type NewTraveler = typeof travelers.$inferInsert
+
+/** A reservation is created by an authorized Soleando agent after confirmation. */
+export const reservations = pgTable('reservations', {
+  id: text('id').primaryKey(),
+  userId: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
+  kind: text('kind').notNull(),
+  status: text('status').notNull().default('pending'),
+  title: text('title').notNull(),
+  destination: text('destination').notNull(),
+  startsOn: date('starts_on'),
+  endsOn: date('ends_on'),
+  travelerCount: integer('traveler_count').notNull().default(1),
+  provider: text('provider'),
+  providerReference: text('provider_reference'),
+  totalAmount: numeric('total_amount', { precision: 12, scale: 2 }),
+  currency: text('currency'),
+  customerNote: text('customer_note'),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+}, (table) => [
+  index('reservations_user_created_idx').on(table.userId, table.createdAt),
+  index('reservations_provider_reference_idx').on(table.providerReference),
+])
+export type Reservation = typeof reservations.$inferSelect
 

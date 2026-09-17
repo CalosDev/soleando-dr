@@ -2,6 +2,7 @@
 import { requireUser } from '@/lib/auth-session'
 import { getProfile } from '@/features/profile/queries'
 import { getTravelers } from '@/features/travelers/queries'
+import { getReservationsForUser } from '@/features/reservations/queries'
 import { LogoutButton } from '@/components/auth/logout-button'
 import { AccountNavigation } from '@/components/account/account-navigation'
 import {
@@ -23,9 +24,10 @@ export const dynamic = 'force-dynamic'
 
 export default async function CuentaPage() {
   const user = await requireUser('/cuenta')
-  const [profile, travelersList] = await Promise.all([
+  const [profile, travelersList, reservationsList] = await Promise.all([
     getProfile(user.id),
     getTravelers(user.id),
+    getReservationsForUser(user.id),
   ])
 
   const isProfileComplete = Boolean(profile?.firstName && profile?.lastName)
@@ -151,25 +153,24 @@ export default async function CuentaPage() {
           </Link>
         </div>
 
-        {/* Card 3: Mis Reservas (Fase 6) */}
-        <div className="bg-white rounded-3xl p-6 border border-[#ede8e1] shadow-xs flex flex-col justify-between opacity-90">
+        <div className="bg-white rounded-3xl p-6 border border-[#ede8e1] shadow-xs flex flex-col justify-between hover:border-orange-200 hover:shadow-md transition-all">
           <div>
             <div className="flex items-center justify-between mb-4">
-              <div className="w-12 h-12 rounded-2xl bg-stone-100 text-stone-600 flex items-center justify-center">
+              <div className="w-12 h-12 rounded-2xl bg-orange-50 text-[#f64d0b] flex items-center justify-center">
                 <CalendarCheck className="w-6 h-6" />
               </div>
-              <span className="text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-stone-100 text-stone-600">
-                Próximamente
+              <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-orange-100 text-[#f64d0b]">
+                {reservationsList.length} {reservationsList.length === 1 ? 'reserva' : 'reservas'}
               </span>
             </div>
             <h2 className="text-lg font-bold text-stone-900 mb-1">Mis Reservas</h2>
             <p className="text-sm text-stone-600 leading-relaxed">
-              Consulta tus reservas activas, estados de confirmación y comprobantes de viaje.
+              Consulta tus reservas activas y sus estados de confirmación.
             </p>
           </div>
-          <p className="mt-6 text-xs text-stone-400 font-medium">
-            Módulo disponible en la Fase 6 del sistema.
-          </p>
+          <Link href="/cuenta/reservas" className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-[#f64d0b] hover:text-[#e04408] transition-colors">
+            <span>Ver mis reservas</span><ArrowRight className="w-4 h-4" />
+          </Link>
         </div>
       </div>
     </div>

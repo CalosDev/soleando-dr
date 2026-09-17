@@ -36,7 +36,7 @@ export default async function AdminPage() {
             <h1>Catálogo editorial</h1>
             <p className="muted">Gestiona tours, excursiones nacionales e internacionales y cruceros.</p>
           </div>
-          <Link className="button button-sun" href="/admin/catalogo/nuevo">Nuevo contenido ↗</Link>
+          <div className="flex gap-3"><Link className="button" href="/admin/reservas">Reservas</Link><Link className="button button-sun" href="/admin/catalogo/nuevo">Nuevo contenido ↗</Link></div>
         </div>
         <div className="admin-stats">
           <div><strong>{items.length}</strong><span>Total</span></div>

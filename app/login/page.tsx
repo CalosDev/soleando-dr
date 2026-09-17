@@ -20,7 +20,7 @@ export default async function LoginPage() {
   const { googleSignInEnabled } = getAuthFeatures()
   const user = await getCurrentUser()
   if (user) {
-    redirect('/cuenta')
+    redirect(user.role === 'admin' ? '/admin' : '/cuenta')
   }
 
   return (

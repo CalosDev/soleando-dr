@@ -125,6 +125,7 @@ function revalidateCatalog(): void {
   revalidatePath('/')
   revalidatePath('/destinos')
   revalidatePath('/experiencias')
+  revalidatePath('/excursiones')
   revalidatePath('/cruceros')
   revalidatePath('/hoteles')
   revalidatePath('/admin')

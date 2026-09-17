@@ -15,6 +15,7 @@ function LoginFormContent({ googleSignInEnabled }: { googleSignInEnabled: boolea
 
   const rawNext = searchParams.get('next')
   const safeNext = getSafeRedirectPath(rawNext, '/cuenta')
+  const oauthCallbackURL = `/login/complete?next=${encodeURIComponent(safeNext)}`
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -64,7 +65,11 @@ function LoginFormContent({ googleSignInEnabled }: { googleSignInEnabled: boolea
       }
 
       startTransition(() => {
-        router.push(safeNext)
+        const role = (response.data?.user as { role?: string } | undefined)?.role
+        const destination = role === 'admin'
+          ? safeNext.startsWith('/admin') ? safeNext : '/admin'
+          : safeNext.startsWith('/admin') ? '/cuenta' : safeNext
+        router.push(destination)
         router.refresh()
       })
     } catch (err: unknown) {
@@ -191,7 +196,7 @@ function LoginFormContent({ googleSignInEnabled }: { googleSignInEnabled: boolea
               <span className="bg-white px-3 text-stone-500">o continúa con</span>
             </div>
           </div>
-          <GoogleSignInButton callbackURL={safeNext} onError={setErrorMessage} />
+          <GoogleSignInButton callbackURL={oauthCallbackURL} onError={setErrorMessage} />
         </>
       )}
 

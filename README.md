@@ -1,5 +1,13 @@
 # soleando-dr
 
+## Pruebas
+
+Requieren Node.js 24. `npm run test` ejecuta validadores reales y rutas HTTP sin servicios externos. `npm run typecheck` verifica TypeScript.
+
+`npm run test:integration` requiere Docker Desktop activo y puertos 55320–55329, 55330 y 8583 libres. Construye la aplicación, crea un stack Supabase temporal con las migraciones del repositorio y verifica sesiones reales de Better Auth, lectura del perfil, aislamiento de viajeros entre cuentas, permisos de administración y carga de imágenes en Storage. Descarga la CLI fijada en 2.117.0 y las imágenes necesarias en la primera ejecución.
+
+Las cuentas verificadas se crean sólo en la base temporal con contraseñas aleatorias. Se validan login y logout con contraseña; el registro, envío de correo y Google OAuth no están cubiertos por esta suite. No se copian archivos de entorno ni metadatos de enlace remoto al stack. Al terminar, se eliminan los contenedores, volúmenes y archivos de esa ejecución. Evita interrumpir el proceso durante la limpieza; si ocurre, identifica el proyecto `soleando-test-*` de esa ejecución y detén únicamente ese proyecto con `supabase stop --project-id <id> --no-backup`.
+
 
 ## Getting Started
 

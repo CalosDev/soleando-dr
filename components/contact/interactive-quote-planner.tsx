@@ -175,8 +175,9 @@ _Enviado desde el portal oficial de Soleando DR_`
   const handleWhatsAppSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     const text = generateMessageText()
-    const url = `${siteConfig.whatsappUrl}?text=${encodeURIComponent(text)}`
-    window.open(url, '_blank')
+    const url = new URL(siteConfig.whatsappUrl)
+    url.searchParams.set('text', text)
+    window.open(url.toString(), '_blank', 'noopener,noreferrer')
     setSubmitted(true)
   }
 

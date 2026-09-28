@@ -5,6 +5,7 @@ import { siteConfig } from '@/config/site'
 import { ShieldCheck, Calendar, FileText, AlertCircle } from 'lucide-react'
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/politicas' },
   title: 'Políticas de Reserva, Cancelación y Privacidad | Soleando DR',
   description:
     'Conoce nuestras políticas claras y transparentes sobre cancelaciones, reembolsos, condiciones de reserva y protección de datos en Soleando DR.',

@@ -5,6 +5,7 @@ import { and, asc, eq, inArray } from 'drizzle-orm'
 import { db } from '@/lib/db'
 import { catalogItems } from '@/lib/db/schema'
 import type { Cruise, Experience, ExperienceScope } from '@/features/catalog/types'
+import { cruiseContentSchema, experienceContentSchema } from '@/features/catalog/schemas'
 
 export type CatalogKind =
   | 'tour'
@@ -63,18 +64,23 @@ async function getScopedExperiences(): Promise<Experience[]> {
       .orderBy(asc(catalogItems.sortOrder), asc(catalogItems.createdAt))
 
     return rows
-      .filter((row) => isCatalogRecord(row.content))
-      .map((row) => ({
-        ...(row.content as Experience),
-        scope: getExperienceScope(row.kind as CatalogKind),
-      }))
+      .flatMap((row) => {
+        const parsed = experienceContentSchema.safeParse(row.content)
+        if (!parsed.success) { console.error('Invalid published experience omitted'); return [] }
+        return [{ ...parsed.data, scope: getExperienceScope(row.kind as CatalogKind) }]
+      })
   } catch {
     return []
   }
 }
 
-export function getCruises(): Promise<Cruise[]> {
-  return getCatalogItems(['cruise'])
+export async function getCruises(): Promise<Cruise[]> {
+  const rows = await getCatalogItems<Cruise>(['cruise'])
+  return rows.flatMap((row) => {
+    const parsed = cruiseContentSchema.safeParse(row)
+    if (!parsed.success) { console.error('Invalid published cruise omitted'); return [] }
+    return [parsed.data]
+  })
 }
 
 export async function getExperienceBySlug(slug: string): Promise<Experience | null> {

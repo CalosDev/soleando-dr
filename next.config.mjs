@@ -1,6 +1,12 @@
+// Limit optimization to this project's public catalog bucket, never arbitrary hosts.
+const storageUrl = process.env.SUPABASE_URL ? new URL(process.env.SUPABASE_URL) : null
+const localIntegration = process.env.SOLEANDO_LOCAL_INTEGRATION === '1' && !process.env.VERCEL && storageUrl?.hostname === '127.0.0.1'
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
+    remotePatterns: storageUrl ? [{ protocol: storageUrl.protocol.slice(0, -1), hostname: storageUrl.hostname, port: storageUrl.port, pathname: '/storage/v1/object/public/soleando-media/**', search: '' }] : [],
+    dangerouslyAllowLocalIP: localIntegration,
+    maximumRedirects: 0,
     formats: ['image/avif', 'image/webp'],
     qualities: [70, 75, 85],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920],

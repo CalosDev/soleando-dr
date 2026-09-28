@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { SiteHeader } from '@/components/site/site-header'
 import { SiteFooter } from '@/components/site/site-footer'
+import { InteractiveGalleryModal } from '@/components/site/interactive-gallery-modal'
 import { getCruiseById, getCruises } from '@/features/catalog/repository'
 import { siteConfig } from '@/config/site'
 import { WhatsappIcon, ArrowUpRightIcon } from '@/components/icons'
@@ -44,6 +45,7 @@ export async function generateMetadata({ params }: CruiseDetailPageProps): Promi
 
   return {
     title: `${cruise.title} | Soleando DR`,
+    alternates: { canonical: `/cruceros/${encodeURIComponent(cruise.id)}` },
     description: cruise.description,
     openGraph: {
       title: `${cruise.title} | Soleando DR`,
@@ -62,10 +64,12 @@ export default async function CruiseDetailPage({ params }: CruiseDetailPageProps
   }
 
   const whatsappMsg = `Hola Soleando, deseo cotizar un camarote para el crucero: "${cruise.title}" (${cruise.line}, saliendo desde ${cruise.departurePort}).`
-  const whatsappUrl = `${siteConfig.whatsappUrl}&text=${encodeURIComponent(whatsappMsg)}`
+  const whatsappLink = new URL(siteConfig.whatsappUrl)
+  whatsappLink.searchParams.set('text', whatsappMsg)
+  const whatsappUrl = whatsappLink.toString()
 
   // Extract itinerary stops
-  const stops = cruise.itinerary.split('·').map((s) => s.trim())
+  const stops = cruise.itinerary.split('·').map((s) => s.trim()).filter(Boolean)
 
   return (
     <div className="min-h-screen flex flex-col bg-[#fdfbf7]">
@@ -157,6 +161,7 @@ export default async function CruiseDetailPage({ params }: CruiseDetailPageProps
         </section>
 
         {/* Two-Column Grid */}
+        {Boolean(cruise.gallery?.length) && <InteractiveGalleryModal images={Array.from(new Set([cruise.image, ...cruise.gallery!])).map((url, index) => ({ url, alt: `${cruise.title} - Foto ${index + 1}` }))} title={cruise.title} badgeText="Crucero Soleando" badgeSubtitle={cruise.departures || 'Consulta fechas y disponibilidad'} />}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 lg:gap-12">
             {/* Left Content */}
@@ -170,24 +175,8 @@ export default async function CruiseDetailPage({ params }: CruiseDetailPageProps
                   {cruise.description}
                 </p>
 
-                <div className="pt-4 border-t border-stone-100 grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs sm:text-sm text-stone-700">
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                    <span>Pensión completa a bordo</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                    <span>Entretenimiento y shows estilo Broadway</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                    <span>Piscinas, jacuzzis y áreas deportivas</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                    <span>Club de niños y adolescentes</span>
-                  </div>
-                </div>
+                {Boolean(cruise.included?.length) && <div className="pt-4 border-t border-stone-100 space-y-3"><h3 className="font-bold">Incluye</h3>{cruise.included!.map((item, index) => <p key={index} className="flex items-start gap-2 text-sm text-stone-700"><CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />{item}</p>)}</div>}
+                {Boolean(cruise.notIncluded?.length) && <div className="pt-4 border-t border-stone-100 space-y-3"><h3 className="font-bold">No incluye</h3><ul className="list-disc pl-5 text-sm text-stone-600 space-y-2">{cruise.notIncluded!.map((item, index) => <li key={index}>{item}</li>)}</ul></div>}
               </div>
 
               {/* Itinerary Stops */}
@@ -202,13 +191,6 @@ export default async function CruiseDetailPage({ params }: CruiseDetailPageProps
                       <strong className="text-base font-bold text-stone-900 block">
                         Parada {idx + 1}: {stop}
                       </strong>
-                      <p className="text-xs text-stone-500 mt-0.5">
-                        {idx === 0
-                          ? 'Puerto de embarque y bienvenida a bordo.'
-                          : idx === stops.length - 1
-                          ? 'Retorno y desembarque.'
-                          : 'Escala para explorar el destino, excursiones opcionales en tierra y compras libres de impuestos.'}
-                      </p>
                     </div>
                   ))}
                 </div>
@@ -217,24 +199,25 @@ export default async function CruiseDetailPage({ params }: CruiseDetailPageProps
               {/* Requirements & Info */}
               <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#ede8e1] shadow-xs space-y-4">
                 <h2 className="font-serif text-2xl text-stone-900 font-normal">
-                  Requisitos de Viaje y Documentación
+                  Información para el viajero
                 </h2>
                 <div className="space-y-3 text-xs sm:text-sm text-stone-600 leading-relaxed">
                   <div className="p-4 rounded-2xl bg-[#fdfbf7] border border-[#ede8e1] flex items-start gap-3">
                     <FileCheck className="w-5 h-5 text-[#f64d0b] shrink-0 mt-0.5" />
                     <div>
-                      <strong className="text-stone-900 block mb-0.5">Pasaporte vigente</strong>
-                      <span>Todos los pasajeros deben viajar con pasaporte válido con un mínimo de 6 meses de vigencia a la fecha de retorno.</span>
+                      <strong className="text-stone-900 block mb-0.5">Documentación</strong>
+                      <span>Consulta los requisitos aplicables a tu nacionalidad y al itinerario antes de reservar.</span>
                     </div>
                   </div>
                   <div className="p-4 rounded-2xl bg-[#fdfbf7] border border-[#ede8e1] flex items-start gap-3">
                     <ShieldCheck className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
                     <div>
-                      <strong className="text-stone-900 block mb-0.5">Asesoría de Visados</strong>
-                      <span>Si el crucero zarpa desde EE.UU. (Miami), se requiere visado estadounidense. Para salidas locales desde La Romana o Santo Domingo, no se requiere visa americana para ciudadanos dominicanos con pasaporte ordinario.</span>
+                      <strong className="text-stone-900 block mb-0.5">Fechas de salida</strong>
+                      <span className="whitespace-pre-line">{cruise.departures || 'Consulta las fechas disponibles con nuestro equipo.'}</span>
                     </div>
                   </div>
                 </div>
+                {Boolean(cruise.recommendations?.length) && <ul className="list-disc pl-5 space-y-2 text-sm text-stone-600">{cruise.recommendations!.map((item, index) => <li key={index}>{item}</li>)}</ul>}
               </div>
             </div>
 
@@ -248,14 +231,14 @@ export default async function CruiseDetailPage({ params }: CruiseDetailPageProps
                   <div className="flex items-baseline gap-2">
                     <span className="text-sm font-medium text-stone-500">Desde</span>
                     <strong className="font-serif text-4xl text-stone-900 font-normal">
-                      ${cruise.priceFrom}
+                      {cruise.priceFrom > 0 ? `$${cruise.priceFrom}` : 'Consultar tarifa'}
                     </strong>
                     <span className="text-sm text-stone-500">
-                      {cruise.currency}
+                      {cruise.priceFrom > 0 ? cruise.currency : ''}
                     </span>
                   </div>
                   <p className="text-xs text-stone-500 pt-1">
-                    Incluye alojamiento en cabina, comidas y espectáculos a bordo.
+                    Consulta la categoría de cabina, inclusiones y precio final con nuestro equipo.
                   </p>
                 </div>
 

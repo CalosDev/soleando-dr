@@ -93,7 +93,7 @@ export async function CruisesSection() {
                 <div>
                   <span className="text-[10px] text-stone-300 uppercase font-semibold block">Desde</span>
                   <strong className="font-serif text-2xl text-white font-normal">
-                    ${cruise.priceFrom} <span className="text-xs font-sans text-stone-300">{cruise.currency}</span>
+                    {cruise.priceFrom > 0 ? `$${cruise.priceFrom}` : 'Consultar tarifa'} <span className="text-xs font-sans text-stone-300">{cruise.priceFrom > 0 ? cruise.currency : ''}</span>
                   </strong>
                 </div>
 

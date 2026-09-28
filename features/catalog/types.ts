@@ -28,6 +28,7 @@ export interface Experience {
   notIncluded: string[]
   itinerary: ExperienceItineraryStep[]
   recommendations: string[]
+  departures?: string
   /**
    * Derived on the server from the catalog item kind. It is deliberately not
    * authored in the JSON content so the public scope always matches the
@@ -48,4 +49,9 @@ export interface Cruise {
   currency: string
   image: string
   badge?: string
+  departures?: string
+  included?: string[]
+  notIncluded?: string[]
+  recommendations?: string[]
+  gallery?: string[]
 }

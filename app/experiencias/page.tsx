@@ -6,6 +6,7 @@ import { ExperiencesCatalog } from '@/components/experiences/experiences-catalog
 import Image from 'next/image'
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/experiencias' },
   title: 'Excursiones nacionales e internacionales | Soleando',
   description: 'Explora excursiones nacionales, experiencias internacionales y paquetes publicados por Soleando.',
 }

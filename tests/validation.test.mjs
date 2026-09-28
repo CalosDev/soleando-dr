@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
+import { catalogFormSchema, buildCatalogContent, experienceContentSchema } from '../features/catalog/schemas.ts'
 
 const [{ getSafeRedirectPath, signInSchema, signUpSchema }, { profileSchema }, { travelerSchema }, { providerHotelSearchSchema }] =
   await Promise.all([
@@ -15,6 +16,35 @@ function dateOffset(days) {
   date.setUTCDate(date.getUTCDate() + days)
   return date.toISOString().slice(0, 10)
 }
+
+test('catalog editor validates rich fields and preserves existing data', () => {
+  const basic = { kind: 'excursion_national', title: 'Excursión de prueba', description: 'Descripción de la excursión de prueba.', image: '/soleando-hero.webp' }
+  const result = catalogFormSchema.safeParse({ ...basic, gallery: '/soleando-hero.webp\n/soleando-paradise.jpg', included: ' Transporte \n\n Guía ', experienceItinerary: 'Día 1 | Llegada | Descripción', departures: 'Sábados' })
+  assert.equal(result.success, true)
+  const content = buildCatalogContent(result.data, 'test')
+  assert.equal(content.slug, 'excursion-de-prueba')
+  assert.deepEqual(content.included, ['Transporte', 'Guía'])
+  assert.equal(content.itinerary[0].title, 'Llegada')
+  assert.equal(content.departures, 'Sábados')
+  assert.equal(content.groupType, '')
+  assert.equal(content.rating, 0)
+  assert.equal(catalogFormSchema.safeParse({ ...basic, currency: '123' }).success, false)
+  assert.equal(catalogFormSchema.safeParse({ ...basic, experienceItinerary: 'incompleto' }).success, false)
+  assert.equal(catalogFormSchema.safeParse({ ...basic, image: '//evil.example/image.png' }).success, false)
+  assert.equal(catalogFormSchema.safeParse({ ...basic, image: '/api/auth/get-session' }).success, false)
+  const existing = { ...content, badge: 'Anterior', customMetadata: 'Conservar', included: ['Existente'] }
+  const updated = buildCatalogContent(catalogFormSchema.parse({ ...basic, badge: '' }), 'test', existing)
+  assert.deepEqual(updated.included, ['Existente'])
+  assert.equal(updated.customMetadata, 'Conservar')
+  assert.equal(updated.badge, undefined)
+  assert.equal(experienceContentSchema.safeParse(content).success, true)
+  assert.equal(experienceContentSchema.safeParse({ ...content, itinerary: 'incorrecto' }).success, false)
+  const cruise = buildCatalogContent(catalogFormSchema.parse({ ...basic, kind: 'cruise', line: 'Naviera', departurePort: 'Puerto', cruiseItinerary: 'A\nB\nA' }), 'cruise')
+  assert.equal(cruise.itinerary, 'A · B · A')
+  assert.equal(cruise.line, 'Naviera')
+  const converted = buildCatalogContent(catalogFormSchema.parse(basic), 'cruise', cruise)
+  assert.deepEqual(converted.itinerary, [])
+})
 
 test('getSafeRedirectPath only permits internal relative paths', () => {
   for (const unsafePath of [

@@ -49,6 +49,7 @@ export function HotelSearchForm({
   const [selectedDestination, setSelectedDestination] = useState<DestinationSuggestion | null>(null)
   const [destinationSuggestions, setDestinationSuggestions] = useState<DestinationSuggestion[]>([])
   const [isDestinationLoading, setIsDestinationLoading] = useState(false)
+  const [destinationError, setDestinationError] = useState('')
   const [checkIn, setCheckIn] = useState(initialCheckIn || defaultIn)
   const [checkOut, setCheckOut] = useState(initialCheckOut || defaultOut)
   const [adults, setAdults] = useState(initialAdults)
@@ -84,6 +85,7 @@ export function HotelSearchForm({
 
   useEffect(() => {
     const query = destination.trim()
+    setDestinationError('')
     if (!destinationPickerOpen || query.length < 3 || selectedDestination?.label === query) {
       setDestinationSuggestions([])
       setIsDestinationLoading(false)
@@ -97,8 +99,12 @@ export function HotelSearchForm({
         const response = await fetch(`/api/hotels/search?query=${encodeURIComponent(query)}`, { signal: controller.signal })
         const result = await response.json() as { suggestions?: DestinationSuggestion[] }
         setDestinationSuggestions(response.ok ? result.suggestions ?? [] : [])
+        if (!response.ok) setDestinationError('No pudimos consultar los destinos. Vuelve a escribir el destino para reintentar.')
       } catch (error) {
-        if (!(error instanceof DOMException && error.name === 'AbortError')) setDestinationSuggestions([])
+        if (!controller.signal.aborted) {
+          setDestinationSuggestions([])
+          setDestinationError('No pudimos conectar con el proveedor. Inténtalo nuevamente.')
+        }
       } finally {
         if (!controller.signal.aborted) setIsDestinationLoading(false)
       }
@@ -112,6 +118,7 @@ export function HotelSearchForm({
 
   async function handleSearch(e: React.FormEvent) {
     e.preventDefault()
+    if (isSubmitting) return
     setErrorMsg('')
 
     if (!destination) {
@@ -204,7 +211,7 @@ export function HotelSearchForm({
           </div>
 
           {destinationPickerOpen && destination.trim().length >= 3 && !selectedDestination && !isDestinationLoading && (
-            <div id="hotel-destination-options" role="listbox" className="absolute left-0 top-full z-50 mt-3 max-h-80 w-80 overflow-y-auto rounded-3xl border border-stone-200/90 bg-white p-2 text-left shadow-2xl ring-1 ring-black/5">
+            <div id="hotel-destination-options" role="listbox" className="absolute left-0 top-full z-50 mt-3 max-h-80 w-[min(20rem,calc(100vw-2rem))] overflow-y-auto rounded-3xl border border-stone-200/90 bg-white p-2 text-left shadow-2xl ring-1 ring-black/5">
               {destinationSuggestions.length > 0 ? destinationSuggestions.map((suggestion) => (
                 <button
                   key={`${suggestion.type}-${suggestion.id}`}
@@ -222,7 +229,7 @@ export function HotelSearchForm({
                   <span className="shrink-0 rounded-full bg-stone-100 px-2 py-1 text-[9px] font-bold text-stone-500">{suggestion.type}</span>
                 </button>
               )) : (
-                <p className="px-3 py-4 text-xs leading-relaxed text-stone-500">No encontramos coincidencias. Prueba con otro destino o nombre de hotel.</p>
+                <p role={destinationError ? 'alert' : undefined} className="px-3 py-4 text-xs leading-relaxed text-stone-500">{destinationError || 'No encontramos coincidencias. Prueba con otro destino o nombre de hotel.'}</p>
               )}
             </div>
           )}
@@ -310,7 +317,7 @@ export function HotelSearchForm({
 
           {/* Desplegable de Huéspedes */}
           {guestPickerOpen && (
-            <div className="absolute top-full right-0 mt-3 w-80 bg-white rounded-3xl shadow-2xl border border-stone-200/90 p-5 z-50 space-y-4 animate-in fade-in zoom-in-95 duration-150 ring-1 ring-black/5 text-left">
+            <div className="absolute top-full right-0 mt-3 w-[min(20rem,calc(100vw-2rem))] bg-white rounded-3xl shadow-2xl border border-stone-200/90 p-5 z-50 space-y-4 animate-in fade-in zoom-in-95 duration-150 ring-1 ring-black/5 text-left">
               {/* Adultos */}
               <div className="flex items-center justify-between">
                 <div>

@@ -50,6 +50,7 @@ export async function generateMetadata({ params }: ExperienceDetailPageProps): P
 
   return {
     title: `${exp.title} | Excursiones Soleando DR`,
+    alternates: { canonical: `/experiencias/${encodeURIComponent(exp.slug)}` },
     description: exp.description,
     openGraph: {
       title: `${exp.title} - ${exp.destination}`,
@@ -70,11 +71,13 @@ export default async function ExperienceDetailPage({ params }: ExperienceDetailP
   // Similar tours in same category or fallback to other top tours
   const experiences = await getExperiences()
   const similarTours = experiences.filter((item) => item.id !== exp.id)
-    .sort((a, b) => (a.category === exp.category ? -1 : 1))
+    .sort((a, b) => Number(b.category === exp.category) - Number(a.category === exp.category))
     .slice(0, 3)
 
-  const whatsappMsg = `Hola Soleando DR, me interesa reservar la excursión "${exp.title}" en ${exp.destination} ($${exp.priceFrom} USD / RD$ ${exp.priceRD.toLocaleString('es-DO')}). ¿Tienen disponibilidad para mi fecha?`
-  const whatsappUrl = `${siteConfig.whatsappUrl}&text=${encodeURIComponent(whatsappMsg)}`
+  const whatsappMsg = `Hola Soleando DR, me interesa la experiencia "${exp.title}" en ${exp.destination}${exp.priceFrom > 0 ? ` (desde ${exp.priceFrom} ${exp.currency})` : ''}. ¿Tienen disponibilidad para mi fecha?`
+  const whatsappLink = new URL(siteConfig.whatsappUrl)
+  whatsappLink.searchParams.set('text', whatsappMsg)
+  const whatsappUrl = whatsappLink.toString()
 
   const allImages = Array.from(new Set([exp.image, ...exp.gallery])).map((url, i) => ({
     url,
@@ -133,30 +136,27 @@ export default async function ExperienceDetailPage({ params }: ExperienceDetailP
 
               {/* Metadata Highlights */}
               <div className="flex flex-wrap items-center gap-4 text-xs sm:text-sm text-stone-600 pt-1">
-                <div className="flex items-center gap-1 text-[#fadc40]">
+                {exp.rating > 0 && exp.reviewCount > 0 && <div className="flex items-center gap-1 text-[#fadc40]">
                   <Star className="w-4 h-4 fill-current" />
                   <strong className="text-stone-900 font-bold text-sm">
                     {exp.rating.toFixed(1)}
                   </strong>
                   <span className="text-stone-500">
-                    ({exp.reviewCount} reseñas verificadas)
+                    ({exp.reviewCount} reseñas)
                   </span>
-                </div>
-                <span className="text-stone-300">•</span>
+                </div>}
                 <span className="flex items-center gap-1.5">
                   <Clock className="w-4 h-4 text-[#f64d0b]" />
                   <span>Duración: <strong>{exp.duration}</strong></span>
                 </span>
-                <span className="text-stone-300">•</span>
-                <span className="flex items-center gap-1.5">
+                {exp.groupType && <span className="flex items-center gap-1.5">
                   <Users className="w-4 h-4 text-emerald-600" />
                   <span>{exp.groupType}</span>
-                </span>
-                <span className="text-stone-300">•</span>
-                <span className="flex items-center gap-1.5">
+                </span>}
+                {exp.difficulty && <span className="flex items-center gap-1.5">
                   <Layers className="w-4 h-4 text-stone-500" />
                   <span>Dificultad: <strong>{exp.difficulty}</strong></span>
-                </span>
+                </span>}
               </div>
             </div>
 
@@ -175,7 +175,7 @@ export default async function ExperienceDetailPage({ params }: ExperienceDetailP
           images={allImages}
           title={exp.title}
           badgeText="Excursión recomendada por Soleando"
-          badgeSubtitle="Salidas diarias y transporte directo desde tu hotel"
+          badgeSubtitle={exp.departures || 'Consulta fechas y disponibilidad con nuestro equipo'}
         />
 
         {/* Two-Column Grid: Content & Sticky Booking Card */}
@@ -192,24 +192,6 @@ export default async function ExperienceDetailPage({ params }: ExperienceDetailP
                   {exp.description}
                 </p>
 
-                <div className="pt-4 border-t border-stone-100 grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs sm:text-sm text-stone-700">
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span>Guías oficiales bilingües certificados</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span>Transporte turístico climatizado</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span>Seguro médico de accidentes incluido</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span>Atención personalizada 1 a 1 por WhatsApp</span>
-                  </div>
-                </div>
               </div>
 
               {/* What is Included & What is NOT Included (Cocoros style) */}
@@ -221,6 +203,7 @@ export default async function ExperienceDetailPage({ params }: ExperienceDetailP
                     <h3 className="font-serif text-xl font-normal">¿Qué incluye?</h3>
                   </div>
                   <ul className="space-y-3 pt-1">
+                    {!exp.included.length && <li className="text-sm text-stone-500">Consulta las inclusiones con nuestro equipo.</li>}
                     {exp.included.map((item, idx) => (
                       <li key={idx} className="flex items-start gap-2.5 text-xs sm:text-sm text-stone-700 leading-snug">
                         <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
@@ -237,6 +220,7 @@ export default async function ExperienceDetailPage({ params }: ExperienceDetailP
                     <h3 className="font-serif text-xl font-normal">¿Qué NO incluye?</h3>
                   </div>
                   <ul className="space-y-3 pt-1">
+                    {!exp.notIncluded.length && <li className="text-sm text-stone-500">Consulta los gastos adicionales antes de reservar.</li>}
                     {exp.notIncluded.map((item, idx) => (
                       <li key={idx} className="flex items-start gap-2.5 text-xs sm:text-sm text-stone-600 leading-snug">
                         <XCircle className="w-4 h-4 text-stone-400 shrink-0 mt-0.5" />
@@ -248,10 +232,10 @@ export default async function ExperienceDetailPage({ params }: ExperienceDetailP
               </div>
 
               {/* Itinerary Timeline (Step by step) */}
-              <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#ede8e1] shadow-xs space-y-6">
+              {exp.itinerary.length > 0 && <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#ede8e1] shadow-xs space-y-6">
                 <div className="flex items-center gap-2 text-stone-900">
                   <Calendar className="w-5 h-5 text-[#f64d0b]" />
-                  <h3 className="font-serif text-2xl font-normal">Itinerario del Día</h3>
+                  <h3 className="font-serif text-2xl font-normal">Itinerario</h3>
                 </div>
                 <p className="text-xs sm:text-sm text-stone-600">
                   Horarios y secuencia estimada del recorrido para una experiencia organizada y sin prisas:
@@ -275,10 +259,10 @@ export default async function ExperienceDetailPage({ params }: ExperienceDetailP
                     </div>
                   ))}
                 </div>
-              </div>
+              </div>}
 
               {/* Recommendations */}
-              <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#ede8e1] shadow-xs space-y-4">
+              {exp.recommendations.length > 0 && <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#ede8e1] shadow-xs space-y-4">
                 <div className="flex items-center gap-2 text-stone-900">
                   <HelpCircle className="w-5 h-5 text-amber-500" />
                   <h3 className="font-serif text-2xl font-normal">
@@ -290,7 +274,7 @@ export default async function ExperienceDetailPage({ params }: ExperienceDetailP
                     <li key={idx}>{rec}</li>
                   ))}
                 </ul>
-              </div>
+              </div>}
             </div>
 
             {/* Right Sticky Booking Card (Cocoros style) */}
@@ -304,15 +288,15 @@ export default async function ExperienceDetailPage({ params }: ExperienceDetailP
                   <div className="flex items-baseline gap-2">
                     <span className="text-sm font-medium text-stone-500">Desde</span>
                     <strong className="font-serif text-4xl text-stone-900 font-normal">
-                      ${exp.priceFrom}
+                      {exp.priceFrom > 0 ? `$${exp.priceFrom}` : 'Consultar tarifa'}
                     </strong>
                     <span className="text-sm text-stone-500 font-medium">
-                      {exp.currency}
+                      {exp.priceFrom > 0 ? exp.currency : ''}
                     </span>
                   </div>
-                  <div className="text-xs text-stone-600 font-medium pt-1">
+                  {exp.priceRD > 0 && <div className="text-xs text-stone-600 font-medium pt-1">
                     Equivalente aprox: <strong className="text-stone-900">RD$ {exp.priceRD.toLocaleString('es-DO')}</strong>
-                  </div>
+                  </div>}
                 </div>
 
                 {/* Duration and departures highlight */}
@@ -323,11 +307,11 @@ export default async function ExperienceDetailPage({ params }: ExperienceDetailP
                   </div>
                   <div className="flex items-center justify-between py-1.5 border-b border-stone-100">
                     <span className="text-stone-500">Modalidad:</span>
-                    <strong className="text-stone-900">{exp.groupType}</strong>
+                    <strong className="text-stone-900">{exp.groupType || 'Por confirmar'}</strong>
                   </div>
                   <div className="flex items-center justify-between py-1.5 border-b border-stone-100">
                     <span className="text-stone-500">Salidas:</span>
-                    <strong className="text-emerald-700 font-semibold">Todos los días</strong>
+                    <strong className="text-emerald-700 font-semibold whitespace-pre-line text-right max-w-[65%]">{exp.departures || 'Consultar disponibilidad'}</strong>
                   </div>
                 </div>
 
@@ -355,15 +339,15 @@ export default async function ExperienceDetailPage({ params }: ExperienceDetailP
                 <div className="pt-4 border-t border-stone-100 space-y-2 text-xs text-stone-600">
                   <div className="flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span>Sin cobros sorpresa al abordar</span>
+                    <span>Consulta el precio final antes de reservar</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span>Cancelación gratuita hasta 24h antes</span>
+                    <span>Condiciones de cancelación según la experiencia</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Sparkles className="w-4 h-4 text-[#f64d0b] shrink-0" />
-                    <span>Confirmación inmediata por WhatsApp</span>
+                    <span>Confirmación sujeta a disponibilidad</span>
                   </div>
                 </div>
               </div>
@@ -380,7 +364,7 @@ export default async function ExperienceDetailPage({ params }: ExperienceDetailP
                   Recomendadas para ti
                 </span>
                 <h2 className="font-serif text-2xl sm:text-3xl text-stone-900 font-normal">
-                  Tours similares en República Dominicana
+                  Otras experiencias de Soleando
                 </h2>
               </div>
               <Link
@@ -428,10 +412,10 @@ export default async function ExperienceDetailPage({ params }: ExperienceDetailP
                         <span className="text-[11px] font-semibold text-stone-600 bg-stone-100 px-2.5 py-0.5 rounded-md">
                           {tour.category}
                         </span>
-                        <div className="flex items-center gap-1 text-[#fadc40]">
+                        {tour.rating > 0 && tour.reviewCount > 0 && <div className="flex items-center gap-1 text-[#fadc40]">
                           <Star className="w-3.5 h-3.5 fill-current" />
                           <strong className="text-stone-900 font-bold">{tour.rating.toFixed(1)}</strong>
-                        </div>
+                        </div>}
                       </div>
 
                       <h3 className="font-serif text-xl text-stone-900 font-normal leading-snug">
@@ -450,7 +434,7 @@ export default async function ExperienceDetailPage({ params }: ExperienceDetailP
                     <div>
                       <span className="text-[10px] text-stone-400 uppercase font-semibold block">Desde</span>
                       <strong className="text-lg font-serif text-stone-900 font-normal">
-                        ${tour.priceFrom} <span className="text-xs font-sans text-stone-500 font-normal">USD</span>
+                        {tour.priceFrom > 0 ? `$${tour.priceFrom}` : 'Consultar tarifa'} <span className="text-xs font-sans text-stone-500 font-normal">{tour.priceFrom > 0 ? tour.currency : ''}</span>
                       </strong>
                     </div>
 
@@ -475,7 +459,7 @@ export default async function ExperienceDetailPage({ params }: ExperienceDetailP
         currency={exp.currency}
         priceLabel="Desde"
         priceSubtitle="por persona"
-        secondaryPrice={`Aprox. RD$ ${exp.priceRD.toLocaleString('es-DO')}`}
+        secondaryPrice={exp.priceRD > 0 ? `Aprox. RD$ ${exp.priceRD.toLocaleString('es-DO')}` : undefined}
         ctaText="Reservar por WhatsApp"
         whatsappUrl={whatsappUrl}
       />

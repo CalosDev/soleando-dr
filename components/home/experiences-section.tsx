@@ -92,7 +92,7 @@ export async function ExperiencesSection() {
                 <div>
                   <span className="text-[10px] text-stone-400 uppercase font-semibold block">Desde</span>
                   <strong className="text-lg font-serif text-stone-900 font-normal">
-                    ${exp.priceFrom} <span className="text-xs font-sans text-stone-500 font-normal">{exp.currency}</span>
+                    {exp.priceFrom > 0 ? `$${exp.priceFrom}` : 'Consultar tarifa'} <span className="text-xs font-sans text-stone-500 font-normal">{exp.priceFrom > 0 ? exp.currency : ''}</span>
                   </strong>
                 </div>
 

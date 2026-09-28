@@ -7,6 +7,7 @@ import { Heart, Sun, MapPin, Users } from 'lucide-react'
 import { WhatsappIcon } from '@/components/icons'
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/nosotros' },
   title: 'Sobre Nosotros | Soleando DR',
   description: 'Conoce la historia, el equipo y la visión de Soleando DR, tu plataforma de viajes y hoteles en el Caribe.',
 }

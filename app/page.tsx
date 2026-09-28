@@ -6,6 +6,8 @@ import { CruisesSection } from '@/components/home/cruises-section'
 import { FaqSection } from '@/components/home/faq-section'
 import { FinalCta } from '@/components/home/final-cta'
 
+export const metadata = { alternates: { canonical: '/' } }
+
 export default function HomePage() {
   return (
     <div className="min-h-screen flex flex-col bg-[#fdfbf7] selection:bg-[#fadc40] selection:text-black">

@@ -15,7 +15,7 @@ const destinationSchema = z.array(z.object({
   value: z.string().optional(),
   type: z.string(),
   parent: z.string().optional(),
-})).min(1)
+}))
 
 const searchResponseSchema = z.object({
   codesearch: z.string().regex(/^[a-zA-Z0-9]+$/),
@@ -78,6 +78,7 @@ export async function searchProviderDestinations(term: string): Promise<Provider
 
 async function resolveDestination(term: string): Promise<ProviderDestinationSuggestion> {
   const suggestions = await searchProviderDestinations(term)
+  if (!suggestions.length) throw new HotelSearchProviderError('No encontramos ese destino. Selecciona otro destino o un hotel de la lista.', 400)
   const normalizedTerm = term.toLocaleLowerCase('es')
   return suggestions.find((item) => item.label.toLocaleLowerCase('es').startsWith(normalizedTerm)) ?? suggestions[0]
 }

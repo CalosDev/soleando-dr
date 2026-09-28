@@ -10,7 +10,7 @@ function hasValue(value: string | undefined): boolean {
  */
 export function getAuthFeatures() {
   const isProduction = process.env.NODE_ENV === 'production'
-  const emailProvider = process.env.EMAIL_PROVIDER?.trim().toLowerCase()
+  const emailProvider = process.env.EMAIL_PROVIDER?.trim().toLowerCase() || (isProduction ? 'resend' : 'dev')
 
   return {
     googleSignInEnabled: hasValue(process.env.GOOGLE_CLIENT_ID) && hasValue(process.env.GOOGLE_CLIENT_SECRET),

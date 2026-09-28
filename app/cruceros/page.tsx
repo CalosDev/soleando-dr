@@ -8,6 +8,7 @@ import { Ship, Anchor, CheckCircle2 } from 'lucide-react'
 import { ArrowUpRightIcon } from '@/components/icons'
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/cruceros' },
   title: 'Cruceros por el Caribe | Soleando DR',
   description: 'Explora los cruceros publicados por Soleando y consulta sus condiciones antes de reservar.',
 }
@@ -108,7 +109,7 @@ export default async function CrucerosPage() {
                   <div>
                     <span className="text-[10px] text-stone-400 uppercase font-semibold block">Desde</span>
                     <strong className="text-xl font-serif text-stone-900 font-normal">
-                      ${cruise.priceFrom} <span className="text-xs font-sans text-stone-500 font-normal">{cruise.currency}</span>
+                      {cruise.priceFrom > 0 ? `$${cruise.priceFrom}` : 'Consultar tarifa'} <span className="text-xs font-sans text-stone-500 font-normal">{cruise.priceFrom > 0 ? cruise.currency : ''}</span>
                     </strong>
                   </div>
 

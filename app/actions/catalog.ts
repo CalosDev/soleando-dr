@@ -4,36 +4,11 @@ import { and, asc, desc, eq } from 'drizzle-orm'
 import { headers } from 'next/headers'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
-import { z } from 'zod'
+import { buildCatalogContent, parseCatalogForm, type CatalogFormState } from '@/features/catalog/schemas'
 
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { catalogItems, type CatalogItem } from '@/lib/db/schema'
-
-const catalogKindSchema = z.enum([
-  'tour',
-  'excursion_national',
-  'excursion_international',
-  'cruise',
-])
-
-const catalogFormSchema = z.object({
-  kind: catalogKindSchema,
-  title: z.string().trim().min(2).max(140),
-  slug: z.string().trim().max(160).optional(),
-  destination: z.string().trim().max(100).optional(),
-  category: z.string().trim().max(100).optional(),
-  duration: z.string().trim().max(60).optional(),
-  description: z.string().trim().min(10).max(2000),
-  priceFrom: z.coerce.number().nonnegative().optional(),
-  currency: z.string().trim().length(3).default('USD'),
-  image: z.string().trim().refine((value) => value.startsWith('/') || /^https:\/\//.test(value), 'La imagen debe ser una ruta local o URL HTTPS.'),
-  badge: z.string().trim().max(60).optional(),
-  status: z.enum(['draft', 'published', 'archived']).default('draft'),
-  sortOrder: z.coerce.number().int().nonnegative().default(0),
-})
-
-type CatalogFormValues = z.infer<typeof catalogFormSchema>
 
 async function requireAdminAction(): Promise<void> {
   try {
@@ -44,91 +19,35 @@ async function requireAdminAction(): Promise<void> {
   throw new Error('Unauthorized')
 }
 
-function slugify(value: string): string {
-  return value
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)/g, '')
-}
-
-function toCatalogContent(values: CatalogFormValues, id: string, existingContent?: unknown): Record<string, unknown> {
-  const slug = values.slug ? slugify(values.slug) : slugify(values.title)
-  const existing = typeof existingContent === 'object' && existingContent !== null
-    ? existingContent as Record<string, unknown>
-    : {}
-  const base = {
-    ...existing,
-    id,
-    slug,
-    title: values.title,
-    description: values.description,
-    destination: values.destination || 'Por confirmar',
-    category: values.category || 'Experiencia',
-    duration: values.duration || 'Por confirmar',
-    priceFrom: values.priceFrom ?? 0,
-    currency: values.currency.toUpperCase(),
-    image: values.image,
-    ...(values.badge ? { badge: values.badge } : {}),
-  }
-
-  // The first editor intentionally exposes only the common fields. Keep the
-  // richer, type-specific fields already stored in the catalog intact.
-  if (Object.keys(existing).length > 0) {
-    return base
-  }
-
-  if (values.kind === 'cruise') {
-    return {
-      ...base,
-      line: values.category || 'Naviera por confirmar',
-      itinerary: values.destination || 'Itinerario por confirmar',
-      departurePort: 'Por confirmar',
-    }
-  }
-
-  return {
-    ...base,
-    priceRD: 0,
-    gallery: [values.image],
-    rating: 0,
-    reviewCount: 0,
-    difficulty: 'Fácil',
-    groupType: 'Grupos reducidos',
-    included: [],
-    notIncluded: [],
-    itinerary: [],
-    recommendations: [],
-  }
-}
-
-function formValues(formData: FormData): CatalogFormValues {
-  return catalogFormSchema.parse({
-    kind: formData.get('kind'),
-    title: formData.get('title'),
-    slug: formData.get('slug') || undefined,
-    destination: formData.get('destination') || undefined,
-    category: formData.get('category') || undefined,
-    duration: formData.get('duration') || undefined,
-    description: formData.get('description'),
-    priceFrom: formData.get('priceFrom') || undefined,
-    currency: formData.get('currency') || 'USD',
-    image: formData.get('image'),
-    badge: formData.get('badge') || undefined,
-    status: formData.get('status') || 'draft',
-    sortOrder: formData.get('sortOrder') || 0,
+function mediaAreSupported(image: string, gallery: string[] = []): boolean {
+  return [image, ...gallery].every((value) => {
+    if (value.startsWith('/')) return true
+    try {
+      const url = new URL(value)
+      const storage = process.env.SUPABASE_URL && new URL(process.env.SUPABASE_URL)
+      return Boolean(storage && url.origin === storage.origin && !url.search && !url.hash && !url.username && !url.password && url.pathname.startsWith('/storage/v1/object/public/soleando-media/'))
+    } catch { return false }
   })
+}
+
+function saveError(error: unknown): { error: string } {
+  const cause = error as { code?: string; cause?: { code?: string } }
+  if ((cause.cause?.code ?? cause.code) === '23505') return { error: 'Ya existe contenido de este tipo con esa URL amigable. Usa otra.' }
+  console.error('Catalog save failed', cause.cause?.code ?? cause.code ?? 'unknown')
+  return { error: 'No pudimos guardar el contenido. Tus campos siguen aquí; intenta nuevamente.' }
 }
 
 function revalidateCatalog(): void {
   revalidatePath('/')
-  revalidatePath('/destinos')
   revalidatePath('/experiencias')
   revalidatePath('/excursiones')
   revalidatePath('/cruceros')
   revalidatePath('/hoteles')
   revalidatePath('/admin')
+  revalidatePath('/experiencias/[slug]', 'page')
+  revalidatePath('/excursiones/[slug]', 'page')
+  revalidatePath('/cruceros/[id]', 'page')
+  revalidatePath('/sitemap.xml')
 }
 
 export async function getAdminCatalogItems(): Promise<CatalogItem[]> {
@@ -146,42 +65,61 @@ export async function getAdminCatalogItem(id: string): Promise<CatalogItem | nul
   return item ?? null
 }
 
-export async function createCatalogItem(formData: FormData): Promise<void> {
+export async function createCatalogItem(formData: FormData): Promise<{ error: string } | void> {
   await requireAdminAction()
   if (!db) throw new Error('El catálogo no está disponible.')
 
-  const values = formValues(formData)
+  const parsed = parseCatalogForm(formData)
+  if (!parsed.success) return { error: `Revisa ${parsed.error.issues[0].path.join('.')}: ${parsed.error.issues[0].message}` }
+  const values = parsed.data
+  if (!mediaAreSupported(values.image, values.gallery)) return { error: 'Sube las imágenes a Supabase desde este formulario o usa una ruta de imagen local.' }
   const id = `catalog-${crypto.randomUUID()}`
-  const content = toCatalogContent(values, id)
+  const content = buildCatalogContent(values, id)
+  if (!content.slug) return { error: 'El título o la URL deben contener letras o números.' }
 
-  await db.insert(catalogItems).values({
+  try { await db.insert(catalogItems).values({
     id,
     kind: values.kind,
     slug: String(content.slug),
     content,
     status: values.status,
     sortOrder: values.sortOrder,
-  })
+  }) } catch (error) { return saveError(error) }
 
   revalidateCatalog()
   redirect('/admin')
 }
 
-export async function updateCatalogItem(id: string, formData: FormData): Promise<void> {
+export async function updateCatalogItem(id: string, formData: FormData): Promise<{ error: string } | void> {
   await requireAdminAction()
   if (!db) throw new Error('El catálogo no está disponible.')
 
-  const values = formValues(formData)
+  const parsed = parseCatalogForm(formData)
+  if (!parsed.success) return { error: `Revisa ${parsed.error.issues[0].path.join('.')}: ${parsed.error.issues[0].message}` }
+  const values = parsed.data
+  if (!mediaAreSupported(values.image, values.gallery)) return { error: 'Sube las imágenes a Supabase desde este formulario o usa una ruta de imagen local.' }
   const [current] = await db.select({ content: catalogItems.content }).from(catalogItems).where(eq(catalogItems.id, id))
   if (!current) throw new Error('El contenido no existe.')
-  const content = toCatalogContent(values, id, current.content)
+  const content = buildCatalogContent(values, id, current.content)
+  if (!content.slug) return { error: 'El título o la URL deben contener letras o números.' }
 
-  await db.update(catalogItems)
+  try { await db.update(catalogItems)
     .set({ kind: values.kind, slug: String(content.slug), content, status: values.status, sortOrder: values.sortOrder, updatedAt: new Date() })
-    .where(eq(catalogItems.id, id))
+    .where(eq(catalogItems.id, id)) } catch (error) { return saveError(error) }
 
   revalidateCatalog()
   redirect('/admin')
+}
+
+// Stateful wrappers retain the existing action contract and native form support.
+export async function createCatalogItemState(_previous: CatalogFormState, data: FormData): Promise<CatalogFormState> {
+  const result = await createCatalogItem(data)
+  return result ? { ...result, fields: Object.fromEntries(Array.from(data).filter(([key, value]) => !key.startsWith('$ACTION') && typeof value === 'string')) as Record<string, string> } : null
+}
+
+export async function updateCatalogItemState(id: string, _previous: CatalogFormState, data: FormData): Promise<CatalogFormState> {
+  const result = await updateCatalogItem(id, data)
+  return result ? { ...result, fields: Object.fromEntries(Array.from(data).filter(([key, value]) => !key.startsWith('$ACTION') && typeof value === 'string')) as Record<string, string> } : null
 }
 
 export async function archiveCatalogItem(id: string): Promise<void> {

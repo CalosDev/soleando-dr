@@ -18,7 +18,7 @@ export function getEmailProvider(): EmailProvider {
   }
 
   const isProduction = process.env.NODE_ENV === 'production'
-  const requestedProvider = (process.env.EMAIL_PROVIDER || (isProduction ? 'resend' : 'dev')).toLowerCase()
+  const requestedProvider = process.env.EMAIL_PROVIDER?.trim().toLowerCase() || (isProduction ? 'resend' : 'dev')
 
   if (isProduction) {
     if (requestedProvider === 'dev') {

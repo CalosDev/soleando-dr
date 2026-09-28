@@ -1,52 +1,50 @@
 import { MetadataRoute } from 'next'
 import { siteConfig } from '@/config/site'
+import { getExperiences, getCruises } from '@/features/catalog/repository'
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export const dynamic = 'force-dynamic'
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = siteConfig.url.replace(/\/$/, '')
-  const now = new Date()
+  const [experiences, cruises] = await Promise.all([getExperiences(), getCruises()])
 
   return [
     {
       url: `${baseUrl}/`,
-      lastModified: now,
       changeFrequency: 'daily',
       priority: 1.0,
     },
     {
       url: `${baseUrl}/hoteles`,
-      lastModified: now,
       changeFrequency: 'daily',
       priority: 0.9,
     },
     {
       url: `${baseUrl}/experiencias`,
-      lastModified: now,
       changeFrequency: 'daily',
       priority: 0.9,
     },
     {
       url: `${baseUrl}/cruceros`,
-      lastModified: now,
       changeFrequency: 'weekly',
       priority: 0.8,
     },
     {
       url: `${baseUrl}/nosotros`,
-      lastModified: now,
       changeFrequency: 'monthly',
       priority: 0.7,
     },
     {
       url: `${baseUrl}/contacto`,
-      lastModified: now,
       changeFrequency: 'monthly',
       priority: 0.7,
     },
     {
       url: `${baseUrl}/politicas`,
-      lastModified: now,
       changeFrequency: 'monthly',
       priority: 0.6,
     },
+    ...experiences.map((item) => ({ url: `${baseUrl}/experiencias/${encodeURIComponent(item.slug)}`, changeFrequency: 'weekly' as const, priority: 0.8 })),
+    ...cruises.map((item) => ({ url: `${baseUrl}/cruceros/${encodeURIComponent(item.id)}`, changeFrequency: 'weekly' as const, priority: 0.8 })),
   ]
 }

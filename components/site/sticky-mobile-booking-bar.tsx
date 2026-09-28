@@ -43,10 +43,10 @@ export function StickyMobileBookingBar({
 
           <div className="flex items-baseline gap-1.5">
             <strong className="font-serif text-2xl text-stone-900 font-normal leading-none tracking-tight">
-              ${price}
+              {typeof price === 'number' && price <= 0 ? 'Consultar tarifa' : `$${price}`}
             </strong>
             <span className="text-xs font-semibold text-stone-600">
-              {currency}
+              {typeof price === 'number' && price <= 0 ? '' : currency}
             </span>
           </div>
 

@@ -386,9 +386,9 @@ export function ExperiencesCatalog({ initialExperiences }: ExperiencesCatalogPro
                   </span>
                   <div className="flex items-baseline gap-1.5">
                     <strong className="text-xl font-serif text-stone-900 font-normal">
-                      ${exp.priceFrom}{' '}
+                      {exp.priceFrom > 0 ? `$${exp.priceFrom}` : 'Consultar tarifa'}{' '}
                       <span className="text-xs font-sans text-stone-500 font-normal">
-                        USD
+                        {exp.priceFrom > 0 ? exp.currency : ''}
                       </span>
                     </strong>
                   </div>

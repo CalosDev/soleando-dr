@@ -8,6 +8,7 @@ import { SiteHeader } from '@/components/site/site-header'
 import { getHotelSearchDestination } from '@/features/hotels/config/search-destinations'
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/hoteles' },
   title: 'Hoteles & Resorts en República Dominicana | Soleando',
   description: 'Busca disponibilidad en vivo y descubre hoteles y resorts seleccionados por Soleando.',
 }

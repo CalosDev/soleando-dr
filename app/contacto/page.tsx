@@ -8,6 +8,7 @@ import { WhatsappIcon, InstagramOutlineIcon, ArrowUpRightIcon } from '@/componen
 import { InteractiveQuotePlanner } from '@/components/contact/interactive-quote-planner'
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/contacto' },
   title: 'Contacto y Cotizaciones | Soleando DR',
   description: 'Planifica y cotiza tu viaje en República Dominicana: hoteles todo incluido, excursiones y cruceros con Soleando DR.',
 }

@@ -13,6 +13,7 @@ import {
   LoaderCircle,
 } from 'lucide-react'
 import { HOTEL_SEARCH_DESTINATIONS } from '@/features/hotels/config/search-destinations'
+import { addCalendarDays, formatLocalCalendarDate } from '@/lib/calendar-date'
 
 interface DestinationSuggestion {
   id: string
@@ -39,10 +40,7 @@ export function HotelSearchForm({
   initialRooms = 1,
   className = '',
 }: HotelSearchFormProps) {
-  // Default dates: 1 week from today to 11 days from today
-  const todayStr = new Date().toISOString().split('T')[0]
-  const defaultIn = new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0]
-  const defaultOut = new Date(Date.now() + 11 * 86400000).toISOString().split('T')[0]
+  const [todayStr, setTodayStr] = useState('')
 
   const initialDestinationName = HOTEL_SEARCH_DESTINATIONS.find((item) => item.slug === initialDestination)?.name ?? initialDestination
   const [destination, setDestination] = useState(initialDestinationName)
@@ -50,8 +48,8 @@ export function HotelSearchForm({
   const [destinationSuggestions, setDestinationSuggestions] = useState<DestinationSuggestion[]>([])
   const [isDestinationLoading, setIsDestinationLoading] = useState(false)
   const [destinationError, setDestinationError] = useState('')
-  const [checkIn, setCheckIn] = useState(initialCheckIn || defaultIn)
-  const [checkOut, setCheckOut] = useState(initialCheckOut || defaultOut)
+  const [checkIn, setCheckIn] = useState(initialCheckIn ?? '')
+  const [checkOut, setCheckOut] = useState(initialCheckOut ?? '')
   const [adults, setAdults] = useState(initialAdults)
   const [childrenAges, setChildrenAges] = useState<Array<number | null>>(
     () => Array.from({ length: initialChildren }, () => null),
@@ -68,6 +66,15 @@ export function HotelSearchForm({
 
   // Error validation state
   const [errorMsg, setErrorMsg] = useState('')
+
+  useEffect(() => {
+    const now = new Date()
+    const localToday = formatLocalCalendarDate(now)
+    // The API currently validates its earliest accepted date in UTC.
+    setTodayStr(now.toISOString().slice(0, 10))
+    setCheckIn(initialCheckIn || addCalendarDays(localToday, 7))
+    setCheckOut(initialCheckOut || addCalendarDays(localToday, 11))
+  }, [initialCheckIn, initialCheckOut])
 
   // Close popovers when clicking outside
   useEffect(() => {
@@ -252,10 +259,7 @@ export function HotelSearchForm({
               onChange={(e) => {
                 setCheckIn(e.target.value)
                 if (checkOut && e.target.value >= checkOut) {
-                  const nextDay = new Date(new Date(e.target.value).getTime() + 86400000)
-                    .toISOString()
-                    .split('T')[0]
-                  setCheckOut(nextDay)
+                  setCheckOut(addCalendarDays(e.target.value, 1))
                 }
               }}
               className="w-full bg-transparent text-xs sm:text-sm font-semibold text-stone-900 focus:outline-hidden cursor-pointer"

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useId, useRef } from 'react'
 import { siteConfig } from '@/config/site'
 import { WhatsappIcon } from '@/components/icons'
 import {
@@ -105,9 +105,27 @@ const CABIN_TYPES = [
   { id: 'suite', label: 'Suite de Lujo' },
 ]
 
+const QUOTE_STEPS = [
+  { num: 1, label: '1. Servicio' },
+  { num: 2, label: '2. Detalles' },
+  { num: 3, label: '3. Fechas & Viajeros' },
+  { num: 4, label: '4. Contacto' },
+] as const
+
 export function InteractiveQuotePlanner() {
+  const id = useId()
+  const contentRef = useRef<HTMLDivElement>(null)
+  const previousScreen = useRef('1')
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1)
-  const [submitted, setSubmitted] = useState(false)
+  const [preparedQuoteUrl, setPreparedQuoteUrl] = useState('')
+
+  useEffect(() => {
+    const screen = preparedQuoteUrl ? 'prepared' : String(step)
+    if (previousScreen.current !== screen) {
+      contentRef.current?.querySelector<HTMLElement>('h2, h3')?.focus({ preventScroll: true })
+      previousScreen.current = screen
+    }
+  }, [step, preparedQuoteUrl])
 
   // Form State
   const [selectedService, setSelectedService] = useState<ServiceType>('hotel')
@@ -177,25 +195,25 @@ _Enviado desde el portal oficial de Soleando DR_`
     const text = generateMessageText()
     const url = new URL(siteConfig.whatsappUrl)
     url.searchParams.set('text', text)
+    setPreparedQuoteUrl(url.toString())
     window.open(url.toString(), '_blank', 'noopener,noreferrer')
-    setSubmitted(true)
   }
 
-  if (submitted) {
+  if (preparedQuoteUrl) {
     return (
-      <div className="bg-white rounded-3xl p-8 sm:p-12 border border-emerald-200 shadow-xl text-center space-y-6 animate-in fade-in zoom-in-95 duration-300">
+      <div ref={contentRef} className="bg-white rounded-3xl p-8 sm:p-12 border border-emerald-200 shadow-xl text-center space-y-6 animate-in fade-in zoom-in-95 duration-300">
         <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-xs">
           <CheckCircle2 className="w-10 h-10" />
         </div>
         <div className="space-y-2 max-w-lg mx-auto">
           <span className="inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800">
-            Cotización iniciada
+            Solicitud preparada
           </span>
-          <h2 className="font-serif text-3xl text-stone-900 font-normal">
+          <h2 tabIndex={-1} className="font-serif text-3xl text-stone-900 font-normal">
             ¡Hemos preparado tu solicitud!
           </h2>
           <p className="text-sm text-stone-600 leading-relaxed">
-            Se ha abierto WhatsApp con los detalles de tu consulta. El equipo podrá responderte con las opciones y condiciones disponibles.
+            Tu consulta está lista para enviarla por WhatsApp. Si no se abrió una pestaña, usa el botón de abajo y envía el mensaje para contactar al equipo.
           </p>
         </div>
 
@@ -206,11 +224,20 @@ _Enviado desde el portal oficial de Soleando DR_`
           <p>• <strong>Fechas:</strong> {dates || 'Por coordinar'}</p>
         </div>
 
-        <div className="pt-2">
+        <div className="flex flex-col items-center gap-4 pt-2">
+          <a
+            href={preparedQuoteUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-[#25D366] px-6 py-3 text-sm font-bold text-white hover:bg-[#20bd5a]"
+          >
+            <WhatsappIcon className="h-4 w-4" />
+            Abrir solicitud en WhatsApp
+          </a>
           <button
             type="button"
             onClick={() => {
-              setSubmitted(false)
+              setPreparedQuoteUrl('')
               setStep(1)
             }}
             className="inline-flex items-center gap-2 text-xs font-bold text-[#f64d0b] hover:underline cursor-pointer"
@@ -242,20 +269,18 @@ _Enviado desde el portal oficial de Soleando DR_`
         </div>
 
         {/* Pasos */}
-        <div className="grid grid-cols-4 gap-2 text-xs font-bold">
-          {[
-            { num: 1, label: '1. Servicio' },
-            { num: 2, label: '2. Detalles' },
-            { num: 3, label: '3. Fechas & Viajeros' },
-            { num: 4, label: '4. Contacto' },
-          ].map((s) => {
+        <nav aria-label="Pasos de la cotización" className="grid grid-cols-4 gap-2 text-xs font-bold">
+          {QUOTE_STEPS.map((s) => {
             const isActive = step === s.num
             const isCompleted = step > s.num
             return (
               <button
                 key={s.num}
                 type="button"
-                onClick={() => setStep(s.num as 1 | 2 | 3 | 4)}
+                onClick={() => setStep(s.num)}
+                aria-current={isActive ? 'step' : undefined}
+                aria-controls={`${id}-content`}
+                aria-label={s.label}
                 className={`py-2 px-1 text-center border-b-2 transition-all cursor-pointer truncate ${
                   isActive
                     ? 'border-[#f64d0b] text-white'
@@ -268,17 +293,17 @@ _Enviado desde el portal oficial de Soleando DR_`
               </button>
             )
           })}
-        </div>
+        </nav>
       </div>
 
-      <div className="p-6 sm:p-10">
+      <div ref={contentRef} id={`${id}-content`} className="p-6 sm:p-10">
         {/* ============================================================ */}
         {/* PASO 1: SELECCIÓN DEL SERVICIO REAL (3 OPCIONES EXACTAS) */}
         {/* ============================================================ */}
         {step === 1 && (
           <div className="space-y-6 animate-in fade-in duration-200">
             <div className="space-y-1">
-              <h3 className="font-serif text-xl sm:text-2xl text-stone-900 font-normal">
+              <h3 tabIndex={-1} className="font-serif text-xl sm:text-2xl text-stone-900 font-normal">
                 ¿Qué servicio deseas cotizar hoy?
               </h3>
               <p className="text-xs sm:text-sm text-stone-600">
@@ -295,6 +320,7 @@ _Enviado desde el portal oficial de Soleando DR_`
                     key={serv.id}
                     type="button"
                     onClick={() => setSelectedService(serv.id)}
+                    aria-pressed={isSelected}
                     className={`relative p-6 rounded-2xl text-left border-2 transition-all duration-200 flex flex-col justify-between space-y-4 cursor-pointer ${
                       isSelected
                         ? 'border-[#f64d0b] bg-orange-50/50 shadow-md ring-2 ring-[#f64d0b]/20'
@@ -366,7 +392,7 @@ _Enviado desde el portal oficial de Soleando DR_`
             {selectedService === 'hotel' && (
               <div className="space-y-6">
                 <div className="space-y-1">
-                  <h3 className="font-serif text-xl sm:text-2xl text-stone-900 font-normal flex items-center gap-2">
+                  <h3 tabIndex={-1} className="font-serif text-xl sm:text-2xl text-stone-900 font-normal flex items-center gap-2">
                     <MapPin className="w-5 h-5 text-[#f64d0b]" />
                     <span>¿En qué destino de República Dominicana buscas tu resort?</span>
                   </h3>
@@ -383,6 +409,7 @@ _Enviado desde el portal oficial de Soleando DR_`
                         key={dest.id}
                         type="button"
                         onClick={() => setSelectedDestination(dest.label)}
+                        aria-pressed={isSelected}
                         className={`px-4 py-2.5 rounded-full text-xs font-bold border transition-all cursor-pointer ${
                           isSelected
                             ? 'bg-[#f64d0b] border-[#f64d0b] text-white shadow-xs'
@@ -396,10 +423,10 @@ _Enviado desde el portal oficial de Soleando DR_`
                 </div>
 
                 <div className="space-y-2 pt-2">
-                  <label className="block text-xs font-bold text-stone-800">
+                  <p id={`${id}-hotel-style`} className="block text-xs font-bold text-stone-800">
                     Estilo de Resort o Ambiente:
-                  </label>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  </p>
+                  <div role="group" aria-labelledby={`${id}-hotel-style`} className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     {HOTEL_STYLES.map((style) => {
                       const isSelected = hotelStyle === style.label
                       return (
@@ -407,6 +434,7 @@ _Enviado desde el portal oficial de Soleando DR_`
                           key={style.id}
                           type="button"
                           onClick={() => setHotelStyle(style.label)}
+                          aria-pressed={isSelected}
                           className={`p-3.5 rounded-xl text-left border text-xs font-bold transition-all flex items-center justify-between cursor-pointer ${
                             isSelected
                               ? 'border-[#f64d0b] bg-orange-50 text-stone-900'
@@ -422,10 +450,11 @@ _Enviado desde el portal oficial de Soleando DR_`
                 </div>
 
                 <div className="space-y-1.5 pt-2">
-                  <label className="block text-xs font-bold text-stone-800">
+                  <label htmlFor={`${id}-hotel`} className="block text-xs font-bold text-stone-800">
                     ¿Tienes algún hotel específico en mente? (Opcional)
                   </label>
                   <input
+                    id={`${id}-hotel`}
                     type="text"
                     placeholder="Ej. Lopesan Costa Bávaro, Royalton Splash, Hilton La Romana..."
                     value={preferredHotel}
@@ -440,7 +469,7 @@ _Enviado desde el portal oficial de Soleando DR_`
             {selectedService === 'tour' && (
               <div className="space-y-6">
                 <div className="space-y-1">
-                  <h3 className="font-serif text-xl sm:text-2xl text-stone-900 font-normal flex items-center gap-2">
+                  <h3 tabIndex={-1} className="font-serif text-xl sm:text-2xl text-stone-900 font-normal flex items-center gap-2">
                     <Compass className="w-5 h-5 text-[#f64d0b]" />
                     <span>¿Qué excursión o tour deseas realizar?</span>
                   </h3>
@@ -457,6 +486,7 @@ _Enviado desde el portal oficial de Soleando DR_`
                         key={tour}
                         type="button"
                         onClick={() => toggleTour(tour)}
+                        aria-pressed={isChecked}
                         className={`p-3.5 rounded-xl text-left border text-xs font-semibold transition-all flex items-center gap-3 cursor-pointer ${
                           isChecked
                             ? 'border-[#f64d0b] bg-orange-50/70 text-stone-900'
@@ -479,10 +509,10 @@ _Enviado desde el portal oficial de Soleando DR_`
                 </div>
 
                 <div className="space-y-1.5 pt-2">
-                  <label className="block text-xs font-bold text-stone-800">
+                  <p id={`${id}-pickup`} className="block text-xs font-bold text-stone-800">
                     ¿En qué zona o hotel te hospedarás para coordinar tu recogida?
-                  </label>
-                  <div className="flex flex-wrap gap-2">
+                  </p>
+                  <div role="group" aria-labelledby={`${id}-pickup`} className="flex flex-wrap gap-2">
                     {DESTINATIONS.map((dest) => {
                       const isSelected = selectedDestination === dest.label
                       return (
@@ -490,6 +520,7 @@ _Enviado desde el portal oficial de Soleando DR_`
                           key={dest.id}
                           type="button"
                           onClick={() => setSelectedDestination(dest.label)}
+                          aria-pressed={isSelected}
                           className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-all cursor-pointer ${
                             isSelected
                               ? 'bg-[#f64d0b] border-[#f64d0b] text-white'
@@ -509,7 +540,7 @@ _Enviado desde el portal oficial de Soleando DR_`
             {selectedService === 'cruise' && (
               <div className="space-y-6">
                 <div className="space-y-1">
-                  <h3 className="font-serif text-xl sm:text-2xl text-stone-900 font-normal flex items-center gap-2">
+                  <h3 tabIndex={-1} className="font-serif text-xl sm:text-2xl text-stone-900 font-normal flex items-center gap-2">
                     <Ship className="w-5 h-5 text-[#f64d0b]" />
                     <span>Selecciona la ruta de crucero de tu interés:</span>
                   </h3>
@@ -526,6 +557,7 @@ _Enviado desde el portal oficial de Soleando DR_`
                         key={route.id}
                         type="button"
                         onClick={() => setSelectedCruise(route.label)}
+                        aria-pressed={isSelected}
                         className={`w-full p-4 rounded-xl text-left border text-xs sm:text-sm font-bold transition-all flex items-center justify-between cursor-pointer ${
                           isSelected
                             ? 'border-[#f64d0b] bg-orange-50 text-stone-900 ring-2 ring-[#f64d0b]/20'
@@ -543,10 +575,10 @@ _Enviado desde el portal oficial de Soleando DR_`
                 </div>
 
                 <div className="space-y-2 pt-2">
-                  <label className="block text-xs font-bold text-stone-800">
+                  <p id={`${id}-cabin`} className="block text-xs font-bold text-stone-800">
                     Tipo de camarote sugerido:
-                  </label>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  </p>
+                  <div role="group" aria-labelledby={`${id}-cabin`} className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                     {CABIN_TYPES.map((cabin) => {
                       const isSelected = selectedCabin === cabin.label
                       return (
@@ -554,6 +586,7 @@ _Enviado desde el portal oficial de Soleando DR_`
                           key={cabin.id}
                           type="button"
                           onClick={() => setSelectedCabin(cabin.label)}
+                          aria-pressed={isSelected}
                           className={`p-3 rounded-xl text-left border text-xs font-semibold transition-all flex items-center justify-between cursor-pointer ${
                             isSelected
                               ? 'border-[#f64d0b] bg-orange-50 text-stone-900'
@@ -598,7 +631,7 @@ _Enviado desde el portal oficial de Soleando DR_`
         {step === 3 && (
           <div className="space-y-8 animate-in fade-in duration-200">
             <div className="space-y-1">
-              <h3 className="font-serif text-xl sm:text-2xl text-stone-900 font-normal">
+              <h3 tabIndex={-1} className="font-serif text-xl sm:text-2xl text-stone-900 font-normal">
                 ¿En qué fechas planeas viajar y cuántas personas van?
               </h3>
               <p className="text-xs sm:text-sm text-stone-600">
@@ -609,11 +642,12 @@ _Enviado desde el portal oficial de Soleando DR_`
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               {/* Fechas / Mes */}
               <div className="space-y-2">
-                <label className="text-xs font-bold text-stone-800 flex items-center gap-2">
+                <label htmlFor={`${id}-dates`} className="text-xs font-bold text-stone-800 flex items-center gap-2">
                   <Calendar className="w-4 h-4 text-[#f64d0b]" />
                   <span>Fechas tentativas o mes de viaje:</span>
                 </label>
                 <input
+                  id={`${id}-dates`}
                   type="text"
                   placeholder="Ej. Del 20 al 23 de Noviembre / En Navidad"
                   value={dates}
@@ -625,16 +659,17 @@ _Enviado desde el portal oficial de Soleando DR_`
               {/* Noches de estadía (solo para hoteles) */}
               {selectedService === 'hotel' ? (
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-stone-800 flex items-center gap-2">
+                  <p id={`${id}-nights`} className="text-xs font-bold text-stone-800 flex items-center gap-2">
                     <Hotel className="w-4 h-4 text-[#f64d0b]" />
                     <span>Noches estimadas en el resort:</span>
-                  </label>
-                  <div className="flex items-center gap-2">
+                  </p>
+                  <div role="group" aria-labelledby={`${id}-nights`} className="flex items-center gap-2">
                     {[2, 3, 4, 7].map((n) => (
                       <button
                         key={n}
                         type="button"
                         onClick={() => setNights(n)}
+                        aria-pressed={nights === n}
                         className={`flex-1 py-2.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
                           nights === n
                             ? 'border-[#f64d0b] bg-[#f64d0b] text-white shadow-xs'
@@ -667,6 +702,8 @@ _Enviado desde el portal oficial de Soleando DR_`
                   <button
                     type="button"
                     onClick={() => setAdults((prev) => Math.max(1, prev - 1))}
+                    aria-label="Reducir adultos"
+                    disabled={adults <= 1}
                     className="w-9 h-9 rounded-full bg-white border border-stone-300 flex items-center justify-center text-stone-700 hover:bg-stone-100 font-bold transition-colors cursor-pointer"
                   >
                     <Minus className="w-4 h-4" />
@@ -675,6 +712,7 @@ _Enviado desde el portal oficial de Soleando DR_`
                   <button
                     type="button"
                     onClick={() => setAdults((prev) => prev + 1)}
+                    aria-label="Aumentar adultos"
                     className="w-9 h-9 rounded-full bg-white border border-stone-300 flex items-center justify-center text-stone-700 hover:bg-stone-100 font-bold transition-colors cursor-pointer"
                   >
                     <Plus className="w-4 h-4" />
@@ -692,6 +730,8 @@ _Enviado desde el portal oficial de Soleando DR_`
                   <button
                     type="button"
                     onClick={() => setChildren((prev) => Math.max(0, prev - 1))}
+                    aria-label="Reducir niños"
+                    disabled={children === 0}
                     className="w-9 h-9 rounded-full bg-white border border-stone-300 flex items-center justify-center text-stone-700 hover:bg-stone-100 font-bold transition-colors cursor-pointer"
                   >
                     <Minus className="w-4 h-4" />
@@ -700,6 +740,7 @@ _Enviado desde el portal oficial de Soleando DR_`
                   <button
                     type="button"
                     onClick={() => setChildren((prev) => prev + 1)}
+                    aria-label="Aumentar niños"
                     className="w-9 h-9 rounded-full bg-white border border-stone-300 flex items-center justify-center text-stone-700 hover:bg-stone-100 font-bold transition-colors cursor-pointer"
                   >
                     <Plus className="w-4 h-4" />
@@ -739,7 +780,7 @@ _Enviado desde el portal oficial de Soleando DR_`
               {/* Formulario de Contacto */}
               <div className="lg:col-span-2 space-y-5">
                 <div className="space-y-1">
-                  <h3 className="font-serif text-xl sm:text-2xl text-stone-900 font-normal">
+                  <h3 tabIndex={-1} className="font-serif text-xl sm:text-2xl text-stone-900 font-normal">
                     ¿A quién enviamos la cotización?
                   </h3>
                   <p className="text-xs sm:text-sm text-stone-600">
@@ -749,8 +790,10 @@ _Enviado desde el portal oficial de Soleando DR_`
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-stone-700">Tu Nombre Completo *</label>
+                    <label htmlFor={`${id}-name`} className="text-xs font-bold text-stone-700">Tu Nombre Completo *</label>
                     <input
+                      id={`${id}-name`}
+                      autoComplete="name"
                       type="text"
                       required
                       placeholder="Ej. María Gómez"
@@ -761,8 +804,10 @@ _Enviado desde el portal oficial de Soleando DR_`
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-stone-700">WhatsApp / Teléfono *</label>
+                    <label htmlFor={`${id}-phone`} className="text-xs font-bold text-stone-700">WhatsApp / Teléfono *</label>
                     <input
+                      id={`${id}-phone`}
+                      autoComplete="tel"
                       type="tel"
                       required
                       placeholder="Ej. +1 (809) 000-0000"
@@ -774,8 +819,10 @@ _Enviado desde el portal oficial de Soleando DR_`
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-stone-700">Correo Electrónico (Opcional)</label>
+                  <label htmlFor={`${id}-email`} className="text-xs font-bold text-stone-700">Correo Electrónico (Opcional)</label>
                   <input
+                    id={`${id}-email`}
+                    autoComplete="email"
                     type="email"
                     placeholder="tuemail@ejemplo.com"
                     value={email}
@@ -785,8 +832,9 @@ _Enviado desde el portal oficial de Soleando DR_`
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-stone-700">Comentarios o preferencias especiales (Opcional)</label>
+                  <label htmlFor={`${id}-notes`} className="text-xs font-bold text-stone-700">Comentarios o preferencias especiales (Opcional)</label>
                   <textarea
+                    id={`${id}-notes`}
                     rows={3}
                     placeholder="Ej. Habitación familiar frente a la piscina, preferimos tour por la mañana, etc."
                     value={notes}

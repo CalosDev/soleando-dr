@@ -5,7 +5,7 @@ import { useRef, useEffect } from 'react'
 /**
  * Hook de arrastre horizontal (Drag Scroll) inspirado en la implementación de Midudev.
  * Permite desplazar contenedores horizontales con el ratón en escritorio como si fuera
- * una pantalla táctil, con inercia, cambio de cursor y compatibilidad total con touch.
+ * una pantalla táctil. El desplazamiento táctil continúa siendo nativo.
  */
 export function useDragScroll<T extends HTMLElement = HTMLDivElement>() {
   const ref = useRef<T | null>(null)
@@ -18,6 +18,14 @@ export function useDragScroll<T extends HTMLElement = HTMLDivElement>() {
     let startX = 0
     let scrollLeft = 0
     let isDragging = false
+    let suppressClick = false
+    let restoreTimer: ReturnType<typeof setTimeout> | undefined
+    const originalStyles = {
+      cursor: el.style.cursor,
+      userSelect: el.style.userSelect,
+      scrollBehavior: el.style.scrollBehavior,
+      scrollSnapType: el.style.scrollSnapType,
+    }
 
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
@@ -27,6 +35,8 @@ export function useDragScroll<T extends HTMLElement = HTMLDivElement>() {
 
       isDown = true
       isDragging = false
+      suppressClick = false
+      clearTimeout(restoreTimer)
       startX = e.pageX - el.offsetLeft
       scrollLeft = el.scrollLeft
 
@@ -38,14 +48,12 @@ export function useDragScroll<T extends HTMLElement = HTMLDivElement>() {
 
     const onMouseMove = (e: MouseEvent) => {
       if (!isDown) return
-      e.preventDefault()
-
       const x = e.pageX - el.offsetLeft
       const walk = (x - startX) * 1.4 // Factor de aceleración suave
 
-      if (Math.abs(walk) > 5) {
-        isDragging = true
-      }
+      if (!isDragging && Math.abs(walk) <= 5) return
+      isDragging = true
+      e.preventDefault()
 
       el.scrollLeft = scrollLeft - walk
     }
@@ -53,29 +61,32 @@ export function useDragScroll<T extends HTMLElement = HTMLDivElement>() {
     const onMouseUpOrLeave = () => {
       if (!isDown) return
       isDown = false
+      suppressClick = isDragging
+      isDragging = false
 
       el.style.cursor = 'grab'
-      el.style.removeProperty('user-select')
+      el.style.userSelect = originalStyles.userSelect
 
       if (!prefersReducedMotion) {
         el.style.scrollBehavior = 'smooth'
       }
 
       // Restablecer snap después de un breve instante
-      setTimeout(() => {
-        if (el) {
-          el.style.scrollBehavior = ''
-          el.style.scrollSnapType = ''
-        }
+      restoreTimer = setTimeout(() => {
+        el.style.scrollBehavior = originalStyles.scrollBehavior
+        el.style.scrollSnapType = originalStyles.scrollSnapType
+        suppressClick = false
       }, 250)
     }
 
     // Evitar que los clics en enlaces o botones se disparen si el usuario estaba arrastrando
     const onClickCapture = (e: MouseEvent) => {
-      if (isDragging) {
+      // Keyboard activation has detail=0 and must remain usable after a drag.
+      if (suppressClick && e.detail > 0) {
         e.preventDefault()
         e.stopPropagation()
       }
+      suppressClick = false
     }
 
     el.style.cursor = 'grab'
@@ -86,11 +97,13 @@ export function useDragScroll<T extends HTMLElement = HTMLDivElement>() {
     el.addEventListener('click', onClickCapture, true)
 
     return () => {
+      clearTimeout(restoreTimer)
       el.removeEventListener('mousedown', onMouseDown)
       window.removeEventListener('mousemove', onMouseMove)
       window.removeEventListener('mouseup', onMouseUpOrLeave)
       el.removeEventListener('mouseleave', onMouseUpOrLeave)
       el.removeEventListener('click', onClickCapture, true)
+      Object.assign(el.style, originalStyles)
     }
   }, [])
 

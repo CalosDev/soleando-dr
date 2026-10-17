@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
+import { useDialogFocus } from '@/lib/hooks/use-dialog-focus'
 import Image from 'next/image'
 import {
   X,
@@ -31,6 +32,8 @@ export function InteractiveGalleryModal({
 }: InteractiveGalleryModalProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [currentIndex, setCurrentIndex] = useState(0)
+  const dialogRef = useRef<HTMLDivElement>(null)
+  useDialogFocus(isOpen, dialogRef)
 
   const openLightbox = (index: number) => {
     setCurrentIndex(index)
@@ -49,7 +52,7 @@ export function InteractiveGalleryModal({
     setCurrentIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1))
   }, [images.length])
 
-  // Keyboard navigation & body scroll lock
+  // Image navigation and dismissal; focus and scroll are managed by useDialogFocus.
   useEffect(() => {
     if (!isOpen) return
 
@@ -64,12 +67,8 @@ export function InteractiveGalleryModal({
     }
 
     document.addEventListener('keydown', handleKeyDown)
-    const originalOverflow = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-
     return () => {
       document.removeEventListener('keydown', handleKeyDown)
-      document.body.style.overflow = originalOverflow
     }
   }, [isOpen, prevImage, nextImage])
 
@@ -88,16 +87,9 @@ export function InteractiveGalleryModal({
         <div className="relative rounded-3xl overflow-hidden shadow-md">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Primary Main Image (Clickable) */}
-            <div
-              role="button"
-              tabIndex={0}
+            <button
+              type="button"
               onClick={() => openLightbox(0)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault()
-                  openLightbox(0)
-                }
-              }}
               className="md:col-span-2 relative aspect-16/10 md:aspect-auto md:min-h-[440px] w-full rounded-2xl md:rounded-3xl overflow-hidden bg-stone-100 cursor-pointer group"
               aria-label="Abrir imagen principal en pantalla completa"
             >
@@ -130,22 +122,15 @@ export function InteractiveGalleryModal({
                   <span>{images.length} fotos</span>
                 </span>
               </div>
-            </div>
+            </button>
 
             {/* Side Photos Grid (Clickable) */}
             <div className="hidden md:flex flex-col gap-4">
               {sideImages.map((photo, idx) => (
-                <div
+                <button
                   key={idx}
-                  role="button"
-                  tabIndex={0}
+                  type="button"
                   onClick={() => openLightbox(idx + 1)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault()
-                      openLightbox(idx + 1)
-                    }
-                  }}
                   className="relative flex-1 rounded-2xl md:rounded-3xl overflow-hidden shadow-2xs bg-stone-100 cursor-pointer group min-h-[212px]"
                   aria-label={`Ver foto ${idx + 2} en pantalla completa`}
                 >
@@ -157,14 +142,14 @@ export function InteractiveGalleryModal({
                     className="object-cover group-hover:scale-106 transition-transform duration-500 ease-out"
                   />
                   <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors" />
-                </div>
+                </button>
               ))}
 
               {sideImages.length < 2 && (
-                <div
-                  role="button"
-                  tabIndex={0}
+                <button
+                  type="button"
                   onClick={() => openLightbox(0)}
+                  aria-label="Abrir imagen principal en pantalla completa"
                   className="relative flex-1 rounded-2xl md:rounded-3xl overflow-hidden shadow-2xs bg-stone-100 min-h-[212px] cursor-pointer group"
                 >
                   <Image
@@ -174,7 +159,7 @@ export function InteractiveGalleryModal({
                     sizes="33vw"
                     className="object-cover group-hover:scale-106 transition-transform duration-500"
                   />
-                </div>
+                </button>
               )}
             </div>
           </div>
@@ -195,6 +180,8 @@ export function InteractiveGalleryModal({
       {/* Lightbox Modal (Full Screen) */}
       {isOpen && (
         <div
+          ref={dialogRef}
+          tabIndex={-1}
           role="dialog"
           aria-modal="true"
           aria-label={`Visor de fotos de ${title}`}
@@ -215,6 +202,7 @@ export function InteractiveGalleryModal({
               type="button"
               onClick={closeLightbox}
               aria-label="Cerrar visor de fotos"
+              data-dialog-initial-focus
               className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />

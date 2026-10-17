@@ -17,6 +17,7 @@ import {
 } from 'lucide-react'
 import { siteConfig } from '@/config/site'
 import { WhatsappIcon } from '@/components/icons'
+import { useDialogFocus } from '@/lib/hooks/use-dialog-focus'
 
 interface MobileNavigationProps {
   isOpen: boolean
@@ -36,6 +37,7 @@ const NAV_ICONS: Record<string, typeof Home> = {
 export function MobileNavigation({ isOpen, onClose, isAuthenticated }: MobileNavigationProps) {
   const pathname = usePathname()
   const drawerRef = useRef<HTMLDivElement>(null)
+  useDialogFocus(isOpen, drawerRef)
 
   // Escape key handler
   useEffect(() => {
@@ -48,17 +50,15 @@ export function MobileNavigation({ isOpen, onClose, isAuthenticated }: MobileNav
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [isOpen, onClose])
 
-  // Scroll lock when drawer is open
+  // A drawer hidden by the desktop breakpoint must not keep the page locked.
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden'
-    } else {
-      document.body.style.overflow = ''
-    }
-    return () => {
-      document.body.style.overflow = ''
-    }
-  }, [isOpen])
+    if (!isOpen) return
+    const desktop = window.matchMedia('(min-width: 1024px)')
+    const closeOnDesktop = () => { if (desktop.matches) onClose() }
+    closeOnDesktop()
+    desktop.addEventListener('change', closeOnDesktop)
+    return () => desktop.removeEventListener('change', closeOnDesktop)
+  }, [isOpen, onClose])
 
   if (!isOpen) return null
 
@@ -84,6 +84,7 @@ export function MobileNavigation({ isOpen, onClose, isAuthenticated }: MobileNav
       {/* Drawer Panel */}
       <div
         ref={drawerRef}
+        tabIndex={-1}
         className="relative w-full max-w-xs h-full bg-[#fdfbf7] text-[#1c1917] p-6 flex flex-col justify-between shadow-2xl overflow-y-auto animate-in slide-in-from-right duration-300"
       >
         <div>
@@ -103,6 +104,7 @@ export function MobileNavigation({ isOpen, onClose, isAuthenticated }: MobileNav
               type="button"
               className="p-2 rounded-full text-stone-600 hover:text-stone-900 hover:bg-stone-200/60 transition-colors focus:outline-hidden focus:ring-2 focus:ring-[#f64d0b]"
               aria-label="Cerrar menú"
+              data-dialog-initial-focus
             >
               <X className="w-5 h-5" />
             </button>
